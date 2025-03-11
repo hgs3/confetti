@@ -13,7 +13,7 @@ Confetti does **not** compete with JSON or XML, it competes with [INI files](htt
 ## Language Features
 
 * [Can be learned in minutes](https://confetti.hgs3.me/learn/)
-* [Language grammar fits on a postcard](https://confetti.hgs3.me/specification/#grammar)
+* [Language grammar fits on a postcard](https://confetti.hgs3.me/specification/#_lexical_grammar)
 * Typeless design
 * Unicode® conformant
 * Localization friendly
