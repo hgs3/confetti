@@ -1,0 +1,133 @@
+.\" Permission is granted to make and distribute verbatim copies of this
+.\" manual provided the copyright notice and this permission notice are
+.\" preserved on all copies.
+.\"
+.\" Permission is granted to copy and distribute modified versions of this
+.\" manual under the conditions for verbatim copying, provided that the
+.\" entire resulting derived work is distributed under the terms of a
+.\" permission notice identical to this one.
+.\" --------------------------------------------------------------------------
+.TH "CONFETTI" "3" "Jan 7th 2025" "Confetti 0.1.0"
+.SH NAME
+conf_parse \- parse confetti
+.\" --------------------------------------------------------------------------
+.SH LIBRARY
+Configuration parser (libconfetti, -lconfetti)
+.\" --------------------------------------------------------------------------
+.SH SYNOPSIS
+.nf
+.B #include <confetti.h>
+.PP
+.BI "conf_errno conf_parse(const char *" str ", conf_err *" err ", void *" ud ", conf_parsefunc " pf ", conf_allocfunc " af ");"
+.fi
+.\" --------------------------------------------------------------------------
+.SH DESCRIPTION
+The \fBconf_parse\fR function parses \fIstr\fR and invokes the function \fIpf\fR when it discovers a semantic marker point, like a directive or the begining or end of a subdirective.
+.PP
+The \fIstr\fR and \fIpf\fR arguments are required, all other arguments are optional.
+The \fIud\fR argument is a user pointer passed through by the implementation as-is to the \fIpf\fR and \fIaf\fR functions.
+The \fIaf\fR argument is a user defined dynamic memory allocator.
+If \fIaf\fR is \fCNULL\fR, then \fBmalloc\fR(3) and \fBfree\fR(3) are used.
+.\" --------------------------------------------------------------------------
+.SS Parser callback
+The \fBconf_parsefunc\fR function accepts four arguments:
+.PP
+.in +4n
+.EX
+void *ud;
+conf_mark mark;
+int argc;
+const conf_arg *argv;
+.EE
+.in
+.PP
+The implementation of \fIpf\fR must return the integer zero if parsing should continue, otherwise it should return a non-zero integero to abort parsing.
+The \fImark\fR argument is one of the following:
+.TP
+.BR CONF_DIRECTIVE
+When the parser finds a directive.
+The \fIargc\fR and \fIargv\fR arguments will be populated with details about the directives arguments.
+.TP
+.BR CONF_SUBDIRECTIVE_PUSH
+When the parser is entering a subdirective group.
+.TP
+.BR CONF_SUBDIRECTIVE_POP
+When the parser is leaving a subdirective group.
+.TP
+.BR CONF_COMMENT
+When the parser finds a comment.
+.\" --------------------------------------------------------------------------
+.SS Arguments structure
+The \fBconf_arg\fR structure includes the following fields:
+.PP
+.in +4n
+.EX
+long offset;
+long length;
+const char *value;
+.EE
+.in
+.PP
+The \fIvalue\fR field is the evaluated directive argument with all escaped characters evaluated, enclosing quotes removed, line continuations deleted, etc.
+The \fIoffset\fR and \fIlength\fR fields describe the indices of the directive arguments lexeme in UTF-8 code units in \fIstr\fR.
+.\" --------------------------------------------------------------------------
+.SS Diagnostics structure
+If \fBconf_parse\fR fails, it returns an error code which is one of \fBconf_errno\fR values.
+The conditions under which these constants are returned is documented in RETURN VALUE.
+.PP
+If \fIerr\fR is not \fCNULL\fR, then it will be populated with details about the error.
+The \fBconf_err\fR structure includes the following f ields:
+.PP
+.in +4n
+.EX
+long where;
+conf_errno code;
+char description[48];
+.EE
+.in
+.PP
+The \fIcode\fR field will be populated with the same error code returned by the function.
+The \fIwhere\fR field will be populated with the UTF-8 code unit index of the location where the error occured in \fIstr\fR.
+The \fIdescription\fR field will describe the error localized in US English.
+.\" --------------------------------------------------------------------------
+.SS Allocator callback
+The \fBconf_allocfunc\fR function accepts three arguments:
+.PP
+.in +4n
+.EX
+void *ud;
+void *ptr;
+size_t size;
+.EE
+.in
+.PP
+If the \fIptr\fR argument is \fCNULL\fR, then the implementation must behave like \fBmalloc\fR(3) and return a valid pointer for use by the \fBconf_parse\fR function, otherwise, it must behave like \fBfree\fR(3) and free \fIptr\fR and return \fCNULL\fR.
+The \fIsize\fR argument is either the size of the memory being allocated or the size of the memory being freed depending on if the implementation is behaving like \fBmalloc\fR(3) or \fBfree\fR(3).
+.\" --------------------------------------------------------------------------
+.SH RETURN VALUE
+The \fBconf_parse\fR function will return one of the following \fBconf_errno\fR constants.
+If given, the \fIerr\fR structure will be populated with details about the error.
+.TP
+.BR CONF_OK
+When \fIstr\fR is parsed without errors.
+.TP
+.BR CONF_NO_MEMORY
+If dynamic memory allocation fails.
+The implementation garuntees all intermediate allocations will be freed to avoid resource leakage.
+.TP
+.BR CONF_BAD_SYNTAX,
+If a Confetti syntax error is discovered.
+.TP
+.BR CONF_ILLEGAL_BYTE_SEQUENCE,
+If a malformed UTF-8 sequence is found.
+.TP
+.BR CONF_INVALID_OPERATION
+If \fIstr\fR or \fIpf\fR are NULL.
+.TP
+.BR CONF_USER_ABORTED
+If parsing is aborted.
+The implementation of \fBpf\fR must return a non-zero integer to indicate that parsing should abort.
+.\" --------------------------------------------------------------------------
+.SH LICENSING
+Confetti is Free Software distributed under the GNU Lesser General Public License version 3.
+Please see the LICENSE file included with the Confetti distribution for details.

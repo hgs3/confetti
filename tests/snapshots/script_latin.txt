@@ -1,0 +1,47 @@
+command {
+    argument {
+        offset 0
+        length 3
+        value "The"
+    }
+    argument {
+        offset 4
+        length 5
+        value "quick"
+    }
+    argument {
+        offset 10
+        length 5
+        value "brown"
+    }
+    argument {
+        offset 16
+        length 3
+        value "fox"
+    }
+    argument {
+        offset 20
+        length 5
+        value "jumps"
+    }
+    argument {
+        offset 26
+        length 4
+        value "over"
+    }
+    argument {
+        offset 31
+        length 3
+        value "the"
+    }
+    argument {
+        offset 35
+        length 4
+        value "lazy"
+    }
+    argument {
+        offset 40
+        length 3
+        value "dog"
+    }
+}

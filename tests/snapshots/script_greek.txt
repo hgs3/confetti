@@ -1,0 +1,52 @@
+command {
+    argument {
+        offset 0
+        length 2
+        value "Η"
+    }
+    argument {
+        offset 3
+        length 14
+        value "γρήγορη"
+    }
+    argument {
+        offset 18
+        length 8
+        value "καφέ"
+    }
+    argument {
+        offset 27
+        length 12
+        value "αλεπού"
+    }
+    argument {
+        offset 40
+        length 12
+        value "πηδάει"
+    }
+    argument {
+        offset 53
+        length 8
+        value "πάνω"
+    }
+    argument {
+        offset 62
+        length 6
+        value "από"
+    }
+    argument {
+        offset 69
+        length 4
+        value "το"
+    }
+    argument {
+        offset 74
+        length 18
+        value "τεμπέλικο"
+    }
+    argument {
+        offset 93
+        length 10
+        value "σκυλί"
+    }
+}

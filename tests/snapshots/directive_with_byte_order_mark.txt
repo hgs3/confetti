@@ -1,0 +1,7 @@
+command {
+    argument {
+        offset 3
+        length 3
+        value "foo"
+    }
+}

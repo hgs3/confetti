@@ -1,0 +1,95 @@
+command {
+    argument {
+        offset 0
+        length 3
+        value "foo"
+    }
+    argument {
+        offset 4
+        length 3
+        value "bar"
+    }
+    argument {
+        offset 8
+        length 3
+        value "baz"
+    }
+}
+command {
+    argument {
+        offset 12
+        length 3
+        value "qux"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 23
+                length 5
+                value "fight"
+            }
+            argument {
+                offset 29
+                length 4
+                value "club"
+            }
+        }
+        command {
+            argument {
+                offset 38
+                length 6
+                value "movies"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 54
+                        length 5
+                        value "great"
+                    }
+                    argument {
+                        offset 60
+                        length 9
+                        value "pretender"
+                    }
+                }
+                command {
+                    argument {
+                        offset 78
+                        length 5
+                        value "robin"
+                    }
+                }
+            }
+        }
+        command {
+            argument {
+                offset 94
+                length 3
+                value "are"
+            }
+            argument {
+                offset 98
+                length 3
+                value "you"
+            }
+            argument {
+                offset 102
+                length 4
+                value "here"
+            }
+        }
+    }
+}
+command {
+    argument {
+        offset 110
+        length 9
+        value "scadoodle"
+    }
+    argument {
+        offset 120
+        length 2
+        value "do"
+    }
+}

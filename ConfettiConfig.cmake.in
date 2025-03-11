@@ -1,0 +1,82 @@
+#[=======================================================================[.rst:
+FindConfetti
+------------
+
+Finds the Confetti library.
+
+Imported Targets
+^^^^^^^^^^^^^^^^
+
+This module provides the following imported targets, if found:
+
+``Confetti::Confetti``
+  The Confetti library
+
+Result Variables
+^^^^^^^^^^^^^^^^
+
+This will define the following variables:
+
+``CONFETTI_FOUND``
+  True if the system has the Confetti library.
+``CONFETTI_VERSION``
+  The version of the Confetti library which was found.
+``CONFETTI_INCLUDE_DIRS``
+  Include directories needed to use Confetti.
+``CONFETTI_LIBRARIES``
+  Libraries needed to link to Confetti.
+
+Cache Variables
+^^^^^^^^^^^^^^^
+
+The following cache variables may also be set:
+
+``CONFETTI_INCLUDE_DIR``
+  The directory containing ``confetti.h``.
+``CONFETTI_LIBRARY``
+  The path to the Confetti library.
+
+#]=======================================================================]
+
+# On Windows the header and library are installed in the same directory as this
+# script is therefore the following function is called to obtain its path.
+get_filename_component(CONFETTI_CONFIG_DIR "${CMAKE_CURRENT_LIST_FILE}" DIRECTORY)
+
+# Find header.
+find_path(CONFETTI_INCLUDE_DIR confetti.h
+          HINTS /usr/local/include /usr/include ${CONFETTI_CONFIG_DIR})
+
+# Find library.
+find_library(CONFETTI_LIBRARY
+             NAMES Confetti confetti
+             HINTS /usr/local/lib /usr/lib ${CONFETTI_CONFIG_DIR})
+
+# Not needed anymore.
+unset(CONFETTI_CONFIG_DIR)
+
+# Use version specified in top-level CMakeLists.txt
+set(CONFETTI_VERSION "@PROJECT_VERSION@")
+
+# Handle the QUIETLY and REQUIRED arguments and set CONFETTI_FOUND to TRUE if all listed variables are TRUE.
+include(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(Confetti
+                                  FOUND_VAR CONFETTI_FOUND
+                                  REQUIRED_VARS CONFETTI_LIBRARY CONFETTI_INCLUDE_DIR
+                                  VERSION_VAR CONFETTI_VERSION)
+
+# Set result variables.
+if(CONFETTI_FOUND)
+    set(CONFETTI_LIBRARIES ${CONFETTI_LIBRARY})
+    set(CONFETTI_INCLUDE_DIRS ${CONFETTI_INCLUDE_DIR})
+endif()
+
+# Export a module.
+if(CONFETTI_FOUND AND NOT TARGET Confetti::Confetti)
+    add_library(Confetti::Confetti UNKNOWN IMPORTED)
+    set_target_properties(Confetti::Confetti PROPERTIES
+                          IMPORTED_LOCATION "${CONFETTI_LIBRARY}"
+                          INTERFACE_INCLUDE_DIRECTORIES "${CONFETTI_INCLUDE_DIR}")
+endif()
+
+# Cached variables should be hidden in the CMake interface unless the user explicitly asks to edit them.
+mark_as_advanced(CONFETTI_INCLUDE_DIR CONFETTI_LIBRARY)

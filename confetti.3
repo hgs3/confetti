@@ -1,0 +1,38 @@
+.\" Permission is granted to make and distribute verbatim copies of this
+.\" manual provided the copyright notice and this permission notice are
+.\" preserved on all copies.
+.\"
+.\" Permission is granted to copy and distribute modified versions of this
+.\" manual under the conditions for verbatim copying, provided that the
+.\" entire resulting derived work is distributed under the terms of a
+.\" permission notice identical to this one.
+.\" --------------------------------------------------------------------------
+.TH "CONFETTI" "3" "Jan 7th 2025" "Confetti 0.1.0"
+.SH NAME
+confetti \- configuration file parser
+.\" --------------------------------------------------------------------------
+.SH LIBRARY
+Configuration parser (libconfetti, -lconfetti)
+.\" --------------------------------------------------------------------------
+.SH SYNOPSIS
+.nf
+.B #include <confetti.h>
+.fi
+.\" --------------------------------------------------------------------------
+.SH DESCRIPTION
+Confetti is a configuration language that combines the readability of Unix configuration files with the flexibility of S-expressions.
+It is minimalistic, untyped, and opinionated.
+Schema conformance is validated by the user application.
+.\" --------------------------------------------------------------------------
+.SH SEE ALSO
+.BR conf_parse (3)
+.\" --------------------------------------------------------------------------
+.SH INTERNET RESOURCES
+The formal specification and source code for Confetti can be found on
+.UR https://github.com/hgs3/confetti
+its GitHub page
+.UE .
+.\" --------------------------------------------------------------------------
+.SH LICENSING
+Confetti is Free Software distributed under the GNU Lesser General Public License version 3.
+Please see the LICENSE file included with the Confetti distribution for details.

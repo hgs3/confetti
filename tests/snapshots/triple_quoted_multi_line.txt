@@ -1,0 +1,9 @@
+command {
+    argument {
+        offset 0
+        length 57
+        value "The
+quick
+brownfoxjumped over thelazy dog."
+    }
+}

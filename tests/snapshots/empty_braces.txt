@@ -1,0 +1,9 @@
+command {
+    argument {
+        offset 0
+        length 1
+        value "x"
+    }
+    subcommands {
+    }
+}
