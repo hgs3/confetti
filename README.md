@@ -10,14 +10,6 @@ Confetti does **not** compete with JSON or XML, it competes with [INI files](htt
 
 [![Build Status](https://github.com/hgs3/confetti/actions/workflows/build.yml/badge.svg)](https://github.com/hgs3/confetti/actions/workflows/build.yml)
 
-## Language Features
-
-* [Can be learned in minutes](https://confetti.hgs3.me/learn/)
-* [Language grammar fits on a postcard](https://confetti.hgs3.me/specification/#_lexical_grammar)
-* Typeless design
-* Unicode® conformant
-* Localization friendly
-
 ## Example
 
 ```conf
@@ -41,6 +33,14 @@ user "Joe Williams" {
 ```
 
 Browse many [more examples here](https://confetti.hgs3.me/examples/).
+
+## Language Features
+
+* [Can be learned in minutes](https://confetti.hgs3.me/learn/)
+* [Language grammar fits on a postcard](https://confetti.hgs3.me/specification/#_lexical_grammar)
+* Typeless design
+* Unicode® conformant
+* Localization friendly
 
 ## Building
 
