@@ -1,0 +1,309 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Confetti is intended for human-editable configuration files. It is minimalistic, untyped, and opinionated. Schema conformance is validated by the user application. Confetti does not compete with JSON or XML, it competes with INI files.">
+<title>Confetti: Examples.</title>
+<link rel="apple-touch-icon" type="image/png" href="/assets/favicon-apple-touch.png">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" href="/assets/favicon.ico" sizes="32x32">
+<link rel="stylesheet" href="/assets/confetti.css">
+<script src="/assets/confetti.js" defer></script>
+</head>
+<body>
+  <div class="menu-container">
+    <aside class="menu">
+      <a href="/">
+        <picture>
+          <source type="image/webp" srcset="/assets/branding.webp, /assets/branding-2x.webp 2x, /assets/branding-4x.webp 4x" width="105px" height="48px" />
+          <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
+        </picture>
+      </a>
+      <input type="checkbox" id="menu-toggle" class="menu-toggle">
+      <label for="menu-toggle" class="menu-btn icon-menu"></label>
+      <div id="menu-overlay"></div>
+      <nav class="slide-out-menu">
+        <ul>
+          <li><a href="/">Overview<span class="icon-chevron"></span></a></li>
+          <li><a href="/examples/">Examples<span class="icon-chevron"></span></a></li>
+          <li><a href="/learn/">Learn<span class="icon-chevron"></span></a></li>
+          <li><a href="/specification/">Specification<span class="icon-chevron"></span></a></li>
+        </ul>
+        <ul>
+          <li><a href="https://github.com/hgs3/confetti"><span>GitHub</span><span class="icon-github"></span></a></li>
+        </ul>
+      </nav>
+    </aside>
+  </div>
+  <div class="main">
+    <div class="main-sidebar">
+      <picture>
+        <source type="image/webp" srcset="/assets/confetti.webp, /assets/confetti-2x.webp 2x, /assets/confetti-4x.webp 4x" width="300px" height="250px" />
+        <img type="image/png" src="/assets/confetti.png" srcset="/assets/confetti-2x.png 2x, /assets/confetti-4x.png 4x" width="300px" height="250px" />
+      </picture>
+      <footer class="content">
+        <p class="extra">Confetti was created by me, <a href="https://hgs3.me">Henry</a>.</p>
+      </footer>
+    </div>
+    <div class="main-content">
+      <header>
+        <nav class="header">
+          <div class="branding">
+            <a href="/">
+              <picture>
+                <source type="image/webp" srcset="/assets/branding.webp, /assets/branding-2x.webp 2x, /assets/branding-4x.webp 4x" width="105px" height="48px" />
+                <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
+              </picture>
+            </a>
+          </div>
+          <ul class="header-navigation">
+            <li ><a href="/">Overview</a></li>
+            <li class="active"><a href="/examples/">Examples</a></li>
+            <li ><a href="/learn/">Learn</a></li>
+            <li ><a href="/specification/">Specification</a></li>
+          </ul>
+          <ul class="header-external-links">
+            <li>
+              <a href="https://github.com/hgs3/confetti/">
+                <span class="icon-github"></span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </header>
+      <main><article class="content">
+<h1>Confetti Examples</h1>
+<div class="toc" id="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_user_settings">User Settings</a></li>
+<li><a href="#_application_settings">Application Settings</a></li>
+<li><a href="#_document_markup">Document Markup</a></li>
+<li><a href="#_workflow_automation">Workflow Automation</a></li>
+<li><a href="#_user_interface">User Interface</a></li>
+<li><a href="#_ai_training">AI Training</a></li>
+<li><a href="#_material_definitions">Material Definitions</a></li>
+<li><a href="#_domain_specific_languages">Domain Specific Languages</a>
+<ul class="sectlevel2">
+<li><a href="#_stack_based_language">Stack-Based Language</a></li>
+<li><a href="#_control_flow">Control Flow</a></li>
+<li><a href="#_state_machine">State Machine</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="sect1">
+<h2 id="_user_settings"><span>User Settings</span><a href="#_user_settings">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Confetti can be used to store user-specific settings.</p>
+</div>
+<div class="paragraph">
+<p>Here’s an example with a flat structure:</p>
+</div>
+<pre><code><span class="directive">username</span> JohnDoe
+<span class="directive">language</span> en-US
+<span class="directive">theme</span> dark
+<span class="directive">notifications</span> on</code></pre>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_application_settings"><span>Application Settings</span><a href="#_application_settings">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Confetti can store application specific settings.</p>
+</div>
+<pre><code><span class="directive">application</span> {
+    <span class="directive">version</span> 1.2.3
+    <span class="directive">auto-update</span> true
+    <span class="directive">log-level</span> debug
+}
+
+<span class="directive">display</span> {
+    <span class="directive">resolution</span> 1920x1080
+    <span class="directive">full-screen</span> true
+}</code></pre>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_document_markup"><span>Document Markup</span><a href="#_document_markup">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The grammar is flexible enough to create a markup language among other structured documents.</p>
+</div>
+<pre><code><span class="directive">chapter</span> <span class="quoted">"The Raven"</span>
+<span class="directive">author</span> <span class="quoted">"Edgar Allan Poe"</span>
+<span class="directive">section</span> <span class="quoted">"First Act"</span> {
+  <span class="directive">paragraph</span> {
+    <span class="quoted">"Once upon a midnight dreary, while I pondered, weak and weary,"</span>
+    <span class="quoted">"Over many a quaint and "</span> <span class="directive">bold</span>{<span class="quoted">"curious"</span>} <span class="quoted">" volume of forgotten lore-\"</span>
+  }
+  <span class="directive">paragraph</span> {
+    <span class="quoted">"While I nodded, nearly napping, suddenly there came a tapping,"</span>
+    <span class="quoted">"As of some one "</span> <span class="directive">italic</span>{<span class="quoted">"gently"</span>} <span class="quoted">" rapping-rapping at my chamber door."</span>
+  }
+}</code></pre>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_workflow_automation"><span>Workflow Automation</span><a href="#_workflow_automation">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following demonstrates what a <strong>task file</strong> might look like.
+It represents various tasks that you could potentially run via the command line.</p>
+</div>
+<pre><code><span class="directive">build</span> {
+    <span class="directive">description</span> <span class="quoted">"Compile the source code"</span>
+    <span class="directive">command</span> <span class="quoted">"gcc -o program source.c"</span>
+}
+
+<span class="directive">clean</span> {
+    <span class="directive">description</span> <span class="quoted">"Clean the build directory"</span>
+    <span class="directive">command</span> <span class="quoted">"rm -rf build/"</span>
+}
+
+<span class="directive">test</span> {
+    <span class="directive">description</span> <span class="quoted">"Run unit tests"</span>
+    <span class="directive">command</span> <span class="quoted">"./tests/run.sh"</span>
+    <span class="directive">depends_on</span> { <span class="directive">build</span> }
+}</code></pre>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_user_interface"><span>User Interface</span><a href="#_user_interface">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Structured, text-based file formats can use Confetti in interesting ways.</p>
+</div>
+<pre><code><span class="directive">Application</span> {
+    <span class="directive">VerticalLayout</span> {
+        <span class="directive">Label</span> {
+            <span class="directive">text</span> <span class="quoted">"This application has a single button."</span>
+        }
+
+        <span class="directive">Button</span> {
+            <span class="directive">text</span> <span class="quoted">"Click Me"</span>
+            <span class="directive">on_click</span> <span class="quoted">"""
+function() {
+    console.log(`You clicked a button named: ${this.text}`);
+}
+"""</span>
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_ai_training"><span>AI Training</span><a href="#_ai_training">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Below is an example of what a JSON configuration file might look like for an AI model, particularly a machine learning model such as a neural network:</p>
+</div>
+<pre><code><span class="directive">model</span> {
+    <span class="directive">type</span> <span class="quoted">"neural_network"</span>
+    <span class="directive">architecture</span> {
+      <span class="directive">layers</span> {
+        <span class="directive">layer</span> { <span class="directive">type</span> input; <span class="directive">size</span> <span class="number">784</span> }
+        <span class="directive">layer</span> { <span class="directive">type</span> dense; <span class="directive">units</span> <span class="number">128</span>; <span class="directive">activation</span> <span class="quoted">"relu"</span> }
+        <span class="directive">layer</span> { <span class="directive">type</span> output; <span class="directive">units</span> <span class="number">10</span>; <span class="directive">activation</span> <span class="quoted">"softmax"</span> }
+      }
+  }
+
+  <span class="directive">training</span> {
+    <span class="directive">data</span> <span class="quoted">"/path/to/training/data"</span>
+    <span class="directive">epochs</span> <span class="number">20</span>
+    <span class="directive">early_stopping</span> on
+  }
+}</code></pre>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_material_definitions"><span>Material Definitions</span><a href="#_material_definitions">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Here <code>material</code>, <code>opacity</code>, <code>pass</code>, <code>diffuse</code>, and <code>blend-mode</code> are interpreted as commands.
+The application would interpret the <code>material</code> command as the definition of a new material and all subsequent commands as belonging to it.
+This relationship is not codified by the configuration format itself, but rather by the user’s application.</p>
+</div>
+<pre><code><span class="directive">material</span> water
+    <span class="directive">opacity</span> <span class="number">0.5</span>
+    <span class="directive">pass</span>
+        <span class="directive">diffuse</span> materials/liquids/water.png
+    <span class="directive">pass</span>
+        <span class="directive">diffuse</span> materials/liquids/water2.png
+        <span class="directive">blend-mode</span> additive</code></pre>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_domain_specific_languages"><span>Domain Specific Languages</span><a href="#_domain_specific_languages">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>You can create domain specific languages</p>
+</div>
+<div class="sect2">
+<h3 id="_stack_based_language"><span>Stack-Based Language</span><a href="#_stack_based_language">#</a></h3>
+<div class="paragraph">
+<p>A simple stack-based language that could be run by a virtual machine.</p>
+</div>
+<pre><code><span class="directive">push</span> <span class="number">1</span>
+<span class="directive">push</span> <span class="number">2</span>
+<span class="directive">add</span>     <span class="comment"># Pop the top two numbers and push their sum.</span>
+<span class="directive">pop</span> $x  <span class="comment"># Pop the sum and store it in $x.</span>
+<span class="directive">print</span> <span class="quoted">"1 + 2 ="</span>
+<span class="directive">print</span> $x</code></pre>
+</div>
+<div class="sect2">
+<h3 id="_control_flow"><span>Control Flow</span><a href="#_control_flow">#</a></h3>
+<div class="paragraph">
+<p>The grammar is flexible enough to allow conditionals and other program logic:</p>
+</div>
+<pre><code><span class="comment"># Try sending the user a message about their access level.</span>
+<span class="directive">set</span> $retry-count <span class="directive">to</span> <span class="number">3</span>
+<span class="directive">for</span> $i <span class="directive">in</span> $retry-count {
+    <span class="directive">if</span> $is_admin {
+        <span class="directive">print</span> <span class="quoted">"Access granted"</span>
+        <span class="directive">send_email</span> <span class="quoted">"admin@example.com"</span>
+        <span class="directive">exit</span> <span class="number">0</span> <span class="comment"># Success!</span>
+    }
+}
+<span class="directive">exit</span> <span class="number">1</span> <span class="comment"># Failed to confirm admin role.</span></code></pre>
+</div>
+<div class="sect2">
+<h3 id="_state_machine"><span>State Machine</span><a href="#_state_machine">#</a></h3>
+<pre><code><span class="directive">states</span> {
+    <span class="directive">greet_player</span> {
+        <span class="directive">look_at</span> $player
+        <span class="directive">wait</span> <span class="number">1s</span> <span class="comment"># Pause one second before walking towards the player.</span>
+        <span class="directive">walk_to</span> $player
+        <span class="directive">say</span> <span class="quoted">"Good evening traveler."</span>
+    }
+
+    <span class="directive">last_words</span> {
+        <span class="directive">say</span> <span class="quoted">"Tis a cruel world!"</span>
+    }
+}
+
+<span class="directive">events</span> {
+    <span class="directive">player_spotted</span> {
+        <span class="directive">goto_state</span> greet_player
+    }
+
+    <span class="directive">died</span> {
+        <span class="directive">goto_state</span> last_words
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</article>
+</main>
+    </div>
+  </div>
+  <script>
+const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+if (rootFontSize > 20) {
+  document.body.classList.add("zoom");
+}
+  </script>
+</body>
+</html>

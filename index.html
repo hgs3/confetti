@@ -1,0 +1,321 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Confetti is intended for human-editable configuration files. It is minimalistic, untyped, and opinionated. Schema conformance is validated by the user application. Confetti does not compete with JSON or XML, it competes with INI files.">
+<title>Confetti: A Configuration File Format for Humans.</title>
+<link rel="apple-touch-icon" type="image/png" href="/assets/favicon-apple-touch.png">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" href="/assets/favicon.ico" sizes="32x32">
+<link rel="stylesheet" href="/assets/confetti.css">
+<script src="/assets/confetti.js" defer></script>
+</head>
+<body>
+  <div class="menu-container">
+    <aside class="menu">
+      <a href="/">
+        <picture>
+          <source type="image/webp" srcset="/assets/branding.webp, /assets/branding-2x.webp 2x, /assets/branding-4x.webp 4x" width="105px" height="48px" />
+          <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
+        </picture>
+      </a>
+      <input type="checkbox" id="menu-toggle" class="menu-toggle">
+      <label for="menu-toggle" class="menu-btn icon-menu"></label>
+      <div id="menu-overlay"></div>
+      <nav class="slide-out-menu">
+        <ul>
+          <li><a href="/">Overview<span class="icon-chevron"></span></a></li>
+          <li><a href="/examples/">Examples<span class="icon-chevron"></span></a></li>
+          <li><a href="/learn/">Learn<span class="icon-chevron"></span></a></li>
+          <li><a href="/specification/">Specification<span class="icon-chevron"></span></a></li>
+        </ul>
+        <ul>
+          <li><a href="https://github.com/hgs3/confetti"><span>GitHub</span><span class="icon-github"></span></a></li>
+        </ul>
+      </nav>
+    </aside>
+  </div>
+  <div class="main">
+    <div class="main-sidebar">
+      <picture>
+        <source type="image/webp" srcset="/assets/confetti.webp, /assets/confetti-2x.webp 2x, /assets/confetti-4x.webp 4x" width="300px" height="250px" />
+        <img type="image/png" src="/assets/confetti.png" srcset="/assets/confetti-2x.png 2x, /assets/confetti-4x.png 4x" width="300px" height="250px" />
+      </picture>
+      <footer class="content">
+        <p class="extra">Confetti was created by me, <a href="https://hgs3.me">Henry</a>.</p>
+      </footer>
+    </div>
+    <div class="main-content">
+      <header>
+        <nav class="header">
+          <div class="branding">
+            <a href="/">
+              <picture>
+                <source type="image/webp" srcset="/assets/branding.webp, /assets/branding-2x.webp 2x, /assets/branding-4x.webp 4x" width="105px" height="48px" />
+                <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
+              </picture>
+            </a>
+          </div>
+          <ul class="header-navigation">
+            <li class="active"><a href="/">Overview</a></li>
+            <li ><a href="/examples/">Examples</a></li>
+            <li ><a href="/learn/">Learn</a></li>
+            <li ><a href="/specification/">Specification</a></li>
+          </ul>
+          <ul class="header-external-links">
+            <li>
+              <a href="https://github.com/hgs3/confetti/">
+                <span class="icon-github"></span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </header>
+      <main><article class="content">
+<h1>Introducing Confetti</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Confetti is a <strong>configuration language</strong> that blends the readability of Unix configuration files with the flexibility of S-expressions.
+It is minimalistic, untyped, and opinionated.
+Schema conformance is validated by the user application.</p>
+</div>
+<div class="paragraph">
+<p>Confetti does not compete with JSON or XML, it competes with INI.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_kitchen_sink_example"><span>Kitchen Sink Example</span><a href="#_kitchen_sink_example">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following example uses most features of Confetti:</p>
+</div>
+<pre><code><span class="comment"># This is a comment.</span>
+
+<span class="directive">probe-device</span> eth0 eth1
+
+<span class="directive">user</span> * {
+    <span class="directive">login</span> anonymous
+    <span class="directive">password</span> <span class="quoted">"${ENV:ANONPASS}"</span>
+    <span class="directive">machine</span> <span class="number">167.89.14.1</span>
+    <span class="directive">proxy</span> {
+        <span class="directive">try-ports</span> <span class="number">582 583 584</span>
+    }
+}
+
+<span class="directive">user</span> <span class="quoted">"Joe Williams"</span> {
+    <span class="directive">login</span> joe
+    <span class="directive">machine</span> <span class="number">167.89.14.1</span>
+}</code></pre>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_implementations"><span>Implementations</span><a href="#_implementations">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The canonical implementation of Confetti is written in C11 and is available on GitHub.</p>
+</div>
+<div class="paragraph">
+<p>If you would like to create your own implementation of Confetti, then review the specification and test your implementation against the official conformance test suite.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_philosophy"><span>Philosophy</span><a href="#_philosophy">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Simplicity and minimalism is at the heart of Confetti.
+Some formats, like YAML, are <em>very</em> complicated (look at the size of <a href="https://yaml.org/spec/1.2.2/">its specification!</a>) whereas Confetti’s spec is <a href="/specification/">simple and minimal</a>, and it can be <a href="/learn/">learned in minutes</a>.</p>
+</div>
+<div class="paragraph">
+<p>Confetti is <em>typeless</em> by design and its syntax composable.
+Confetti provides the atoms necessary to create everything from simple configuration, to textual file formats, to lightweight scripting.
+Check out the <a href="/examples/">various examples</a> for inspiration.</p>
+</div>
+<div class="paragraph">
+<p>Other key features:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Opinionated</strong>: Confetti lets you define custom keywords, like <code>on</code> and <code>off</code>, and tristates, like <code>yes</code>, <code>no</code>, and <code>maybe</code>.
+This is in contrast to formats, like TOML, which mandate the keywords <code>true</code> and <code>false</code>.</p>
+</li>
+<li>
+<p><strong>Localization Friendly</strong>: Confetti lets you write configuration files in your native language.
+This is in contrast to formats, like JSON, which requires the English words <code>null</code>, <code>true</code>, and <code>false</code>, and Western digits <code>0</code> through <code>9</code>.</p>
+</li>
+<li>
+<p><strong>Extensions Encouraged</strong>: Much like how Markdown has different flavors, you are encouraged to create unique flavors of Confetti.
+Its specification defines the common language.
+Its annex includes extensions known to be compatible with the grammar.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_feature_comparison"><span>Feature Comparison</span><a href="#_feature_comparison">#</a></h3>
+<div class="paragraph">
+<p>Here’s how Confetti compares to popular formats:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch features">
+<colgroup>
+<col style="width: 37.5%;"/>
+<col style="width: 12.5%;"/>
+<col style="width: 12.5%;"/>
+<col style="width: 25%;"/>
+<col style="width: 12.5%;"/>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top"></th>
+<th class="tableblock halign-center valign-top">Confetti</th>
+<th class="tableblock halign-center valign-top">INI</th>
+<th class="tableblock halign-center valign-top">JSON</th>
+<th class="tableblock halign-center valign-top">TOML</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Specification</p></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-no"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Typeless</p></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-no"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-no"></span>
+</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Localization Friendly</p></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-maybe"></span>
+<sup>1</sup></div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-no"></span>
+<sup>2</sup></div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-no"></span>
+<sup>2</sup></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Unicode Literals</p></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-maybe"></span>
+<sup>1</sup></div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Multiline Literals</p></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-no"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-no"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Comments</p></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-no"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Hierarchical Structures</p></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-no"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+<td class="tableblock halign-center valign-top"><div class="content">
+<span class="icon-yes"></span>
+</div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Intended Use Case</p></td>
+<td class="tableblock halign-center valign-top"><div class="content"><div class="paragraph">
+<p>Configuration</p>
+</div></div></td>
+<td class="tableblock halign-center valign-top"><div class="content"><div class="paragraph">
+<p>Configuration</p>
+</div></div></td>
+<td class="tableblock halign-center valign-top"><div class="content"><div class="paragraph">
+<p>Data Interchange</p>
+</div></div></td>
+<td class="tableblock halign-center valign-top"><div class="content"><div class="paragraph">
+<p>Configuration</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><sup>1</sup> INI has no specification and therefore support for internalization and Unicode are implementation dependent.</p>
+</div>
+<div class="paragraph">
+<p><sup>2</sup> JSON and TOML mandate the English words <code>true</code> and <code>false</code> and Western digits <code>0</code> through <code>9</code>.</p>
+</div>
+</div>
+</div>
+</div>
+</article>
+</main>
+    </div>
+  </div>
+  <script>
+const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+if (rootFontSize > 20) {
+  document.body.classList.add("zoom");
+}
+  </script>
+</body>
+</html>

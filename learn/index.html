@@ -1,0 +1,260 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Confetti is intended for human-editable configuration files. It is minimalistic, untyped, and opinionated. Schema conformance is validated by the user application. Confetti does not compete with JSON or XML, it competes with INI files.">
+<title>Confetti: Learn.</title>
+<link rel="apple-touch-icon" type="image/png" href="/assets/favicon-apple-touch.png">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" href="/assets/favicon.ico" sizes="32x32">
+<link rel="stylesheet" href="/assets/confetti.css">
+<script src="/assets/confetti.js" defer></script>
+</head>
+<body>
+  <div class="menu-container">
+    <aside class="menu">
+      <a href="/">
+        <picture>
+          <source type="image/webp" srcset="/assets/branding.webp, /assets/branding-2x.webp 2x, /assets/branding-4x.webp 4x" width="105px" height="48px" />
+          <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
+        </picture>
+      </a>
+      <input type="checkbox" id="menu-toggle" class="menu-toggle">
+      <label for="menu-toggle" class="menu-btn icon-menu"></label>
+      <div id="menu-overlay"></div>
+      <nav class="slide-out-menu">
+        <ul>
+          <li><a href="/">Overview<span class="icon-chevron"></span></a></li>
+          <li><a href="/examples/">Examples<span class="icon-chevron"></span></a></li>
+          <li><a href="/learn/">Learn<span class="icon-chevron"></span></a></li>
+          <li><a href="/specification/">Specification<span class="icon-chevron"></span></a></li>
+        </ul>
+        <ul>
+          <li><a href="https://github.com/hgs3/confetti"><span>GitHub</span><span class="icon-github"></span></a></li>
+        </ul>
+      </nav>
+    </aside>
+  </div>
+  <div class="main">
+    <div class="main-sidebar">
+      <picture>
+        <source type="image/webp" srcset="/assets/confetti.webp, /assets/confetti-2x.webp 2x, /assets/confetti-4x.webp 4x" width="300px" height="250px" />
+        <img type="image/png" src="/assets/confetti.png" srcset="/assets/confetti-2x.png 2x, /assets/confetti-4x.png 4x" width="300px" height="250px" />
+      </picture>
+      <footer class="content">
+        <p class="extra">Confetti was created by me, <a href="https://hgs3.me">Henry</a>.</p>
+      </footer>
+    </div>
+    <div class="main-content">
+      <header>
+        <nav class="header">
+          <div class="branding">
+            <a href="/">
+              <picture>
+                <source type="image/webp" srcset="/assets/branding.webp, /assets/branding-2x.webp 2x, /assets/branding-4x.webp 4x" width="105px" height="48px" />
+                <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
+              </picture>
+            </a>
+          </div>
+          <ul class="header-navigation">
+            <li ><a href="/">Overview</a></li>
+            <li ><a href="/examples/">Examples</a></li>
+            <li class="active"><a href="/learn/">Learn</a></li>
+            <li ><a href="/specification/">Specification</a></li>
+          </ul>
+          <ul class="header-external-links">
+            <li>
+              <a href="https://github.com/hgs3/confetti/">
+                <span class="icon-github"></span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </header>
+      <main><article class="content">
+<h1>Learn Confetti</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Confetti is a minimalistic configuration language designed for humans.
+It blends the readability of Unix configuration files with the flexibility of S-expressions.
+By reading this guide, you can learn Confetti in just a few minutes!</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_directives"><span>Directives</span><a href="#_directives">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Confetti files consist of zero or more <em>directives</em>.
+You can think of a directive as a command or configuration setting that is interpreted by a program.
+The following is an example of a single directive:</p>
+</div>
+<pre><code><span class="directive">ports</span> <span class="number">582 583</span></code></pre>
+<div class="paragraph">
+<p>Every directive consists of one or more <em>arguments</em>.
+Arguments must be separated by at least one whitespace character.
+In the previous example, the directive has three arguments: <code>ports</code>, <code>582</code>, and <code>583</code>.</p>
+</div>
+<div class="paragraph">
+<p>Directives are terminated by a newline character.
+The following example defines two directives: the first directive has arguments <code>login</code> and <code>jsmith</code>, and the second directive has arguments <code>password</code> and <code>hunter2</code>.</p>
+</div>
+<pre><code><span class="directive">login</span> jsmith
+<span class="directive">password</span> hunter2</code></pre>
+<div class="paragraph">
+<p>Directives can also be terminated by a semicolon.
+This following snippet is equivalent to the previous example, except it uses a semicolon instead of a newline to separate the directives.
+Whitespace around the semicolon is insignificant, although this example adds it for clarity.</p>
+</div>
+<pre><code><span class="directive">login</span> jsmith ; <span class="directive">password</span> hunter2</code></pre>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_arguments"><span>Arguments</span><a href="#_arguments">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>An argument is a sequence of one or more printable Unicode characters.
+Confetti arguments are <em>typeless</em>.
+Although they might resemble identifiers, strings, or numbers as you’re likely used to in various programming languages, they are all interpreted as typeless strings by Confetti.
+It is up to a software program to assign them meaning.</p>
+</div>
+<div class="sect2">
+<h3 id="_quoted_arguments"><span>Quoted Arguments</span><a href="#_quoted_arguments">#</a></h3>
+<div class="paragraph">
+<p>Arguments are separated by whitespace.
+However, you can define an argument with whitespace by enclosing it in quotation marks.
+This is demonstrated in the following snippet, which defines a single directive with two arguments: <code>user</code> and <code>John Smith Jr</code>.
+Note that the enclosing quotes are not part of the argument’s value.</p>
+</div>
+<pre><code><span class="directive">user</span> <span class="quoted">"John Smith Jr"</span></code></pre>
+</div>
+<div class="sect2">
+<h3 id="_multi_line_arguments"><span>Multi-line Arguments</span><a href="#_multi_line_arguments">#</a></h3>
+<div class="paragraph">
+<p>Directives terminate when a newline is found.
+However, you might want to define a directive with newline characters.</p>
+</div>
+<div class="paragraph">
+<p>You can define a multi-line argument by enclosing it in triple quotation marks.
+The enclosing triple quotation marks are not part of the argument’s value.</p>
+</div>
+<div class="paragraph">
+<p>The following directive has two arguments: <code>user</code> and <code>The quick brown fox\njumps over the\nlazy dog</code>.
+Here, the <code>\n</code> sequence indicates where the newline characters are.</p>
+</div>
+<pre><code><span class="directive">user</span> <span class="quoted">"""The quick brown fox
+jumps over the
+lazy dog"""</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_escaping_characters"><span>Escaping Characters</span><a href="#_escaping_characters">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Any printable character can be escaped by writing a backslash in front of it.
+Most characters do not need to be escaped, but special characters do.
+For example, semicolons and quotation marks have special meaning in Confetti, and so they must be escaped if they are to be interpreted as part of an argument.</p>
+</div>
+<div class="paragraph">
+<p>The following snippet escapes two quotation mark characters in a quoted argument.
+Here, the directive consists of two arguments: <code>message</code> and <code>Say "Hi" to the guests</code>.</p>
+</div>
+<pre><code><span class="directive">message</span> <span class="quoted">"Say \"Hi\" to the guests"</span></code></pre>
+<div class="paragraph">
+<p>Escaping applies to <em>any</em> argument, not just quoted arguments.
+The following snippet defines one directive with two arguments: <code>items</code> and <code>sword;shield</code>. Notice how the semicolon didn’t terminate the directive because it is escaped!</p>
+</div>
+<pre><code><span class="directive">items</span> sword\;shield</code></pre>
+<div class="sect2">
+<h3 id="_line_continuation"><span>Line Continuation</span><a href="#_line_continuation">#</a></h3>
+<div class="paragraph">
+<p>Directives and single quoted arguments can be continued onto the next line by ending the line with a backslash.
+Conceptually, Confetti will “remove” the backslash and newline from the result.</p>
+</div>
+<div class="paragraph">
+<p>You can escape a newline character by writing a backslash in front of them.
+For example, the following snippet:</p>
+</div>
+<pre><code><span class="directive">set</span> $greeting <span class="quoted">"Hello, \
+World!"</span>
+send_mail \
+$greeting</code></pre>
+<div class="paragraph">
+<p>will be interpreted by Confetti as:</p>
+</div>
+<pre><code><span class="directive">set</span> $greeting <span class="quoted">"Hello, World!"</span>
+send_mail $greeting</code></pre>
+<div class="paragraph">
+<p>Escaping directives is most useful for <em>really long</em> directives.
+If you need to preserve the newline characters, then use <a href="#_multi_line_arguments">triple quotes</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_subdirectives"><span>Subdirectives</span><a href="#_subdirectives">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Confetti supports hierarchical directives known as <em>subdirectives</em>.
+Conceptually, subdirectives can be thought of as children of a parent directive.
+Subdirectives are especially useful for grouping related concepts.</p>
+</div>
+<div class="paragraph">
+<p>Subdirectives are enclosed in curly braces.
+The opening curly brace must be written after the directive that is intended to be the parent directive, either on the same line or a subsequent line.
+The following example writes them on the same line for compactness.</p>
+</div>
+<pre><code><span class="directive">user</span> <span class="quoted">"John Smith Jr"</span> {
+    <span class="directive">login</span> jsmith
+    <span class="directive">password</span> hunter2
+    <span class="directive">proxy</span> {
+        <span class="directive">ports</span> <span class="number">582 583 584</span>
+    }
+}</code></pre>
+<div class="paragraph">
+<p>In the example, the first directive, which consists of the arguments <code>user</code> and <code>John Smith Jr</code>, has subdirectives.
+These subdirectives begin with <code>login</code>, <code>password</code>, and <code>proxy</code>.
+The <code>proxy</code> subdirective has its own subdirective starting with the argument <code>ports</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_comments"><span>Comments</span><a href="#_comments">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Confetti comments begin with a <code>#</code> character and extend until the next line terminator.
+They can be written on their own line or after the end of a directive.</p>
+</div>
+<pre><code><span class="comment"># This is a comment.</span>
+<span class="directive">login</span> jsmith  <span class="comment"># This is another comment.</span>
+</code></pre>
+<div class="paragraph">
+<p>Comments cannot appear inside a quoted or triple quoted argument.
+In a quoted context, the <code>#</code> character is interpreted as part of the argument and <strong>not</strong> the beginning of a comment.
+The <code>#</code> character can appear in an unquoted argument by escaping it with a preceding backslash character.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_file_extension"><span>File Extension</span><a href="#_file_extension">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Officially, the file extension for a Confetti file is <code>.conf</code> or <code>.cfg</code>.
+However, application authors are free to choose a custom extension or drop the extension entirely.</p>
+</div>
+</div>
+</div>
+</article>
+</main>
+    </div>
+  </div>
+  <script>
+const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+if (rootFontSize > 20) {
+  document.body.classList.add("zoom");
+}
+  </script>
+</body>
+</html>
