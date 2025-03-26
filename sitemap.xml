@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
+    xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://confetti.hgs3.me/</loc>
+        <lastmod>2025-02-25</lastmod>
+    </url>
+    <url>
+        <loc>https://confetti.hgs3.me/learn/</loc>
+        <lastmod>2025-02-25</lastmod>
+    </url>
+    <url>
+        <loc>https://confetti.hgs3.me/examples/</loc>
+        <lastmod>2025-02-20</lastmod>
+    </url>
+    <url>
+        <loc>https://confetti.hgs3.me/specification/</loc>
+        <lastmod>2025-02-20</lastmod>
+    </url>
+</urlset>
