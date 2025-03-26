@@ -113,6 +113,9 @@
 <div class="paragraph">
 <p>Confetti can store application specific settings.</p>
 </div>
+<div class="paragraph">
+<p>This example demonstrates a hierarchical structure.</p>
+</div>
 <pre><code><span class="directive">application</span> {
     <span class="directive">version</span> 1.2.3
     <span class="directive">auto-update</span> true
@@ -129,7 +132,7 @@
 <h2 id="_document_markup"><span>Document Markup</span><a href="#_document_markup">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The grammar is flexible enough to create a markup language among other structured documents.</p>
+<p>The grammar is flexible enough to create a markup language!</p>
 </div>
 <pre><code><span class="directive">chapter</span> <span class="quoted">"The Raven"</span>
 <span class="directive">author</span> <span class="quoted">"Edgar Allan Poe"</span>
@@ -149,7 +152,7 @@
 <h2 id="_workflow_automation"><span>Workflow Automation</span><a href="#_workflow_automation">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The following demonstrates what a <strong>task file</strong> might look like.
+<p>The following example demonstrates what a <strong>task file</strong> might look like.
 It represents various tasks that you could potentially run via the command line.</p>
 </div>
 <pre><code><span class="directive">build</span> {
@@ -173,7 +176,8 @@ It represents various tasks that you could potentially run via the command line.
 <h2 id="_user_interface"><span>User Interface</span><a href="#_user_interface">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Structured, text-based file formats can use Confetti in interesting ways.</p>
+<p>Any custom, structured, text-based file format could use Confetti in interesting ways.
+The following example shows how Confetti could be used for desinging user interfaces.</p>
 </div>
 <pre><code><span class="directive">Application</span> {
     <span class="directive">VerticalLayout</span> {
@@ -197,7 +201,7 @@ function() {
 <h2 id="_ai_training"><span>AI Training</span><a href="#_ai_training">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Below is an example of what a JSON configuration file might look like for an AI model, particularly a machine learning model such as a neural network:</p>
+<p>Below is an example of what a Confetti configuration file might look like for an AI model, particularly a machine learning model such as a neural network:</p>
 </div>
 <pre><code><span class="directive">model</span> {
     <span class="directive">type</span> <span class="quoted">"neural_network"</span>
@@ -221,9 +225,8 @@ function() {
 <h2 id="_material_definitions"><span>Material Definitions</span><a href="#_material_definitions">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Here <code>material</code>, <code>opacity</code>, <code>pass</code>, <code>diffuse</code>, and <code>blend-mode</code> are interpreted as commands.
-The application would interpret the <code>material</code> command as the definition of a new material and all subsequent commands as belonging to it.
-This relationship is not codified by the configuration format itself, but rather by the user’s application.</p>
+<p>Here <code>material</code>, <code>opacity</code>, <code>pass</code>, <code>diffuse</code>, and <code>blend-mode</code> are interpreted as <strong>commands</strong> by the user application.
+For example, the application would interpret the <code>material</code> command as the definition of a new material and all subsequent commands as belonging to it.</p>
 </div>
 <pre><code><span class="directive">material</span> water
     <span class="directive">opacity</span> <span class="number">0.5</span>
@@ -238,12 +241,12 @@ This relationship is not codified by the configuration format itself, but rather
 <h2 id="_domain_specific_languages"><span>Domain Specific Languages</span><a href="#_domain_specific_languages">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You can create domain specific languages</p>
+<p>You can create domain specific languages with Confetti.</p>
 </div>
 <div class="sect2">
 <h3 id="_stack_based_language"><span>Stack-Based Language</span><a href="#_stack_based_language">#</a></h3>
 <div class="paragraph">
-<p>A simple stack-based language that could be run by a virtual machine.</p>
+<p>A simple stack-based language for a virtual machine.</p>
 </div>
 <pre><code><span class="directive">push</span> <span class="number">1</span>
 <span class="directive">push</span> <span class="number">2</span>
@@ -255,7 +258,7 @@ This relationship is not codified by the configuration format itself, but rather
 <div class="sect2">
 <h3 id="_control_flow"><span>Control Flow</span><a href="#_control_flow">#</a></h3>
 <div class="paragraph">
-<p>The grammar is flexible enough to allow conditionals and other program logic:</p>
+<p>The Confetti grammar is flexible enough to allow conditionals and other program logic:</p>
 </div>
 <pre><code><span class="comment"># Try sending the user a message about their access level.</span>
 <span class="directive">set</span> $retry-count <span class="directive">to</span> <span class="number">3</span>

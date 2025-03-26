@@ -104,7 +104,7 @@ The following example defines two directives: the first directive has arguments 
 <span class="directive">password</span> hunter2</code></pre>
 <div class="paragraph">
 <p>Directives can also be terminated by a semicolon.
-This following snippet is equivalent to the previous example, except it uses a semicolon instead of a newline to separate the directives.
+This following snippet is equivalent to the previous snippet, except it uses a semicolon instead of a newline to separate the directives.
 Whitespace around the semicolon is insignificant, although this example adds it for clarity.</p>
 </div>
 <pre><code><span class="directive">login</span> jsmith ; <span class="directive">password</span> hunter2</code></pre>
@@ -117,7 +117,7 @@ Whitespace around the semicolon is insignificant, although this example adds it 
 <p>An argument is a sequence of one or more printable Unicode characters.
 Confetti arguments are <em>typeless</em>.
 Although they might resemble identifiers, strings, or numbers as you’re likely used to in various programming languages, they are all interpreted as typeless strings by Confetti.
-It is up to a software program to assign them meaning.</p>
+It is up to you to define the schema and assign them meaning.</p>
 </div>
 <div class="sect2">
 <h3 id="_quoted_arguments"><span>Quoted Arguments</span><a href="#_quoted_arguments">#</a></h3>
@@ -171,7 +171,7 @@ The following snippet defines one directive with two arguments: <code>items</cod
 <h3 id="_line_continuation"><span>Line Continuation</span><a href="#_line_continuation">#</a></h3>
 <div class="paragraph">
 <p>Directives and single quoted arguments can be continued onto the next line by ending the line with a backslash.
-Conceptually, Confetti will “remove” the backslash and newline from the result.</p>
+Conceptually, Confetti will “remove” the backslash and newline before processing.</p>
 </div>
 <div class="paragraph">
 <p>You can escape a newline character by writing a backslash in front of them.
