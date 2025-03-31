@@ -1,0 +1,42 @@
+command {
+    argument {
+        offset 0
+        length 3
+        value "foo"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 6
+                length 3
+                value "bar"
+            }
+        }
+        command {
+            argument {
+                offset 12
+                length 3
+                value "baz"
+            }
+        }
+    }
+}
+command {
+    argument {
+        offset 18
+        length 3
+        value "qux"
+    }
+}
+command {
+    argument {
+        offset 22
+        length 3
+        value "wal"
+    }
+    argument {
+        offset 26
+        length 2
+        value "do"
+    }
+}

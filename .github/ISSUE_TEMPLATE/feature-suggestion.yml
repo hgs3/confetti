@@ -1,0 +1,24 @@
+name: Feature Suggestion
+description: Suggest a new language feature.
+
+body:
+- type: markdown
+  attributes:
+    value: |
+
+      Please keep the projects philosophy in mind when suggesting a feature:
+
+      * Confetti is simple and typeless. It does not compete with JSON or XML, it competes with INI files.
+
+      * If the language feature you're suggesting can already be conveyed, as an idea, using exiting constructs today, then it probably doesn't belong.
+
+      * Features that don't make it into the core language can become extensions.
+
+- type: textarea
+  id: suggestion
+  attributes:
+    label: feature
+    description: Suggest a new language feature.
+    placeholder: The more details, the better...
+  validations:
+    required: true

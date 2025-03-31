@@ -1,0 +1,77 @@
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.dylib
+
+# Executables
+*.exe
+*.app
+*.i*86
+*.x86_64
+*.hex
+*.msi
+
+# Visual Studio temporary files
+*.suo
+*.user
+*.sbr
+*.pdb
+*.ncb
+*.sdf
+*.idb
+
+# Autotools
+Makefile
+Makefile.in
+autom4te*
+aclocal.m4
+compile
+config
+configure
+configure~
+config.log
+config.status
+depcomp
+install-sh
+libtool
+stamp-h1
+missing
+.libs
+.dirstamp
+.deps
+*.sh
+*.sub
+*.lo
+*.la
+*.guess
+*.tar.gz
+*.gz
+
+# Mac OS X
+.DS_Store
+
+# CMake out-of-source build files
+build/*
+
+# pkg-config files
+confetti.pc
+
+# Downloaded Unicode files
+UnicodeData.txt
+PropList.txt
+
+# Generate files
+confetti_unidata.c
+
+# Static analysis
+cppcheck-*

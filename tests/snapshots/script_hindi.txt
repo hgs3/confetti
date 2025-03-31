@@ -1,0 +1,47 @@
+command {
+    argument {
+        offset 0
+        length 10
+        value "तेज,"
+    }
+    argument {
+        offset 11
+        length 12
+        value "भूरी"
+    }
+    argument {
+        offset 24
+        length 15
+        value "लोमडी"
+    }
+    argument {
+        offset 40
+        length 12
+        value "आलसी"
+    }
+    argument {
+        offset 53
+        length 18
+        value "कुत्ते"
+    }
+    argument {
+        offset 72
+        length 6
+        value "के"
+    }
+    argument {
+        offset 79
+        length 9
+        value "उपर"
+    }
+    argument {
+        offset 89
+        length 9
+        value "कूद"
+    }
+    argument {
+        offset 99
+        length 6
+        value "गई"
+    }
+}

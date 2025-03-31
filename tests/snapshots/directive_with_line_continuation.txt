@@ -1,0 +1,12 @@
+command {
+    argument {
+        offset 0
+        length 3
+        value "foo"
+    }
+    argument {
+        offset 6
+        length 3
+        value "bar"
+    }
+}

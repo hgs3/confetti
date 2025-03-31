@@ -1,0 +1,37 @@
+command {
+    argument {
+        offset 0
+        length 14
+        value "Быстрая"
+    }
+    argument {
+        offset 15
+        length 20
+        value "коричневая"
+    }
+    argument {
+        offset 36
+        length 8
+        value "лиса"
+    }
+    argument {
+        offset 45
+        length 14
+        value "прыгает"
+    }
+    argument {
+        offset 60
+        length 10
+        value "через"
+    }
+    argument {
+        offset 71
+        length 14
+        value "ленивую"
+    }
+    argument {
+        offset 86
+        length 12
+        value "собаку"
+    }
+}

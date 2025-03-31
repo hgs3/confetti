@@ -1,0 +1,37 @@
+command {
+    argument {
+        offset 0
+        length 6
+        value "빠른"
+    }
+    argument {
+        offset 7
+        length 6
+        value "갈색"
+    }
+    argument {
+        offset 14
+        length 9
+        value "여우는"
+    }
+    argument {
+        offset 24
+        length 9
+        value "게으른"
+    }
+    argument {
+        offset 34
+        length 6
+        value "개를"
+    }
+    argument {
+        offset 41
+        length 6
+        value "뛰어"
+    }
+    argument {
+        offset 48
+        length 12
+        value "넘습니다"
+    }
+}

@@ -1,0 +1,7 @@
+command {
+    argument {
+        offset 0
+        length 36
+        value "敏捷的棕色狐狸跳过了懒狗"
+    }
+}

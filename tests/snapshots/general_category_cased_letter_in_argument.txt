@@ -1,0 +1,7 @@
+command {
+    argument {
+        offset 0
+        length 4
+        value "Aaǅ"
+    }
+}

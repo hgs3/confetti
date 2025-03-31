@@ -1,0 +1,7 @@
+command {
+    argument {
+        offset 0
+        length 12
+        value "0ᛮ²"
+    }
+}

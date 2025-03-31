@@ -1,0 +1,128 @@
+command {
+    argument {
+        offset 0
+        length 7
+        value "heading"
+    }
+    argument {
+        offset 8
+        length 11
+        value "The Raven"
+    }
+}
+command {
+    argument {
+        offset 20
+        length 6
+        value "author"
+    }
+    argument {
+        offset 27
+        length 17
+        value "Edgar Allan Poe"
+    }
+}
+command {
+    argument {
+        offset 45
+        length 9
+        value "paragraph"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 59
+                length 64
+                value "Once upon a midnight dreary, while I pondered, weak and weary,"
+            }
+        }
+        command {
+            argument {
+                offset 126
+                length 25
+                value "Over many a quaint and "
+            }
+            argument {
+                offset 152
+                length 4
+                value "bold"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 157
+                        length 16
+                        value "curious volume"
+                    }
+                }
+            }
+        }
+        command {
+            argument {
+                offset 175
+                length 21
+                value " of forgotten lore-"
+            }
+        }
+    }
+}
+command {
+    argument {
+        offset 199
+        length 9
+        value "paragraph"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 213
+                length 18
+                value "While I nodded, "
+            }
+            argument {
+                offset 232
+                length 6
+                value "italic"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 239
+                        length 6
+                        value "nearly"
+                    }
+                }
+            }
+        }
+        command {
+            argument {
+                offset 247
+                length 4
+                value "bold"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 252
+                        length 7
+                        value "napping"
+                    }
+                }
+            }
+        }
+        command {
+            argument {
+                offset 261
+                length 34
+                value ", suddenly there came a tapping,"
+            }
+        }
+        command {
+            argument {
+                offset 298
+                length 59
+                value "As of some one gently rapping-rapping at my chamber door."
+            }
+        }
+    }
+}

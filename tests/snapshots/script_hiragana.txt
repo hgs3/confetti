@@ -1,0 +1,7 @@
+command {
+    argument {
+        offset 0
+        length 66
+        value "素早い茶色のキツネが怠け者の犬を飛び越えます"
+    }
+}

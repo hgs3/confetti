@@ -1,0 +1,29 @@
+command {
+    argument {
+        offset 0
+        length 1
+        value "x"
+    }
+}
+command {
+    argument {
+        offset 10
+        length 1
+        value "y"
+    }
+}
+command {
+    argument {
+        offset 20
+        length 1
+        value "z"
+    }
+}
+comment {
+    offset 2
+    length 7
+}
+comment {
+    offset 12
+    length 7
+}
