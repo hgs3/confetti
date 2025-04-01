@@ -4,7 +4,7 @@
     xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://confetti.hgs3.me/</loc>
-        <lastmod>2025-03-26</lastmod>
+        <lastmod>2025-03-31</lastmod>
     </url>
     <url>
         <loc>https://confetti.hgs3.me/learn/</loc>
@@ -16,6 +16,6 @@
     </url>
     <url>
         <loc>https://confetti.hgs3.me/specification/</loc>
-        <lastmod>2025-02-20</lastmod>
+        <lastmod>2025-03-31</lastmod>
     </url>
 </urlset>
