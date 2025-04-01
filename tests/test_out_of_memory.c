@@ -13,12 +13,11 @@
 #include <assert.h>
 #include <audition.h>
 
-static void *custom_allocf(void *ud, void *ptr, size_t osize, size_t nsize)
+static void *fallible_allocator(void *ud, void *ptr, size_t size)
 {
     if (ptr == NULL)
     {
-        assert(osize == 0);
-        assert(nsize > 0);
+        assert(size > 0);
 
         int *allocs_remaining = ud;
         if (*allocs_remaining <= 0)
@@ -27,20 +26,14 @@ static void *custom_allocf(void *ud, void *ptr, size_t osize, size_t nsize)
         }
 
         (*allocs_remaining) -= 1;
-        return realloc(ptr, nsize);
+        return malloc(size);
     }
     else
     {
-        assert(osize > 0);
-        assert(nsize == 0);
+        assert(size > 0);
         free(ptr);
         return NULL;
     }
-}
-
-static int callback(void *user_data, conf_mark elem, int argc, const conf_arg *argv)
-{
-    return 0;
 }
 
 TEST(memory, out_of_memory, .iterations=COUNT_OF(tests_utf8))
@@ -49,18 +42,31 @@ TEST(memory, out_of_memory, .iterations=COUNT_OF(tests_utf8))
     for (int i = 0; i < 1000; i++)
     {
         // Set the total number of successful allocations allowed.
-        int tmp = i;
+        int count = i;
 
         // Try parsing the input until no memory error is returned.
         conf_err error = {0};
-        const conf_errno errno = conf_parse((const char *)td->input, &error, &tmp, callback, custom_allocf);
-        if (errno != CONF_NO_MEMORY)
+        conf_doc *dir = conf_parse_ex((const char *)td->input, NULL, &error, &count, fallible_allocator);
+        if (dir != NULL)
         {
-            assert(errno != CONF_INVALID_OPERATION);
+            conf_free(dir); // Avoid leakage.
+        }
+
+        // Try parsing again without an error structure.
+        count = i;
+        dir = conf_parse_ex((const char *)td->input, NULL, NULL, &count, fallible_allocator);
+        if (dir != NULL)
+        {
+            conf_free(dir); // Avoid leakage.
+        }
+
+        if (error.code != CONF_OUT_OF_MEMORY)
+        {
+            assert(error.code != CONF_INVALID_OPERATION);
             return;
         }
 
-        ASSERT_EQ(CONF_NO_MEMORY, error.code);
+        ASSERT_EQ(CONF_OUT_OF_MEMORY, error.code);
         ASSERT_GTEQ(error.where, 0);
         ASSERT_STR_EQ(error.description, "memory allocation failed");
     }
@@ -68,3 +74,9 @@ TEST(memory, out_of_memory, .iterations=COUNT_OF(tests_utf8))
     ABORT("exceeded allocation failure limit");
 }
 
+TEST(memory, null_error_structure)
+{
+    int count = 0;
+    conf_doc *dir = conf_parse_ex("foo", NULL, NULL, &count, fallible_allocator);
+    ASSERT_NULL(dir);
+}

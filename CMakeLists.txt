@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.21)
-project(confetti LANGUAGES C VERSION 0.1.0)
+project(confetti LANGUAGES C VERSION 0.2.0)
 
 include(CMakePackageConfigHelpers)
 
+option(CONFETTI_BUILD_EXAMPLES "Build Confetti C API examples" ON)
 option(CONFETTI_CODE_COVERAGE "Toggle code coverage" OFF)
 option(CONFETTI_UNDEFINED_BEHAVIOR_SANITIZER "Toggle undefined behavior sanitizer" OFF)
 option(CONFETTI_ADDRESS_SANITIZER "Toggle address sanitizer" OFF)
@@ -42,6 +43,11 @@ install(FILES ${PROJECT_BINARY_DIR}/ConfettiConfigVersion.cmake DESTINATION cmak
 
 # Man pages.
 install(FILES confetti.3 conf_parse.3 DESTINATION man/man3 COMPONENT doc)
+
+# Add code examples.
+if (CONFETTI_BUILD_EXAMPLES)
+    add_subdirectory(examples)
+endif ()
 
 # Register the tests if building from repo checkout.
 # The release acrhive omits the unit test.

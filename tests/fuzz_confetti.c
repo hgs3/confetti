@@ -11,11 +11,6 @@
 #include <stdint.h>
 #include <string.h>
 
-int callback(void *ud, conf_mark elem, int argc, const conf_arg argv[])
-{
-    return 0;
-}
-
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     // Allocate a null-terminated C string from the input data.
@@ -24,7 +19,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     string[size] = '\0';
 
     conf_err error = {0};
-    conf_parse(string, &error, NULL, callback, NULL);
+    conf_doc *conf = conf_parse(string, NULL, &error);
+    conf_free(conf);
     free(string);
     return 0;
 }

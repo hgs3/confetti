@@ -40,8 +40,8 @@ endif ()
 
 add_executable(tests_confetti
     test_parser.c
-    test_memory.c
-    test_abort.c
+    test_custom_allocator.c
+    test_out_of_memory.c
     test_api.c
     test_utils.c
     test_utils.h

@@ -157,132 +157,89 @@ static void whitespace(StringBuf *sb, int depth)
     }
 }
 
-struct Argument
+static void print_tokens(struct StringBuf *sb, conf_dir *dir, int depth)
 {
-    struct Argument *next;
-    char *value;
-};
+    whitespace(sb, depth);
+    strbuf_puts(sb, "command {");
 
-struct Directive
-{
-    struct Argument *arguments;
-    struct Argument *arguments_tail;
-    struct Directive *subdirectives;
-    struct Directive *subdirectives_tail;
-    struct Directive *parent;
-    struct Directive *next;
-};
-
-struct UserData
-{
-    StringBuf *sb;
-    int depth;
-    conf_mark prev;
-    struct Directive *parent_directive;
-    struct Directive *previous_directive;
-};
-
-static int parse_callback(void *user_data, conf_mark elem, int argc, const conf_arg *argv)
-{
-    struct UserData *ud = user_data;
-    struct Directive *parent = ud->parent_directive;
-
-    if (elem == CONF_DIRECTIVE)
+    const long arg_count = conf_getnarg(dir);
+    if (arg_count > 0)
     {
-        struct Directive *dir = calloc(1, sizeof(dir[0]));
-        for (int i = 0; i < argc; i++)
+        for (long i = 0; i < arg_count; i++)
         {
-            struct Argument *arg = calloc(1, sizeof(arg[0]));
-            arg->value = strdup(argv[i].value);
+            conf_arg *arg = conf_getarg(dir, i);
 
-            if (dir->arguments == NULL)
+            whitespace(sb, depth+1);
+            strbuf_printf(sb, "argument {\n");
+
+            whitespace(sb, depth+2);
+            strbuf_printf(sb, "offset %zu\n", arg->lexeme_offset);
+
+            whitespace(sb, depth+2);
+            strbuf_printf(sb, "length %zu\n", arg->lexeme_length);
+
+            whitespace(sb, depth+2);
+            strbuf_printf(sb, "value \"");
+            for (const char *ch = arg->value; *ch; ch++)
             {
-                assert(dir->arguments_tail == NULL);
-                dir->arguments = arg;
-                dir->arguments_tail = arg;
+                if (*ch == '"')
+                {
+                    strbuf_printf(sb, "\\"); // Escape the double quotes.
+                }
+                strbuf_printf(sb, "%c", *ch);
             }
-            else
-            {
-                dir->arguments_tail->next = arg;
-                dir->arguments_tail = arg;
-            }
-        }
+            strbuf_printf(sb, "\"\n");
 
-        if (parent->subdirectives == NULL)
-        {
-            parent->subdirectives = dir;
-            parent->subdirectives_tail = dir;
+            whitespace(sb, depth+1);
+            strbuf_puts(sb, "}");
         }
-        else
-        {
-            parent->subdirectives_tail->next = dir;
-            parent->subdirectives_tail = dir;
-        }
-        dir->parent = parent;
-
-        ud->previous_directive = dir;
     }
 
-    if (elem == CONF_SUBDIRECTIVE_PUSH)
+    const long subdir_count = conf_getnsubdir(dir);
+    if (subdir_count > 0)
     {
-        assert(ud->previous_directive != NULL);
-        ud->parent_directive = ud->previous_directive;
+        whitespace(sb, depth+1);
+        strbuf_puts(sb, "subcommands {");
+
+        for (long i = 0; i < subdir_count; i++)
+        {
+            print_tokens(sb, conf_getsubdir(dir, i), depth+2);
+        }
+
+        whitespace(sb, depth+1);
+        strbuf_puts(sb, "}");
     }
 
-    if (elem == CONF_SUBDIRECTIVE_POP)
-    {
-        assert(ud->parent_directive != NULL);
-        ud->parent_directive = ud->parent_directive->parent;
-    }
-
-    ud->prev = elem;
-    return 0;
+    whitespace(sb, depth);
+    strbuf_puts(sb, "}");
 }
 
-static void free_directive(struct Directive *dir)
-{
-    struct Argument *arg = dir->arguments;
-    while (arg != NULL)
-    {
-        struct Argument *arg_next = arg->next;
-        free(arg->value);
-        free(arg);
-        arg = arg_next;
-    }
-
-    struct Directive *subdir = dir->subdirectives;
-    while (subdir != NULL)
-    {
-        struct Directive *subdir_next = subdir->next;
-        free_directive(subdir);
-        subdir = subdir_next;
-    }
-    free(dir);
-}
-
-static void print_directive(struct StringBuf *sb, struct Directive *dir, int depth)
+static void print_directive(struct StringBuf *sb, conf_dir *dir, int depth)
 {
     whitespace(sb, depth);
 
-    for (struct Argument *arg = dir->arguments; arg != NULL; arg = arg->next)
+    const long arg_count = conf_getnarg(dir);
+    for (long i = 0; i < arg_count; i++)
     {
+        conf_arg *arg = conf_getarg(dir, i);
         strbuf_printf(sb, "<%s>", arg->value);
-        if (arg->next != NULL)
+        if (i < (arg_count - 1))
         {
             strbuf_printf(sb, " ");
         }
     }
 
-    if (dir->subdirectives == NULL)
+    const long subdir_count = conf_getnsubdir(dir);
+    if (subdir_count == 0)
     {
         strbuf_puts(sb, "");
         return;
     }
 
     strbuf_puts(sb, " [");
-    for (struct Directive *subdir = dir->subdirectives; subdir != NULL; subdir = subdir->next)
+    for (long i = 0; i < subdir_count; i++)
     {
-        print_directive(sb, subdir, depth + 1);
+        print_directive(sb, conf_getsubdir(dir, i), depth + 1);
     }
 
     whitespace(sb, depth);
@@ -291,155 +248,55 @@ static void print_directive(struct StringBuf *sb, struct Directive *dir, int dep
 
 char *parse(const char *input)
 {
+    StringBuf *sb = strbuf_new();
     conf_err error = {0};
-
-    struct Directive *dir = calloc(1, sizeof(dir[0]));
-    struct UserData ud = {
-        .sb = strbuf_new(),
-        .depth = 0,
-        .prev = -1,
-        .parent_directive = dir,
-    };
-
-    conf_errno errno = conf_parse(input, &error, &ud, parse_callback, NULL);
-    if (errno != CONF_OK)
+    conf_doc *dir = conf_parse(input, NULL, &error);
+    if (error.code != CONF_NO_ERROR)
     {
-        strbuf_printf(ud.sb, "error: %s\n", error.description);
+        assert(dir == NULL);
+        strbuf_printf(sb, "error: %s\n", error.description);
     }
     else
     {
-        for (struct Directive *subdir = dir->subdirectives; subdir != NULL; subdir = subdir->next)
+        assert(dir != NULL);
+        for (long i = 0; i < conf_getndir(dir); i++)
         {
-            print_directive(ud.sb, subdir, 0);
+            conf_dir *subdir = conf_getdir(dir, i);
+            print_directive(sb, subdir, 0);
         }
+        conf_free(dir);
     }
-    free_directive(dir);
-
-    return strbuf_drop(ud.sb);
-}
-
-static int print_tokens(void *user_data, conf_mark elem, int argc, const conf_arg *argv)
-{
-    struct UserData *ud = user_data;
-
-    if (elem == CONF_COMMENT)
-    {
-        return 0;
-    }
-
-    if (elem == CONF_DIRECTIVE)
-    {
-        if (ud->prev == CONF_DIRECTIVE)
-        {
-            whitespace(ud->sb, ud->depth);
-            strbuf_puts(ud->sb, "}");
-        }
-
-        whitespace(ud->sb, ud->depth);
-        strbuf_printf(ud->sb, "command {\n");
-
-        for (int i = 0; i < argc; i++)
-        {
-            const conf_arg *arg = &argv[i];
-
-            whitespace(ud->sb, ud->depth + 1);
-            strbuf_printf(ud->sb, "argument {\n");
-
-            whitespace(ud->sb, ud->depth + 2);
-            strbuf_printf(ud->sb, "offset %d\n", arg->lexeme_offset);
-
-            whitespace(ud->sb, ud->depth + 2);
-            strbuf_printf(ud->sb, "length %d\n", arg->lexeme_length);
-
-            whitespace(ud->sb, ud->depth + 2);
-            strbuf_printf(ud->sb, "value \"");
-
-            for (const char *ch = arg->value; *ch; ch++)
-            {
-                if (*ch == '"')
-                {
-                    strbuf_printf(ud->sb, "\\"); // Escape the double quotes.
-                }
-                strbuf_printf(ud->sb, "%c", *ch);
-            }
-
-            strbuf_printf(ud->sb, "\"\n");
-
-            whitespace(ud->sb, ud->depth + 1);
-            strbuf_printf(ud->sb, "}\n");
-        }
-    }
-
-    if (elem == CONF_SUBDIRECTIVE_PUSH)
-    {
-        ud->depth += 1;
-        whitespace(ud->sb, ud->depth);
-        strbuf_puts(ud->sb, "subcommands {");
-        ud->depth += 1;
-    }
-
-    if (elem == CONF_SUBDIRECTIVE_POP)
-    {
-        if (ud->prev == CONF_DIRECTIVE)
-        {
-            whitespace(ud->sb, ud->depth);
-            strbuf_puts(ud->sb, "}");
-        }
-
-        ud->depth -= 1;
-        whitespace(ud->sb, ud->depth);
-        strbuf_puts(ud->sb, "}");
-
-        ud->depth -= 1;
-        whitespace(ud->sb, ud->depth);
-        strbuf_puts(ud->sb, "}");
-    }
-
-    ud->prev = elem;
-    return 0;
-}
-
-static int print_comments(void *user_data, conf_mark elem, int argc, const conf_arg *argv)
-{
-    struct UserData *ud = user_data;
-    if (elem == CONF_COMMENT)
-    {
-        assert(argc == 1);
-        strbuf_printf(ud->sb, "comment {\n");
-        strbuf_printf(ud->sb, "    offset %d\n", argv[0].lexeme_offset);
-        strbuf_printf(ud->sb, "    length %d\n", argv[0].lexeme_length);
-        strbuf_puts(ud->sb, "}");
-    }
-    return 0;
+    return strbuf_drop(sb);
 }
 
 static char *tokenize(const char *input)
 {
+    StringBuf *sb = strbuf_new();
     conf_err error = {0};
-
-    struct UserData ud = {
-        .sb = strbuf_new(),
-        .depth = 0,
-        .prev = -1,
-    };
-
-    conf_errno errno = conf_parse(input, &error, &ud, print_tokens, NULL);
-    if (errno != CONF_OK)
+    conf_doc *dir = conf_parse(input, NULL, &error);
+    if (error.code != CONF_NO_ERROR)
     {
-        strbuf_clear(ud.sb);
-        strbuf_printf(ud.sb, "error: %s\n", error.description);
+        strbuf_printf(sb, "error: %s\n", error.description);
     }
     else
     {
-        if (ud.prev == CONF_DIRECTIVE)
+        for (long i = 0; i < conf_getndir(dir); i++)
         {
-            whitespace(ud.sb, ud.depth);
-            strbuf_puts(ud.sb, "}");
+            conf_dir *subdir = conf_getdir(dir, i);
+            print_tokens(sb, subdir, 0);
         }
-        conf_parse(input, &error, &ud, print_comments, NULL);
-    }
 
-    return strbuf_drop(ud.sb);
+        for (long i = 0; i < conf_getnremark(dir); i++)
+        {
+            conf_comment *comment = conf_getremark(dir, i);
+            strbuf_printf(sb, "comment {\n");
+            strbuf_printf(sb, "    offset %zu\n", comment->offset);
+            strbuf_printf(sb, "    length %zu\n", comment->length);
+            strbuf_puts(sb, "}");
+        }
+    }
+    conf_free(dir);
+    return strbuf_drop(sb);
 }
 
 void compare_snapshots(const char *name, const char *input)

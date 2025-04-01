@@ -4,6 +4,4 @@ command {
         length 1
         value "x"
     }
-    subcommands {
-    }
 }

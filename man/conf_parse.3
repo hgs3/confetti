@@ -7,7 +7,7 @@
 .\" entire resulting derived work is distributed under the terms of a
 .\" permission notice identical to this one.
 .\" --------------------------------------------------------------------------
-.TH "CONFETTI" "3" "Jan 7th 2025" "Confetti 0.1.0"
+.TH "CONFETTI" "3" "Jan 7th 2025" "Confetti 0.2.0"
 .SH NAME
 conf_parse \- parse confetti
 .\" --------------------------------------------------------------------------
@@ -108,10 +108,10 @@ The \fIsize\fR argument is either the size of the memory being allocated or the 
 The \fBconf_parse\fR function will return one of the following \fBconf_errno\fR constants.
 If given, the \fIerr\fR structure will be populated with details about the error.
 .TP
-.BR CONF_OK
+.BR CONF_NO_ERROR
 When \fIstr\fR is parsed without errors.
 .TP
-.BR CONF_NO_MEMORY
+.BR CONF_OUT_OF_MEMORY
 If dynamic memory allocation fails.
 The implementation garuntees all intermediate allocations will be freed to avoid resource leakage.
 .TP

@@ -16,6 +16,7 @@
 #include <setjmp.h>
 #include <assert.h>
 #include <stdint.h>
+#include <stdalign.h>
 
 #define IS_SPACE_CHARACTER 0x1 // includes all new line characters
 #define IS_COMMENT_CHARACTER 0x2 // includes white space and new line characters
@@ -48,31 +49,62 @@ typedef enum conf_argflag
 
 typedef struct token
 {
-    long lexeme;
-    long lexeme_length;
+    size_t lexeme;
+    size_t lexeme_length;
     token_type type;
     conf_argflag flags;
 } token;
 
-typedef struct conf_state
+struct comment
+{
+    conf_comment data;
+    struct comment *next;
+};
+
+struct conf_dir
+{
+    long buffer_length;
+    long subdir_count;
+    long arguments_count;
+
+    conf_arg *arguments;
+    
+    conf_dir **subdir;
+    conf_dir *subdir_head;
+    conf_dir *subdir_tail;
+    conf_dir *next;
+
+    char buffer[];
+};
+
+struct conf_doc
 {
     void *user_data;
     conf_allocfunc allocfunc;
-    conf_parsefunc parsefunc;
 
     const char *string;
     const char *needle;
-    long comment_processed;
+    
+    conf_dir *root;
 
+    long comments_count;
+    struct comment **comments;
+    struct comment *comment_head;
+    struct comment *comment_tail;
+    size_t comment_processed;
+
+    conf_options options;
     token peek;
 
     jmp_buf err_buf;
     conf_err err;
-} conf_state;
 
-static void parse_body(conf_state *conf, int depth);
+    alignas(max_align_t) unsigned char padding[sizeof(conf_dir)];
+};
 
-_Noreturn static void die(conf_state *conf, conf_errno error, const char *where, const char *message, ...)
+static void parse_body(conf_doc *conf, conf_dir *parent, int depth);
+
+_Noreturn static void die(conf_doc *conf, conf_errno error, const char *where, const char *message, ...)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -84,41 +116,51 @@ _Noreturn static void die(conf_state *conf, conf_errno error, const char *where,
 
     va_list args;
     va_start(args, message);
-    if (vsnprintf(conf->err.description, sizeof(conf->err.description), message, args) < 0)
+    const int n = vsnprintf(conf->err.description, sizeof(conf->err.description), message, args);
+    if (n < 0)
     {
         strcpy(conf->err.description, "formatting description failed");
     }
     va_end(args);
+    assert(n < (int)sizeof(conf->err.description)); // LCOV_EXCL_BR_LINE
 
     longjmp(conf->err_buf, 1);
 }
 
-static void *default_alloc(void *ud, void *ptr, size_t osize, size_t nsize)
+static void *default_alloc(void *ud, void *ptr, size_t size)
 {
-    if (nsize > 0)
+    assert(size > 0); // LCOV_EXCL_BR_LINE
+    if (ptr == NULL)
     {
-        return realloc(ptr, nsize);
+        return malloc(size);
     }
-    free(ptr);
-    return NULL;
+    else
+    {
+        free(ptr);
+        return NULL;
+    }
 }
 
-static void *push(conf_state *conf, size_t size)
+static void *new(conf_doc *conf, size_t size)
 {
-    assert(conf != NULL); // LCOV_EXCL_BR_LINE
-    return conf->allocfunc(conf->user_data, NULL, 0, size);
+    // LCOV_EXCL_START
+    assert(conf != NULL);
+    assert(size > 0);
+    // LCOV_EXCL_STOP
+    return conf->allocfunc(conf->user_data, NULL, size);
 }
 
-static void pop(conf_state *conf, void *ptr, size_t size)
+static void delete(conf_doc *conf, void *ptr, size_t size)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
     assert(ptr != NULL);
+    assert(size > 0);
     // LCOV_EXCL_STOP
-    conf->allocfunc(conf->user_data, ptr, size, 0);
+    conf->allocfunc(conf->user_data, ptr, size);
 }
 
-static uchar utf8decode(conf_state *conf, const char *utf8, long *utf8_length)
+static uchar utf8decode(conf_doc *conf, const char *utf8, size_t *utf8_length)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -151,15 +193,15 @@ static uchar utf8decode(conf_state *conf, const char *utf8, long *utf8_length)
     };
 
     static const uint8_t next_UTF8_DFA[] = {
-        0, 12, 24, 36, 60, 96, 84, 12, 12, 12, 48, 72,  // state 0
-        12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, // state 1
-        12, 0, 12, 12, 12, 12, 12, 0, 12, 0, 12, 12,    // state 2
-        12, 24, 12, 12, 12, 12, 12, 24, 12, 24, 12, 12, // state 3
-        12, 12, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, // state 4
-        12, 24, 12, 12, 12, 12, 12, 12, 12, 24, 12, 12, // state 5
-        12, 12, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, // state 6
-        12, 36, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, // state 7
-        12, 36, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, // state 8
+        0, 12, 24, 36, 60, 96, 84, 12, 12, 12, 48, 72,  // doc 0
+        12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, // doc 1
+        12, 0, 12, 12, 12, 12, 12, 0, 12, 0, 12, 12,    // doc 2
+        12, 24, 12, 12, 12, 12, 12, 24, 12, 24, 12, 12, // doc 3
+        12, 12, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, // doc 4
+        12, 24, 12, 12, 12, 12, 12, 12, 12, 24, 12, 12, // doc 5
+        12, 12, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, // doc 6
+        12, 36, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, // doc 7
+        12, 36, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, // doc 8
     };
 
     static const uint8_t byte_to_character_class[] = {
@@ -215,8 +257,8 @@ static uchar utf8decode(conf_state *conf, const char *utf8, long *utf8_length)
     // Consume the first UTF-8 byte.
     uchar value = (uchar)(bytes[0] & bytes_needed_for_UTF8_sequence[256 + seqlen]);
 
-    // Transition to the first DFA state.
-    uint8_t state = next_UTF8_DFA[byte_to_character_class[bytes[0]]];
+    // Transition to the first DFA doc.
+    uint8_t doc = next_UTF8_DFA[byte_to_character_class[bytes[0]]];
 
     // Consume the remaining UTF-8 bytes.
     for (int i = 1; i < seqlen; i++)
@@ -225,12 +267,12 @@ static uchar utf8decode(conf_state *conf, const char *utf8, long *utf8_length)
         // It's of the form 10xxxxxx if valid UTF-8.
         value = value << UINT32_C(6) | (uchar)(bytes[i] & UINT8_C(0x3F));
 
-        // Transition to the next DFA state.
-        state = next_UTF8_DFA[state + byte_to_character_class[bytes[i]]];
+        // Transition to the next DFA doc.
+        doc = next_UTF8_DFA[doc + byte_to_character_class[bytes[i]]];
     }
 
     // Verify the encoded character was well-formed.
-    if (state == UINT8_C(0))
+    if (doc == UINT8_C(0))
     {
         if (utf8_length != NULL)
         {
@@ -243,7 +285,7 @@ bad_encoding:
     die(conf, CONF_ILLEGAL_BYTE_SEQUENCE, utf8, "malformed UTF-8");
 }
 
-static bool is_newline(conf_state *conf, const char *string, long *length)
+static bool is_newline(conf_doc *conf, const char *string, size_t *length)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -272,10 +314,10 @@ static bool is_newline(conf_state *conf, const char *string, long *length)
     return false;
 }
 
-static void scan_triple_quoted_literal(conf_state *conf, const char *string, token *tok)
+static void scan_triple_quoted_literal(conf_doc *conf, const char *string, token *tok)
 {
     const char *at = string;
-    long length;
+    size_t length;
 
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -336,10 +378,10 @@ static void scan_triple_quoted_literal(conf_state *conf, const char *string, tok
     tok->flags = CONF_TRIPLE_QUOTED;
 }
 
-static void scan_single_quoted_literal(conf_state *conf, const char *string, token *tok)
+static void scan_single_quoted_literal(conf_doc *conf, const char *string, token *tok)
 {
     const char *at = string;
-    long length;
+    size_t length;
 
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -404,10 +446,10 @@ static void scan_single_quoted_literal(conf_state *conf, const char *string, tok
     tok->flags = CONF_QUOTED;
 }
 
-static void scan_literal(conf_state *conf, const char *string, token *tok)
+static void scan_literal(conf_doc *conf, const char *string, token *tok)
 {
     const char *at = string;
-    long length;
+    size_t length;
 
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -441,7 +483,7 @@ static void scan_literal(conf_state *conf, const char *string, token *tok)
     tok->flags = 0;
 }
 
-static void scan_whitespace(conf_state *conf, const char *string, token *tok)
+static void scan_whitespace(conf_doc *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -452,7 +494,7 @@ static void scan_whitespace(conf_state *conf, const char *string, token *tok)
     const char *at = string;
     for (;;)
     {
-        long length;
+        size_t length;
         const uchar cp = utf8decode(conf, at, &length);
         if (conf_uniflags(cp) & IS_SPACE_CHARACTER)
         {
@@ -468,7 +510,7 @@ static void scan_whitespace(conf_state *conf, const char *string, token *tok)
     tok->flags = 0;
 }
 
-static void scan_comment(conf_state *conf, const char *string, token *tok)
+static void scan_comment(conf_doc *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -484,7 +526,7 @@ static void scan_comment(conf_state *conf, const char *string, token *tok)
             break;
         }
 
-        long length = 0;
+        size_t length = 0;
         if (is_newline(conf, at, &length))
         {
             break;
@@ -506,7 +548,7 @@ static void scan_comment(conf_state *conf, const char *string, token *tok)
     tok->flags = 0;
 }
 
-static void scan_token(conf_state *conf, const char *string, token *tok)
+static void scan_token(conf_doc *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -553,7 +595,7 @@ static void scan_token(conf_state *conf, const char *string, token *tok)
 
     if (string[0] == '\\')
     {
-        long length;
+        size_t length;
         if (is_newline(conf, &string[1], &length))
         {
             tok->type = TOK_CONTINUATION;
@@ -608,7 +650,7 @@ static void scan_token(conf_state *conf, const char *string, token *tok)
     die(conf, CONF_BAD_SYNTAX, string, "illegal character U+%04X", cp);
 }
 
-static token_type peek(conf_state *conf, token *tok)
+static token_type peek(conf_doc *conf, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -633,17 +675,30 @@ static token_type peek(conf_state *conf, token *tok)
                 // once to the user.
                 if (conf->comment_processed <= conf->peek.lexeme)
                 {
-                    const conf_arg arg = {
-                        .lexeme_offset = conf->peek.lexeme,
-                        .lexeme_length = conf->peek.lexeme_length,
-                    };
-                    if (conf->parsefunc(conf->user_data, CONF_COMMENT, 1, &arg) != 0)
+                    struct comment *comment = new(conf, sizeof(comment[0]));
+                    if (comment == NULL)
                     {
-                        die(conf, CONF_USER_ABORTED, conf->needle, "user aborted");
+                        die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
                     }
-                    conf->comment_processed = arg.lexeme_offset + arg.lexeme_length;
-                }
+                    comment->data.offset = conf->peek.lexeme;
+                    comment->data.length = conf->peek.lexeme_length;
+                    comment->next = NULL;
 
+                    if (conf->comment_head == NULL)
+                    {
+                        assert(conf->comment_tail == NULL); // LCOV_EXCL_BR_LINE
+                        conf->comment_head = comment;
+                        conf->comment_tail = comment;
+                    }
+                    else
+                    {
+                        assert(conf->comment_tail != NULL); // LCOV_EXCL_BR_LINE
+                        conf->comment_tail->next = comment;
+                        conf->comment_tail = comment;
+                    }
+                    conf->comments_count += 1;
+                    conf->comment_processed = comment->data.offset + comment->data.length;
+                }
                 conf->needle += conf->peek.lexeme_length;
                 continue;
             }
@@ -654,7 +709,7 @@ static token_type peek(conf_state *conf, token *tok)
     return conf->peek.type;
 }
 
-static token_type eat(conf_state *conf, token *tok)
+static token_type eat(conf_doc *conf, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -667,7 +722,7 @@ static token_type eat(conf_state *conf, token *tok)
     return tok->type;
 }
 
-static long copy_literal(conf_state *conf, char *dest, const token *tok)
+static size_t copy_literal(conf_doc *conf, char *dest, const token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -676,7 +731,7 @@ static long copy_literal(conf_state *conf, char *dest, const token *tok)
 
     const char *stop_offset = &conf->string[tok->lexeme + tok->lexeme_length];
     const char *offset = &conf->string[tok->lexeme];
-    long nbytes = 0;
+    size_t nbytes = 0;
 
     if (tok->flags & CONF_QUOTED)
     {
@@ -699,7 +754,7 @@ static long copy_literal(conf_state *conf, char *dest, const token *tok)
             // New lines after a backslash are ignored in single quoted arguments.
             if (tok->flags & CONF_QUOTED)
             {
-                long length;
+                size_t length;
                 if (is_newline(conf, offset, &length))
                 {
                     offset += length;
@@ -708,7 +763,7 @@ static long copy_literal(conf_state *conf, char *dest, const token *tok)
             }
         }
 
-        long length = 0;
+        size_t length = 0;
         utf8decode(conf, offset, &length);
         if (dest != NULL)
         {
@@ -723,7 +778,7 @@ static long copy_literal(conf_state *conf, char *dest, const token *tok)
     return nbytes;
 }
 
-// Parsing commands is a two step process:
+// Parsing directives is a two step process:
 //
 //   (1) arguments are first scanned and counted, additionally the total number
 //       of characters to represent the arguments is also counted
@@ -734,7 +789,7 @@ static long copy_literal(conf_state *conf, char *dest, const token *tok)
 // The point of step #1 is to reduce the number of overall allocations and to avoid the
 // use of dynamic array (scanning a quoted literal is cheaper than allocating memory).
 //
-static void parse_directive(conf_state *conf, int depth)
+static void parse_directive(conf_doc *conf, conf_dir *parent, int depth)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -745,17 +800,17 @@ static void parse_directive(conf_state *conf, int depth)
 
     // (1) figure out how much memory is needed for the arguments
 
-    const token saved_peek = conf->peek; // save parser state
+    const token saved_peek = conf->peek; // save parser doc
     const char *saved_needle = conf->needle;
 
-    int args_count = 0;
-    int buffer_length = 0;
+    long argument_count = 0;
+    long buffer_length = 0;
     for (;;)
     {
         peek(conf, &tok);
         if (tok.type == TOK_LITERAL)
         {
-            args_count += 1;
+            argument_count += 1;
             buffer_length += copy_literal(conf, NULL, &tok) + 1; // +1 for null byte
             eat(conf, &tok);
         }
@@ -768,35 +823,38 @@ static void parse_directive(conf_state *conf, int depth)
             break;
         }
     }
-    conf->peek = saved_peek; // rewind parser state
+    conf->peek = saved_peek; // rewind parser doc
     conf->needle = saved_needle;
 
     // (2) allocate storage for the arguments and copy the data to it
 
-    char *args_buffer = push(conf, buffer_length);
-    if (args_buffer == NULL)
+    const size_t size = sizeof(conf_dir) + (size_t)buffer_length;
+    conf_dir *dir = new(conf, size);
+    if (dir == NULL)
     {
-        die(conf, CONF_NO_MEMORY, conf->needle, "memory allocation failed");
+        die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
     }
+    memset(dir, 0, size);
+    dir->buffer_length = buffer_length;
 
-    const int argc = args_count;
-    struct conf_arg *argv = push(conf, argc * sizeof(argv[0]));
+    const long argc = argument_count;
+    conf_arg *argv = new(conf, sizeof(argv[0]) * argc);
     if (argv == NULL)
     {
-        pop(conf, args_buffer, buffer_length);
-        die(conf, CONF_NO_MEMORY, conf->needle, "memory allocation failed");
+        delete(conf, dir, size);
+        die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
     }
+    dir->arguments = argv;
+    dir->arguments_count = argc;
 
-    memset(args_buffer, 0, buffer_length);
-
-    char *buffer = args_buffer;
-    args_count = 0;
+    char *buffer = dir->buffer;
+    argument_count = 0;
     for (;;)
     {
         peek(conf, &tok);
         if (tok.type == TOK_LITERAL)
         {
-            conf_arg *arg = &argv[args_count++];
+            conf_arg *arg = &argv[argument_count++];
             arg->lexeme_offset = tok.lexeme;
             arg->lexeme_length = tok.lexeme_length;
             arg->value = buffer;
@@ -813,12 +871,18 @@ static void parse_directive(conf_state *conf, int depth)
         }
     }
 
-    int r = conf->parsefunc(conf->user_data, CONF_DIRECTIVE, argc, argv);
-    pop(conf, argv, argc * sizeof(argv[0]));
-    pop(conf, args_buffer, buffer_length);
-    if (r != 0)
+    // Link this directive with its parent directive.
+    if (parent->subdir_head == NULL)
     {
-        die(conf, CONF_USER_ABORTED, conf->needle, "user aborted");
+        assert(parent->subdir_tail == NULL); // LCOV_EXCL_BR_LINE
+        parent->subdir_head = dir;
+        parent->subdir_tail = dir;
+    }
+    else
+    {
+        assert(parent->subdir_tail != NULL); // LCOV_EXCL_BR_LINE
+        parent->subdir_tail->next = dir;
+        parent->subdir_tail = dir;
     }
 
     // If there is a terminating semicolon, then the can be no subdirectives.
@@ -827,7 +891,7 @@ static void parse_directive(conf_state *conf, int depth)
         eat(conf, &tok); // consume ';'
         return;
     }
-
+    
     // Consume as many new lines as possible.
     while (tok.type == TOK_NEWLINE)
     {
@@ -839,25 +903,12 @@ static void parse_directive(conf_state *conf, int depth)
     if (tok.type == '{')
     {
         eat(conf, &tok); // consume '{'
-
-        r = conf->parsefunc(conf->user_data, CONF_SUBDIRECTIVE_PUSH, 0, NULL);
-        if (r != 0)
-        {
-            die(conf, CONF_USER_ABORTED, conf->needle, "user aborted");
-        }
-
-        parse_body(conf, depth + 1);
+        parse_body(conf, dir, depth + 1);
 
         peek(conf, &tok);
         if (tok.type == '}')
         {
             eat(conf, &tok); // consume '}'
-
-            r = conf->parsefunc(conf->user_data, CONF_SUBDIRECTIVE_POP, 0, NULL);
-            if (r != 0)
-            {
-                die(conf, CONF_USER_ABORTED, conf->needle, "user aborted");
-            }
         }
         else
         {
@@ -866,17 +917,24 @@ static void parse_directive(conf_state *conf, int depth)
     }
 }
 
-// Command lists are parsed in a single pass and collected into a linked list.
+// Directive lists are parsed in a single pass and collected into a linked list.
 // After parsing is complete and the linked list is fully constructed, then the
 // list items are copied to an array for O(1) access.
-static void parse_body(conf_state *conf, int depth)
+static void parse_body(conf_doc *conf, conf_dir *parent, int depth)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
     assert(depth >= 0);
     // LCOV_EXCL_STOP
 
-    // Parse all subcommands into a linked list.
+    // Check if the maxmimum nesting depth has been exceeded.
+    if (depth >= conf->options.max_depth)
+    {
+        die(conf, CONF_MAX_DEPTH_EXCEEDED, conf->needle, "maximum nesting depth exceeded");
+    }
+
+    // Parse all subdirectives into a linked list.
+    long subdirs_count = 0;
     for (;;)
     {
         token tok;
@@ -887,7 +945,8 @@ static void parse_body(conf_state *conf, int depth)
 
         if (tok.type == TOK_LITERAL)
         {
-            parse_directive(conf, depth);
+            parse_directive(conf, parent, depth);
+            subdirs_count += 1;
             continue;
         }
 
@@ -912,31 +971,188 @@ static void parse_body(conf_state *conf, int depth)
         assert((tok.type == ';') || (tok.type == '{')); // LCOV_EXCL_BR_LINE
         die(conf, CONF_BAD_SYNTAX, conf->needle, "unexpected '%c'", tok.type);
     }
+
+    if (subdirs_count > 0)
+    {
+        // Allocate an array large enough to accomidate the subdirectives for O(1) access.
+        conf_dir **subdirs = new(conf, sizeof(subdirs[0]) * subdirs_count);
+        if (subdirs == NULL)
+        {
+            die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
+        }
+        
+        // Copy subdirective pointers to the array.
+        long index = 0;
+        for (conf_dir *curr = parent->subdir_head; curr != NULL; curr = curr->next)
+        {
+            subdirs[index] = curr;
+            index += 1;
+        }
+        parent->subdir = subdirs;
+        parent->subdir_count = subdirs_count;
+    }
 }
 
-conf_errno conf_parse(const char *string, conf_err *error, void *user_data, conf_parsefunc parsefunc, conf_allocfunc allocfunc)
+conf_dir *conf_getsubdir(conf_dir *dir, long index)
 {
-    conf_state state = {0};
-    state.string = string;
-    state.needle = string;
-    state.user_data = user_data;
-    state.parsefunc = parsefunc;
-    state.allocfunc = allocfunc;
-    state.err.where = -1;
-    state.err.code = CONF_OK;
-
-    if (state.allocfunc == NULL)
+    if (dir == NULL)
     {
-        state.allocfunc = &default_alloc;
+        return NULL;
+    }
+    if (index < 0 || index >= dir->subdir_count)
+    {
+        return NULL;
+    }
+    return dir->subdir[index];
+}
+
+long conf_getnsubdir(conf_dir *dir)
+{
+    if (dir == NULL)
+    {
+        return 0;
+    }
+    return dir->subdir_count;
+}
+
+conf_dir *conf_getdir(conf_doc *doc, long index)
+{
+    if (doc == NULL)
+    {
+        return NULL;
+    }
+    return conf_getsubdir(doc->root, index);
+}
+
+long conf_getndir(conf_doc *doc)
+{
+    if (doc == NULL)
+    {
+        return 0;
+    }
+    return conf_getnsubdir(doc->root);
+}
+
+conf_arg *conf_getarg(conf_dir *dir, long index)
+{
+    if (index < 0 || index >= dir->arguments_count)
+    {
+        return NULL;
+    }
+    return &dir->arguments[index];
+}
+
+long conf_getnarg(conf_dir *dir)
+{
+    if (dir == NULL)
+    {
+        return 0;
+    }
+    return dir->arguments_count;
+}
+
+conf_comment *conf_getremark(conf_doc *conf, long index)
+{
+    if (index < 0 || index >= conf->comments_count)
+    {
+        return NULL;
+    }
+    return &conf->comments[index]->data;
+}
+
+long conf_getnremark(conf_doc *conf)
+{
+    if (conf == NULL)
+    {
+        return 0;
+    }
+    return conf->comments_count;
+}
+
+static void free_directive(conf_doc *conf, conf_dir *dir)
+{
+    conf_dir *subdir = dir->subdir_head;
+    while (subdir != NULL)
+    {
+        conf_dir *next = subdir->next;
+        free_directive(conf, subdir);
+        subdir = next;
+    }
+    
+    if (dir->subdir_count > 0)
+    {
+        delete(conf, dir->subdir, sizeof(dir->subdir[0]) * dir->subdir_count);
+    }
+    
+    assert(dir->arguments_count > 0); // LCOV_EXCL_BR_LINE
+    delete(conf, dir->arguments, sizeof(dir->arguments[0]) * dir->arguments_count);
+    delete(conf, dir, sizeof(dir[0]) + dir->buffer_length);
+}
+
+void conf_free(conf_doc *conf)
+{
+    if (conf == NULL)
+    {
+        return;
+    }
+    assert(conf->root != NULL); // LCOV_EXCL_BR_LINE
+
+    conf_dir *root = conf->root;
+    conf_dir *dir = root->subdir_head;
+    while (dir != NULL)
+    {
+        conf_dir *next = dir->next;
+        free_directive(conf, dir);
+        dir = next;
     }
 
-    if (setjmp(state.err_buf) != 0)
+    if (root->subdir_count > 0)
     {
-        if (error != NULL)
+        delete(conf, root->subdir, sizeof(root->subdir[0]) * root->subdir_count);
+    }
+
+    if (conf->comments_count > 0)
+    {
+        struct comment *comment = conf->comment_head;
+        while (comment != NULL)
         {
-            memcpy(error, &state.err, sizeof(error[0]));
+            struct comment *next = comment->next;
+            delete(conf, comment, sizeof(comment[0]));
+            comment = next;
         }
-        return state.err.code;
+
+        if (conf->comments != NULL)
+        {
+            delete(conf, conf->comments, sizeof(conf->comments[0]) * conf->comments_count);
+        }
+    }
+
+    delete(conf, conf, sizeof(conf[0]));
+}
+
+conf_doc *conf_parse_ex(const char *string, const conf_options *options, conf_err *error, void *user_data, conf_allocfunc allocfunc)
+{
+    conf_doc *conf, tmp = {0};
+    tmp.string = string;
+    tmp.needle = string;
+    tmp.user_data = user_data;
+    tmp.allocfunc = allocfunc;
+    tmp.err.where = -1;
+    tmp.err.code = CONF_NO_ERROR;
+
+    if (options != NULL)
+    {
+        tmp.options = *options;
+    }
+
+    if (tmp.options.max_depth < 1)
+    {
+        tmp.options.max_depth = INT16_MAX; // Default maximum nesting depth.
+    }
+
+    if (tmp.allocfunc == NULL)
+    {
+        tmp.allocfunc = &default_alloc;
     }
 
     if (string == NULL)
@@ -946,36 +1162,82 @@ conf_errno conf_parse(const char *string, conf_err *error, void *user_data, conf
             error->code = CONF_INVALID_OPERATION;
             strcpy(error->description, "missing string argument");
         }
-        return CONF_INVALID_OPERATION;
-    }
-
-    if (parsefunc == NULL)
-    {
-        if (error != NULL)
-        {
-            error->code = CONF_INVALID_OPERATION;
-            strcpy(error->description, "missing function argument");
-        }
-        return CONF_INVALID_OPERATION;
+        return NULL;
     }
 
     // Skip past the a BOM (byte order mark) character if present.
-    if (memchr(state.needle, '\0', 3) == NULL)
+    if (memchr(tmp.needle, '\0', 3) == NULL)
     {
-        if (memcmp(state.needle, "\xEF\xBB\xBF", 3) == 0)
+        if (memcmp(tmp.needle, "\xEF\xBB\xBF", 3) == 0)
         {
-            state.needle += 3;
+            tmp.needle += 3;
         }
     }
-    parse_body(&state, 0);
+
+    if (setjmp(tmp.err_buf) != 0)
+    {
+        assert(conf != NULL); // LCOV_EXCL_BR_LINE
+        if (error != NULL)
+        {
+            memcpy(error, &conf->err, sizeof(error[0]));
+        }
+        conf_free(conf);
+        return NULL;
+    }
+
+    // Allocate the top-level directive and then begin parsing.
+    conf = new(&tmp, sizeof(tmp));
+    if (conf == NULL)
+    {
+        if (error != NULL)
+        {
+            error->code = CONF_OUT_OF_MEMORY;
+            strcpy(error->description, "memory allocation failed");
+        }
+        return NULL;
+    }
+    memcpy(conf, &tmp, sizeof(conf[0]));
+    conf->root = (conf_dir *)conf->padding;
+
+    parse_body(conf, conf->root, 0);
 
     token tok;
-    peek(&state, &tok);
+    peek(conf, &tok);
     if (tok.type != TOK_EOF)
     {
         assert(tok.type == '}'); // LCOV_EXCL_BR_LINE
-        die(&state, CONF_BAD_SYNTAX, state.needle, "found '}' without matching '{'");
+        die(conf, CONF_BAD_SYNTAX, conf->needle, "found '}' without matching '{'");
     }
 
-    return CONF_OK;
+    // Convert the comments linked list to an array for O(1) access.
+    if (conf->comments_count > 0)
+    {
+        struct comment **comments = new(conf, sizeof(comments[0]) * conf->comments_count);
+        if (comments == NULL)
+        {
+            die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
+        }
+
+        // Copy subdirective pointers to the array.
+        long index = 0;
+        for (struct comment *curr = conf->comment_head; curr != NULL; curr = curr->next)
+        {
+            comments[index] = curr;
+            index += 1;
+        }
+        conf->comments = comments;
+    }
+
+    if (error != NULL)
+    {
+        error->where = conf->needle - conf->string;
+        error->code = CONF_NO_ERROR;
+        strcpy(error->description, "no error");
+    }
+    return conf;
+}
+
+conf_doc *conf_parse(const char *string, const conf_options *options, conf_err *error)
+{
+    return conf_parse_ex(string, options, error, NULL, &default_alloc);
 }

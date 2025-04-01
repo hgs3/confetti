@@ -4,8 +4,6 @@ command {
         length 1
         value "x"
     }
-    subcommands {
-    }
 }
 command {
     argument {
@@ -13,15 +11,11 @@ command {
         length 1
         value "y"
     }
-    subcommands {
-    }
 }
 command {
     argument {
         offset 12
         length 1
         value "z"
-    }
-    subcommands {
     }
 }

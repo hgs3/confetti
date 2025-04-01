@@ -11,42 +11,68 @@
 
 #include <stddef.h>
 
+typedef void *(*conf_allocfunc)(void *ud, void *ptr, size_t nsize);
+
+typedef struct conf_state conf_state;
+typedef struct conf_dir conf_dir;
+typedef struct conf_doc conf_doc;
+
+typedef enum conf_ext
+{
+    CONF_C_STYLE_COMMENTS = 0x01,
+    CONF_EXPRESSION_ARGUMENTS = 0x02,
+} conf_ext;
+
+typedef struct conf_options
+{
+    conf_ext extensions;
+    int max_depth;
+} conf_options;
+
 typedef enum conf_errno
 {
-    CONF_OK,
-    CONF_NO_MEMORY,
+    CONF_NO_ERROR,
+    CONF_OUT_OF_MEMORY,
     CONF_BAD_SYNTAX,
     CONF_ILLEGAL_BYTE_SEQUENCE,
     CONF_INVALID_OPERATION,
-    CONF_USER_ABORTED,
+    CONF_MAX_DEPTH_EXCEEDED,
 } conf_errno;
 
 typedef struct conf_err
 {
-    long where;
+    size_t where;
     conf_errno code;
     char description[48];
 } conf_err;
 
 typedef struct conf_arg
 {
-    long lexeme_offset;
-    long lexeme_length;
+    size_t lexeme_offset;
+    size_t lexeme_length;
     const char *value;
 } conf_arg;
 
-typedef enum conf_mark
+typedef struct conf_comment
 {
-    CONF_COMMENT,
-    CONF_DIRECTIVE,
-    CONF_SUBDIRECTIVE_PUSH,
-    CONF_SUBDIRECTIVE_POP,
-} conf_mark;
+    size_t offset;
+    size_t length;
+} conf_comment;
 
-typedef void *(*conf_allocfunc)(void *ud, void *ptr, size_t osize, size_t nsize);
-typedef int (*conf_parsefunc)(void *ud, conf_mark mark, int argc, const conf_arg *argv);
+conf_doc *conf_parse(const char *string, const conf_options *options, conf_err *error);
+conf_doc *conf_parse_ex(const char *string, const conf_options *options, conf_err *error, void *user_data, conf_allocfunc allocfunc);
+void conf_free(conf_doc *doc);
 
-conf_errno conf_parse(const char *str, conf_err *err, void *ud, conf_parsefunc pf, conf_allocfunc af);
+conf_dir *conf_getdir(conf_doc *doc, long index);
+long conf_getndir(conf_doc *doc);
+
+conf_comment *conf_getremark(conf_doc *doc, long index);
+long conf_getnremark(conf_doc *doc);
+
+conf_dir *conf_getsubdir(conf_dir *directive, long index);
+long conf_getnsubdir(conf_dir *directive);
+
+conf_arg *conf_getarg(conf_dir *directive, long index);
+long conf_getnarg(conf_dir *directive);
 
 #endif
-
