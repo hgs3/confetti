@@ -11,7 +11,7 @@
 
 #include <stddef.h>
 
-typedef void *(*conf_memfn)(void *ud, void *ptr, size_t nsize);
+typedef void *(*conf_allocfn)(void *user_data, void *ptr, size_t size);
 
 typedef struct conf_directive conf_directive;
 typedef struct conf_document conf_document;
@@ -19,7 +19,7 @@ typedef struct conf_document conf_document;
 typedef struct conf_options
 {
     void *user_data;
-    conf_memfn memory_allocator;
+    conf_allocfn allocator;
     int max_depth;
 } conf_options;
 
@@ -74,10 +74,10 @@ long conf_get_comment_count(conf_document *doc);
 
 conf_directive *conf_get_root(conf_document *doc);
 
-conf_directive *conf_get_directive(conf_directive *directive, long index);
-long conf_get_directive_count(conf_directive *directive);
+conf_directive *conf_get_directive(conf_directive *dir, long index);
+long conf_get_directive_count(conf_directive *dir);
 
-conf_argument *conf_get_argument(conf_directive *directive, long index);
-long conf_get_argument_count(conf_directive *directive);
+conf_argument *conf_get_argument(conf_directive *dir, long index);
+long conf_get_argument_count(conf_directive *dir);
 
 #endif

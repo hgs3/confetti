@@ -55,17 +55,17 @@ The \fBconf_options\fR structure includes the following fields:
 .EX
 conf_ext extensions;
 int max_depth;
-conf_memfn memory_fn;
+conf_allocfn allocator;
 void *user_data;
 .EE
 .in
 .PP
 The \fImax_depth\fR field, if non-zero, specifies the maximum nesting depth of a Confetti subdirectives.
-The \fImemory_fn\fR field, if non-NULL, must point to a user implemented custom memory allocator, the behavior of which is described in the following subsection.
-The \fIuser_data\fR field is a user pointer passed to the \fImemory_fn\fR function as-is.
+The \fIallocator\fR field, if non-NULL, must point to a user implemented custom memory allocator, the behavior of which is described in the following subsection.
+The \fIuser_data\fR field is a user pointer passed to the \fIallocator\fR function as-is.
 .\" --------------------------------------------------------------------------
-.SS Allocator callback
-The \fBconf_memfn\fR function accepts three arguments:
+.SS Allocator function
+The \fBconf_allocfn\fR function accepts three arguments:
 .PP
 .in +4n
 .EX

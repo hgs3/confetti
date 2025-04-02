@@ -52,7 +52,7 @@ TEST(memory, parser_out_of_memory, .iterations=COUNT_OF(tests_utf8))
         // Try parsing the input until no memory error is returned.
         conf_options options = {
             .user_data = &counter,
-            .memory_allocator = fallible_allocator,
+            .allocator = fallible_allocator,
         };
         conf_error error = {0};
         conf_document *dir = conf_parse((const char *)td->input, &options, &error);
@@ -94,7 +94,7 @@ TEST(memory, walker_out_of_memory, .iterations=COUNT_OF(tests_utf8))
         // Try parsing the input until no memory error is returned.
         conf_options options = {
             .user_data = &counter,
-            .memory_allocator = fallible_allocator,
+            .allocator = fallible_allocator,
         };
         conf_error error = {0};
         const conf_errno errno = conf_walk((const char *)td->input, &options, &error, visit);
@@ -117,7 +117,7 @@ TEST(memory, null_error_structure)
     int count = 0;
     conf_options options = {
         .user_data = &count,
-        .memory_allocator = fallible_allocator,
+        .allocator = fallible_allocator,
     };
     conf_document *dir = conf_parse("foo", &options, NULL);
     ASSERT_NULL(dir);

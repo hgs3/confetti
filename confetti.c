@@ -149,7 +149,7 @@ static void *new(conf_document *conf, size_t size)
     assert(conf != NULL);
     assert(size > 0);
     // LCOV_EXCL_STOP
-    return conf->options.memory_allocator(conf->options.user_data, NULL, size);
+    return conf->options.allocator(conf->options.user_data, NULL, size);
 }
 
 static void delete(conf_document *conf, void *ptr, size_t size)
@@ -159,7 +159,7 @@ static void delete(conf_document *conf, void *ptr, size_t size)
     assert(ptr != NULL);
     assert(size > 0);
     // LCOV_EXCL_STOP
-    conf->options.memory_allocator(conf->options.user_data, ptr, size);
+    conf->options.allocator(conf->options.user_data, ptr, size);
 }
 
 static uchar utf8decode(conf_document *conf, const char *utf8, size_t *utf8_length)
@@ -1325,9 +1325,9 @@ conf_document *conf_parse(const char *string, const conf_options *options, conf_
         tmp.options.max_depth = INT16_MAX; // Default maximum nesting depth.
     }
 
-    if (tmp.options.memory_allocator == NULL)
+    if (tmp.options.allocator == NULL)
     {
-        tmp.options.memory_allocator = &default_alloc;
+        tmp.options.allocator = &default_alloc;
     }
 
     if (string == NULL)
@@ -1414,9 +1414,9 @@ conf_errno conf_walk(const char *string, const conf_options *options, conf_error
         doc.options.max_depth = INT16_MAX; // Default maximum nesting depth.
     }
 
-    if (doc.options.memory_allocator == NULL)
+    if (doc.options.allocator == NULL)
     {
-        doc.options.memory_allocator = &default_alloc;
+        doc.options.allocator = &default_alloc;
     }
 
     if (string == NULL)
