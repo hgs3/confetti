@@ -26,7 +26,7 @@ static void indent(int depth)
     }
 }
 
-static int step(void *user_data, conf_elem type, int argc, const conf_argument *argv, const conf_comment *comment)
+static int step(void *user_data, conf_element type, int argc, const conf_argument *argv, const conf_comment *comment)
 {
     int *depth = user_data; // The subdirective depth is used to indent the output when pretty printing.
     switch (type)
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 
     int depth = 0; // Track the subdirective depth to know how much to indent when pretty printing.
     conf_options options = { .user_data = &depth };
-    conf_err error = {0};
+    conf_error error = {0};
     conf_walk(input, &options, &error, step);
     if (error.code != CONF_NO_ERROR)
     {

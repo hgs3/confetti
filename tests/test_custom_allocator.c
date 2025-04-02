@@ -68,10 +68,10 @@ TEST(memory, custom_allocator, .iterations=COUNT_OF(tests_utf8))
     const struct TestData *td = &tests_utf8[TEST_ITERATION];
     conf_options options = {
         .user_data = &allocations_length,
-        .memory_fn = custom_allocator,
+        .memory_allocator = custom_allocator,
     };
-    conf_err error = {0};
-    conf_doc *dir = conf_parse((const char *)td->input, &options, &error);
+    conf_error error = {0};
+    conf_document *dir = conf_parse((const char *)td->input, &options, &error);
     if (dir != NULL)
     {
         conf_free(dir); // Avoid leakage.

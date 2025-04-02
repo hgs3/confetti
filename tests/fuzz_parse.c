@@ -18,8 +18,8 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     memcpy(string, data, size);
     string[size] = '\0';
 
-    conf_err error = {0};
-    conf_doc *conf = conf_parse(string, NULL, &error);
+    conf_error error = {0};
+    conf_document *conf = conf_parse(string, NULL, &error);
     conf_free(conf);
     free(string);
     return 0;

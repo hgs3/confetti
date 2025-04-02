@@ -18,8 +18,8 @@ Configuration parser (libconfetti, -lconfetti)
 .nf
 .B #include <confetti.h>
 .PP
-.BI "conf_doc *conf_parse(const char *" str ", const conf_options *" opts ", conf_err *" err ");"
-.BI "void conf_free(conf_doc *" doc ");"
+.BI "conf_document *conf_parse(const char *" str ", const conf_options *" opts ", conf_error *" err ");"
+.BI "void conf_free(conf_document *" doc ");"
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
@@ -33,7 +33,7 @@ If \fBconf_parse\fR fails, it returns an error code which is one of \fBconf_errn
 The conditions under which these constants are returned is documented in RETURN VALUE.
 .PP
 If \fIerr\fR is not \fCNULL\fR, then it will be populated with details about the error.
-The \fBconf_err\fR structure includes the following f ields:
+The \fBconf_error\fR structure includes the following f ields:
 .PP
 .in +4n
 .EX

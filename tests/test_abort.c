@@ -13,7 +13,7 @@
 #include <assert.h>
 #include <audition.h>
 
-static int callback(void *user_data, conf_elem elem, int argc, const conf_argument *argv, const conf_comment *comnt)
+static int callback(void *user_data, conf_element elem, int argc, const conf_argument *argv, const conf_comment *comnt)
 {
     int *callbacks_remaining = user_data;
     if (*callbacks_remaining <= 0)
@@ -35,7 +35,7 @@ TEST(conf_walk, aborted, .iterations=COUNT_OF(tests_utf8))
 
         // Try parsing the input until no memory error is returned.
         conf_options options = {.user_data = &tmp};
-        conf_err error = {0};
+        conf_error error = {0};
         const conf_errno errno = conf_walk((const char *)td->input, &options, &error, callback);
         if (errno != CONF_USER_ABORTED)
         {

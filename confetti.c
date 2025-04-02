@@ -65,7 +65,7 @@ struct comment
     struct comment *next;
 };
 
-struct conf_dir
+struct conf_directive
 {
     long buffer_length;
     long subdir_count;
@@ -73,21 +73,21 @@ struct conf_dir
 
     conf_argument *arguments;
     
-    conf_dir **subdir;
-    conf_dir *subdir_head;
-    conf_dir *subdir_tail;
-    conf_dir *next;
+    conf_directive **subdir;
+    conf_directive *subdir_head;
+    conf_directive *subdir_tail;
+    conf_directive *next;
 
     char buffer[];
 };
 
-struct conf_doc
+struct conf_document
 {
     const char *string;
     const char *needle;
     
     conf_walkfn walk;
-    conf_dir *root;
+    conf_directive *root;
 
     long comments_count;
     struct comment **comments;
@@ -99,14 +99,14 @@ struct conf_doc
     token peek;
 
     jmp_buf err_buf;
-    conf_err err;
+    conf_error err;
 
-    alignas(max_align_t) unsigned char padding[sizeof(conf_dir)];
+    alignas(max_align_t) unsigned char padding[sizeof(conf_directive)];
 };
 
-static void parse_body(conf_doc *conf, conf_dir *parent, int depth);
+static void parse_body(conf_document *conf, conf_directive *parent, int depth);
 
-_Noreturn static void die(conf_doc *conf, conf_errno error, const char *where, const char *message, ...)
+_Noreturn static void die(conf_document *conf, conf_errno error, const char *where, const char *message, ...)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -143,26 +143,26 @@ static void *default_alloc(void *ud, void *ptr, size_t size)
     }
 }
 
-static void *new(conf_doc *conf, size_t size)
+static void *new(conf_document *conf, size_t size)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
     assert(size > 0);
     // LCOV_EXCL_STOP
-    return conf->options.memory_fn(conf->options.user_data, NULL, size);
+    return conf->options.memory_allocator(conf->options.user_data, NULL, size);
 }
 
-static void delete(conf_doc *conf, void *ptr, size_t size)
+static void delete(conf_document *conf, void *ptr, size_t size)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
     assert(ptr != NULL);
     assert(size > 0);
     // LCOV_EXCL_STOP
-    conf->options.memory_fn(conf->options.user_data, ptr, size);
+    conf->options.memory_allocator(conf->options.user_data, ptr, size);
 }
 
-static uchar utf8decode(conf_doc *conf, const char *utf8, size_t *utf8_length)
+static uchar utf8decode(conf_document *conf, const char *utf8, size_t *utf8_length)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -287,7 +287,7 @@ bad_encoding:
     die(conf, CONF_ILLEGAL_BYTE_SEQUENCE, utf8, "malformed UTF-8");
 }
 
-static bool is_newline(conf_doc *conf, const char *string, size_t *length)
+static bool is_newline(conf_document *conf, const char *string, size_t *length)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -316,7 +316,7 @@ static bool is_newline(conf_doc *conf, const char *string, size_t *length)
     return false;
 }
 
-static void scan_triple_quoted_literal(conf_doc *conf, const char *string, token *tok)
+static void scan_triple_quoted_literal(conf_document *conf, const char *string, token *tok)
 {
     const char *at = string;
     size_t length;
@@ -380,7 +380,7 @@ static void scan_triple_quoted_literal(conf_doc *conf, const char *string, token
     tok->flags = CONF_TRIPLE_QUOTED;
 }
 
-static void scan_single_quoted_literal(conf_doc *conf, const char *string, token *tok)
+static void scan_single_quoted_literal(conf_document *conf, const char *string, token *tok)
 {
     const char *at = string;
     size_t length;
@@ -448,7 +448,7 @@ static void scan_single_quoted_literal(conf_doc *conf, const char *string, token
     tok->flags = CONF_QUOTED;
 }
 
-static void scan_literal(conf_doc *conf, const char *string, token *tok)
+static void scan_literal(conf_document *conf, const char *string, token *tok)
 {
     const char *at = string;
     size_t length;
@@ -485,7 +485,7 @@ static void scan_literal(conf_doc *conf, const char *string, token *tok)
     tok->flags = 0;
 }
 
-static void scan_whitespace(conf_doc *conf, const char *string, token *tok)
+static void scan_whitespace(conf_document *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -512,7 +512,7 @@ static void scan_whitespace(conf_doc *conf, const char *string, token *tok)
     tok->flags = 0;
 }
 
-static void scan_comment(conf_doc *conf, const char *string, token *tok)
+static void scan_comment(conf_document *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -550,7 +550,7 @@ static void scan_comment(conf_doc *conf, const char *string, token *tok)
     tok->flags = 0;
 }
 
-static void scan_token(conf_doc *conf, const char *string, token *tok)
+static void scan_token(conf_document *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -652,7 +652,7 @@ static void scan_token(conf_doc *conf, const char *string, token *tok)
     die(conf, CONF_BAD_SYNTAX, string, "illegal character U+%04X", cp);
 }
 
-static void record_comment(conf_doc *doc, const conf_comment *data)
+static void record_comment(conf_document *doc, const conf_comment *data)
 {
     struct comment *comment = new(doc, sizeof(comment[0]));
     if (comment == NULL)
@@ -678,7 +678,7 @@ static void record_comment(conf_doc *doc, const conf_comment *data)
     doc->comments_count += 1;
 }
 
-static token_type peek(conf_doc *doc, token *tok)
+static token_type peek(conf_document *doc, token *tok)
 {
     // LCOV_EXCL_START
     assert(doc != NULL);
@@ -727,7 +727,7 @@ static token_type peek(conf_doc *doc, token *tok)
     return doc->peek.type;
 }
 
-static token_type eat(conf_doc *conf, token *tok)
+static token_type eat(conf_document *conf, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -740,7 +740,7 @@ static token_type eat(conf_doc *conf, token *tok)
     return tok->type;
 }
 
-static size_t copy_literal(conf_doc *conf, char *dest, const token *tok)
+static size_t copy_literal(conf_document *conf, char *dest, const token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -809,7 +809,7 @@ static size_t copy_literal(conf_doc *conf, char *dest, const token *tok)
 // use of dynamic array (scanning a quoted literal is cheaper than allocating memory).
 //
 
-static void parse_directive(conf_doc *conf, conf_dir *parent, int depth)
+static void parse_directive(conf_document *conf, conf_directive *parent, int depth)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -848,8 +848,8 @@ static void parse_directive(conf_doc *conf, conf_dir *parent, int depth)
 
     // (2) allocate storage for the arguments and copy the data to it
 
-    const size_t size = sizeof(conf_dir) + (size_t)buffer_length;
-    conf_dir *dir = new(conf, size);
+    const size_t size = sizeof(conf_directive) + (size_t)buffer_length;
+    conf_directive *dir = new(conf, size);
     if (dir == NULL)
     {
         die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
@@ -937,7 +937,7 @@ static void parse_directive(conf_doc *conf, conf_dir *parent, int depth)
     }
 }
 
-static void walk_directive(conf_doc *conf, int depth)
+static void walk_directive(conf_document *conf, int depth)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -1072,7 +1072,7 @@ static void walk_directive(conf_doc *conf, int depth)
 // Directive lists are parsed in a single pass and collected into a linked list.
 // After parsing is complete and the linked list is fully constructed, then the
 // list items are copied to an array for O(1) access.
-static void parse_body(conf_doc *conf, conf_dir *parent, int depth)
+static void parse_body(conf_document *conf, conf_directive *parent, int depth)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -1136,7 +1136,7 @@ static void parse_body(conf_doc *conf, conf_dir *parent, int depth)
     if (subdirs_count > 0)
     {
         // Allocate an array large enough to accomidate the subdirectives for O(1) access.
-        conf_dir **subdirs = new(conf, sizeof(subdirs[0]) * subdirs_count);
+        conf_directive **subdirs = new(conf, sizeof(subdirs[0]) * subdirs_count);
         if (subdirs == NULL)
         {
             die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
@@ -1144,7 +1144,7 @@ static void parse_body(conf_doc *conf, conf_dir *parent, int depth)
         
         // Copy subdirective pointers to the array.
         long index = 0;
-        for (conf_dir *curr = parent->subdir_head; curr != NULL; curr = curr->next)
+        for (conf_directive *curr = parent->subdir_head; curr != NULL; curr = curr->next)
         {
             subdirs[index] = curr;
             index += 1;
@@ -1154,7 +1154,7 @@ static void parse_body(conf_doc *conf, conf_dir *parent, int depth)
     }
 }
 
-conf_dir *conf_get_directive(conf_dir *dir, long index)
+conf_directive *conf_get_directive(conf_directive *dir, long index)
 {
     if (dir == NULL)
     {
@@ -1167,7 +1167,7 @@ conf_dir *conf_get_directive(conf_dir *dir, long index)
     return dir->subdir[index];
 }
 
-long conf_get_directive_count(conf_dir *dir)
+long conf_get_directive_count(conf_directive *dir)
 {
     if (dir == NULL)
     {
@@ -1176,7 +1176,7 @@ long conf_get_directive_count(conf_dir *dir)
     return dir->subdir_count;
 }
 
-conf_dir *conf_get_root(conf_doc *doc)
+conf_directive *conf_get_root(conf_document *doc)
 {
     if (doc == NULL)
     {
@@ -1185,7 +1185,7 @@ conf_dir *conf_get_root(conf_doc *doc)
     return doc->root;
 }
 
-conf_argument *conf_get_argument(conf_dir *dir, long index)
+conf_argument *conf_get_argument(conf_directive *dir, long index)
 {
     if (index < 0 || index >= dir->arguments_count)
     {
@@ -1194,7 +1194,7 @@ conf_argument *conf_get_argument(conf_dir *dir, long index)
     return &dir->arguments[index];
 }
 
-long conf_get_argument_count(conf_dir *dir)
+long conf_get_argument_count(conf_directive *dir)
 {
     if (dir == NULL)
     {
@@ -1203,7 +1203,7 @@ long conf_get_argument_count(conf_dir *dir)
     return dir->arguments_count;
 }
 
-conf_comment *conf_get_comment(conf_doc *conf, long index)
+conf_comment *conf_get_comment(conf_document *conf, long index)
 {
     if (index < 0 || index >= conf->comments_count)
     {
@@ -1212,7 +1212,7 @@ conf_comment *conf_get_comment(conf_doc *conf, long index)
     return &conf->comments[index]->data;
 }
 
-long conf_get_comment_count(conf_doc *conf)
+long conf_get_comment_count(conf_document *conf)
 {
     if (conf == NULL)
     {
@@ -1221,12 +1221,12 @@ long conf_get_comment_count(conf_doc *conf)
     return conf->comments_count;
 }
 
-static void free_directive(conf_doc *conf, conf_dir *dir)
+static void free_directive(conf_document *conf, conf_directive *dir)
 {
-    conf_dir *subdir = dir->subdir_head;
+    conf_directive *subdir = dir->subdir_head;
     while (subdir != NULL)
     {
-        conf_dir *next = subdir->next;
+        conf_directive *next = subdir->next;
         free_directive(conf, subdir);
         subdir = next;
     }
@@ -1241,7 +1241,7 @@ static void free_directive(conf_doc *conf, conf_dir *dir)
     delete(conf, dir, sizeof(dir[0]) + dir->buffer_length);
 }
 
-void conf_free(conf_doc *conf)
+void conf_free(conf_document *conf)
 {
     if (conf == NULL)
     {
@@ -1249,11 +1249,11 @@ void conf_free(conf_doc *conf)
     }
     assert(conf->root != NULL); // LCOV_EXCL_BR_LINE
 
-    conf_dir *root = conf->root;
-    conf_dir *dir = root->subdir_head;
+    conf_directive *root = conf->root;
+    conf_directive *dir = root->subdir_head;
     while (dir != NULL)
     {
-        conf_dir *next = dir->next;
+        conf_directive *next = dir->next;
         free_directive(conf, dir);
         dir = next;
     }
@@ -1282,7 +1282,7 @@ void conf_free(conf_doc *conf)
     delete(conf, conf, sizeof(conf[0]));
 }
 
-static void parse_doc(conf_doc *doc)
+static void parse_doc(conf_document *doc)
 {
     // Skip past the a BOM (byte order mark) character if present.
     if (memchr(doc->needle, '\0', 3) == NULL)
@@ -1306,9 +1306,9 @@ static void parse_doc(conf_doc *doc)
     }
 }
 
-conf_doc *conf_parse(const char *string, const conf_options *options, conf_err *error)
+conf_document *conf_parse(const char *string, const conf_options *options, conf_error *error)
 {
-    conf_doc *doc, tmp = {
+    conf_document *doc, tmp = {
         .string = string,
         .needle = string,
         .err.where = -1,
@@ -1325,9 +1325,9 @@ conf_doc *conf_parse(const char *string, const conf_options *options, conf_err *
         tmp.options.max_depth = INT16_MAX; // Default maximum nesting depth.
     }
 
-    if (tmp.options.memory_fn == NULL)
+    if (tmp.options.memory_allocator == NULL)
     {
-        tmp.options.memory_fn = &default_alloc;
+        tmp.options.memory_allocator = &default_alloc;
     }
 
     if (string == NULL)
@@ -1363,7 +1363,7 @@ conf_doc *conf_parse(const char *string, const conf_options *options, conf_err *
         return NULL;
     }
     memcpy(doc, &tmp, sizeof(doc[0]));
-    doc->root = (conf_dir *)doc->padding;
+    doc->root = (conf_directive *)doc->padding;
     parse_doc(doc);
 
     // Convert the comments linked list to an array for O(1) access.
@@ -1394,9 +1394,9 @@ conf_doc *conf_parse(const char *string, const conf_options *options, conf_err *
     return doc;
 }
 
-conf_errno conf_walk(const char *string, const conf_options *options, conf_err *error, conf_walkfn walk)
+conf_errno conf_walk(const char *string, const conf_options *options, conf_error *error, conf_walkfn walk)
 {
-    conf_doc doc = {
+    conf_document doc = {
         .string = string,
         .needle = string,
         .walk = walk,
@@ -1414,9 +1414,9 @@ conf_errno conf_walk(const char *string, const conf_options *options, conf_err *
         doc.options.max_depth = INT16_MAX; // Default maximum nesting depth.
     }
 
-    if (doc.options.memory_fn == NULL)
+    if (doc.options.memory_allocator == NULL)
     {
-        doc.options.memory_fn = &default_alloc;
+        doc.options.memory_allocator = &default_alloc;
     }
 
     if (string == NULL)

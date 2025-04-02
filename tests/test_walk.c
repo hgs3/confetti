@@ -41,12 +41,12 @@ struct UserData
 {
     StringBuf *sb;
     int depth;
-    conf_elem prev;
+    conf_element prev;
     struct Directive *parent_directive;
     struct Directive *previous_directive;
 };
 
-static int walk_callback(void *user_data, conf_elem elem, int argc, const conf_argument *argv, const conf_comment *comnt)
+static int walk_callback(void *user_data, conf_element elem, int argc, const conf_argument *argv, const conf_comment *comnt)
 {
     struct UserData *ud = user_data;
     struct Directive *parent = ud->parent_directive;
@@ -155,7 +155,7 @@ static void print_directive(struct StringBuf *sb, struct Directive *dir, int dep
 
 static char *walk(const char *input)
 {
-    conf_err error = {0};
+    conf_error error = {0};
 
     struct Directive *dir = calloc(1, sizeof(dir[0]));
     struct UserData ud = {
@@ -185,7 +185,7 @@ static char *walk(const char *input)
     return strbuf_drop(ud.sb);
 }
 
-static int print_tokens(void *user_data, conf_elem elem, int argc, const conf_argument *argv, const conf_comment *comnt)
+static int print_tokens(void *user_data, conf_element elem, int argc, const conf_argument *argv, const conf_comment *comnt)
 {
     struct UserData *ud = user_data;
 
@@ -266,7 +266,7 @@ static int print_tokens(void *user_data, conf_elem elem, int argc, const conf_ar
     return 0;
 }
 
-static int print_comments(void *user_data, conf_elem elem, int argc, const conf_argument *argv, const conf_comment *comnt)
+static int print_comments(void *user_data, conf_element elem, int argc, const conf_argument *argv, const conf_comment *comnt)
 {
     struct UserData *ud = user_data;
     if (elem == CONF_COMMENT)
@@ -291,7 +291,7 @@ static char *tokenize(const char *input)
     conf_options options = {
         .user_data = &ud,
     };
-    conf_err error = {0};
+    conf_error error = {0};
     conf_errno errno = conf_walk(input, &options, &error, print_tokens);
     if (errno != CONF_NO_ERROR)
     {

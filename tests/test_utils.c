@@ -157,7 +157,7 @@ static void whitespace(StringBuf *sb, int depth)
     }
 }
 
-static void print_tokens(struct StringBuf *sb, conf_dir *dir, int depth)
+static void print_tokens(struct StringBuf *sb, conf_directive *dir, int depth)
 {
     whitespace(sb, depth);
     strbuf_puts(sb, "command {");
@@ -214,7 +214,7 @@ static void print_tokens(struct StringBuf *sb, conf_dir *dir, int depth)
     strbuf_puts(sb, "}");
 }
 
-static void print_directive(struct StringBuf *sb, conf_dir *dir, int depth)
+static void print_directive(struct StringBuf *sb, conf_directive *dir, int depth)
 {
     whitespace(sb, depth);
 
@@ -249,8 +249,8 @@ static void print_directive(struct StringBuf *sb, conf_dir *dir, int depth)
 char *parse(const char *input)
 {
     StringBuf *sb = strbuf_new();
-    conf_err error = {0};
-    conf_doc *doc = conf_parse(input, NULL, &error);
+    conf_error error = {0};
+    conf_document *doc = conf_parse(input, NULL, &error);
     if (error.code != CONF_NO_ERROR)
     {
         assert(doc == NULL);
@@ -260,10 +260,10 @@ char *parse(const char *input)
     {
         assert(doc != NULL);
 
-        conf_dir *root = conf_get_root(doc);
+        conf_directive *root = conf_get_root(doc);
         for (long i = 0; i < conf_get_directive_count(root); i++)
         {
-            conf_dir *subdir = conf_get_directive(root, i);
+            conf_directive *subdir = conf_get_directive(root, i);
             print_directive(sb, subdir, 0);
         }
         conf_free(doc);
@@ -274,18 +274,18 @@ char *parse(const char *input)
 static char *tokenize(const char *input)
 {
     StringBuf *sb = strbuf_new();
-    conf_err error = {0};
-    conf_doc *doc = conf_parse(input, NULL, &error);
+    conf_error error = {0};
+    conf_document *doc = conf_parse(input, NULL, &error);
     if (error.code != CONF_NO_ERROR)
     {
         strbuf_printf(sb, "error: %s\n", error.description);
     }
     else
     {
-        conf_dir *root = conf_get_root(doc);
+        conf_directive *root = conf_get_root(doc);
         for (long i = 0; i < conf_get_directive_count(root); i++)
         {
-            conf_dir *subdir = conf_get_directive(root, i);
+            conf_directive *subdir = conf_get_directive(root, i);
             print_tokens(sb, subdir, 0);
         }
 
