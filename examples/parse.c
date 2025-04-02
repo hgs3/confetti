@@ -4,9 +4,12 @@
  *  http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-// This example reads a Confetti document from standard input and uses
-// the "parse" API to construct an in-memory representation. It then
-// pretty prints to standard output.
+// This example reads a Confetti document from standard input, parses it
+// into an in-memory representation, then pretty prints it to standard output.
+
+// Most configuration and data-interchange parsers build an in-memory representation
+// so this API will feel more familair. For a more memory efficient approach, see
+// the directive walker example.
 
 #include "confetti.h"
 #include <stdio.h>

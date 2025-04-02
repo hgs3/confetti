@@ -4,9 +4,13 @@
  *  http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-// This example reads a Confetti document from standard input and uses
-// the "walker" API to visit each directive, pretty printing them all
-// to standard output.
+// This example reads a Confetti document from standard input and uses the
+// directive walker API to visit each directive, pretty printing them to
+// standard output.
+
+// Using the directive walker is more memory efficient than using the parse() API
+// as the latter builds an in-memory representation of the document whereas the
+// former does not.
 
 #include "confetti.h"
 #include <stdio.h>
