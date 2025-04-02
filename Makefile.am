@@ -9,8 +9,14 @@ libconfetti_la_SOURCES = confetti.c confetti_unidata.c confetti.h
 libconfetti_la_LDFLAGS = -no-undefined -version-info 0:0:0
 include_HEADERS = confetti.h
 
-noinst_PROGRAMS = echo
-echo_SOURCES = examples/echo.c examples/readstdin.c
-echo_CFLAGS = -I$(top_srcdir)
-echo_LDADD = libconfetti.la
-echo_DEPENDENCIES = libconfetti.la
+noinst_PROGRAMS = parse
+parse_SOURCES = examples/parse.c examples/_readstdin.c
+parse_CFLAGS = -I$(top_srcdir)
+parse_LDADD = libconfetti.la
+parse_DEPENDENCIES = libconfetti.la
+
+noinst_PROGRAMS = walk
+walk_SOURCES = examples/walk.c examples/_readstdin.c
+walk_CFLAGS = -I$(top_srcdir)
+walk_LDADD = libconfetti.la
+walk_DEPENDENCIES = libconfetti.la
