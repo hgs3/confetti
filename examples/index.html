@@ -89,12 +89,20 @@
 <li><a href="#_workflow_automation">Workflow Automation</a></li>
 <li><a href="#_user_interface">User Interface</a></li>
 <li><a href="#_ai_training">AI Training</a></li>
-<li><a href="#_material_definitions">Material Definitions</a></li>
+<li><a href="#_material_or_scene_descriptors">Material or Scene Descriptors</a></li>
 <li><a href="#_domain_specific_languages">Domain Specific Languages</a>
 <ul class="sectlevel2">
+<li><a href="#_shell_commands">Shell Commands</a></li>
 <li><a href="#_stack_based_language">Stack-Based Language</a></li>
 <li><a href="#_control_flow">Control Flow</a></li>
 <li><a href="#_state_machine">State Machine</a></li>
+</ul>
+</li>
+<li><a href="#_language_extensions">Language Extensions</a>
+<ul class="sectlevel2">
+<li><a href="#_annex_a_comment_syntax_extension">Annex A: Comment Syntax Extension</a></li>
+<li><a href="#_annex_b_expression_arguments_extension">Annex B: Expression Arguments Extension</a></li>
+<li><a href="#_annex_c_punctuator_arguments_extension">Annex C: Punctuator Arguments Extension</a></li>
 </ul>
 </li>
 </ul>
@@ -229,16 +237,19 @@ function() {
 </div>
 </div>
 <div class="sect1">
-<h2 id="_material_definitions"><span>Material Definitions</span><a href="#_material_definitions">#</a></h2>
+<h2 id="_material_or_scene_descriptors"><span>Material or Scene Descriptors</span><a href="#_material_or_scene_descriptors">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The Confetti grammar is <em>almost</em> compatible with the <a href="https://en.wikipedia.org/wiki/Wavefront_.obj_file">Wavefront .OBJ</a> file format, which is a geometry definition file format popular in computer graphics.
 The <code>.OBJ</code> format is <em>line-based</em> and has directives or <em>commands</em>, much like Confetti.</p>
 </div>
 <div class="paragraph">
-<p>The following example demonstrates how Confetti can be used to create pseudo-groups like the <code>.OBJ</code> format.
+<p>The following example demonstrates how Confetti can be used to create pseudo-groups like the <code>.OBJ</code> format uses.
 Here <code>material</code>, <code>opacity</code>, <code>pass</code>, <code>diffuse</code>, and <code>blend-mode</code> are interpreted as <strong>commands</strong> by the user application.
 For example, the application would interpret the <code>material</code> command as the definition of a new material and all subsequent commands as belonging to it.</p>
+</div>
+<div class="paragraph">
+<p>Note that line indentation is provided for visual clarity and is insignificant to Confetti.</p>
 </div>
 <pre><code><span class="directive">material</span> water
     <span class="directive">opacity</span> <span class="number">0.5</span>
@@ -262,9 +273,27 @@ Confetti brings that flexibility to Unix configuration and INI files, except wit
 As you view these examples, keep in mind Confetti has no keywords or control flow — syntax highlighting is just for show.</p>
 </div>
 <div class="sect2">
+<h3 id="_shell_commands"><span>Shell Commands</span><a href="#_shell_commands">#</a></h3>
+<div class="paragraph">
+<p>Each Confetti directive could be interpreted as a shell-like command.
+From simple commands:</p>
+</div>
+<pre><code>cat myfile.txt</code></pre>
+<div class="paragraph">
+<p>to batching commands:</p>
+</div>
+<pre><code><span class="directive">do</span> {
+  ./webserver -p 8080
+  ./database --api-key 123 --data-dir /var/lib/db/
+} &gt; output.txt</code></pre>
+<div class="paragraph">
+<p>Both examples are valid Confetti syntax.</p>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_stack_based_language"><span>Stack-Based Language</span><a href="#_stack_based_language">#</a></h3>
 <div class="paragraph">
-<p>A simple stack-based language for a virtual machine.</p>
+<p>Confetti can be used to create simple stack-based languages.</p>
 </div>
 <pre><code><span class="directive">push</span> <span class="number">1</span>
 <span class="directive">push</span> <span class="number">2</span>
@@ -272,7 +301,15 @@ As you view these examples, keep in mind Confetti has no keywords or control flo
 <span class="directive">pop</span> $x  <span class="comment"># Pop the sum and store it in $x.</span>
 <span class="directive">print</span> <span class="quoted">"1 + 2 ="</span>
 <span class="directive">print</span> $x</code></pre>
+<div class="paragraph">
+<p>Subdirectives could be used if you need more complex grouping, like for function declarations.
+Here, we’ll assume the calling convention is to push function arguments from left-to-right on the stack, which means <code>x</code> and <code>y</code> would be at the top of the stack when the <code>sum</code> function is called:</p>
 </div>
+<pre><code><span class="directive">func</span> <span class="quoted">sum</span> x y {
+    <span class="directive">add</span>       <span class="comment"># Pop the arguments 'x' and 'y' and push their sum.</span>
+    <span class="directive">return</span> 1  <span class="comment"># One return value is left on the stack.</span>
+}
+</code></pre></div>
 <div class="sect2">
 <h3 id="_control_flow"><span>Control Flow</span><a href="#_control_flow">#</a></h3>
 <div class="paragraph">
@@ -285,6 +322,8 @@ As you view these examples, keep in mind Confetti has no keywords or control flo
         <span class="directive">print</span> <span class="quoted">"Access granted"</span>
         <span class="directive">send_email</span> <span class="quoted">"admin@example.com"</span>
         <span class="directive">exit</span> <span class="number">0</span> <span class="comment"># Success!</span>
+    } <span class="directive">else</span> {
+        <span class="directive">sleep</span> <span class="number">1s</span> <span class="comment"># Let's try again after a moment.</span>
     }
 }
 <span class="directive">exit</span> <span class="number">1</span> <span class="comment"># Failed to confirm admin role.</span></code></pre>
@@ -313,6 +352,58 @@ As you view these examples, keep in mind Confetti has no keywords or control flo
         <span class="directive">goto_state</span> last_words
     }
 }</code></pre>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_language_extensions"><span>Language Extensions</span><a href="#_language_extensions">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Confetti specification defines the core language and its annex includes optional <strong>extensions</strong> that are compatible with the grammar.
+This section demonstrates these extensions in action.</p>
+</div>
+<div class="sect2">
+<h3 id="_annex_a_comment_syntax_extension"><span>Annex A: Comment Syntax Extension</span><a href="#_annex_a_comment_syntax_extension">#</a></h3>
+<div class="paragraph">
+<p>This extension allows single and multi-line C-style comments in Confetti.
+That means you can use <code>//</code> for single-line comments and <code>/*</code> and <code>*/</code> for multi-line comments in addition to <code>#</code> comments.</p>
+</div>
+<pre><code><span class="comment"># Confetti style comment.</span>
+
+<span class="comment">// C-style single-line comment.</span>
+
+<span class="comment">/* C-style multi-
+   line comment. */</span></code></pre>
+</div>
+<div class="sect2">
+<h3 id="_annex_b_expression_arguments_extension"><span>Annex B: Expression Arguments Extension</span><a href="#_annex_b_expression_arguments_extension">#</a></h3>
+<div class="paragraph">
+<p>This extension lets you write parentheses enclosed “expressions” wherever an argument is allowed.</p>
+</div>
+<div class="paragraph">
+<p>In the following example, with this extension, the top-level directive would be interpreted as having two arguments <code>if</code> and <code>(x &gt; y)</code>.
+The latter is the <em>expression argument</em> and it is to be evaluated by the user application.</p>
+</div>
+<pre><code><span class="directive">if</span> (x &gt; y) {
+    <span class="directive">print</span> <span class="quoted">"x is greater than y"</span>
+}</code></pre>
+<div class="paragraph">
+<p>Without this extension, the directive would be interpreted as having <em>four</em> arguments: <code>if</code>, <code>(x</code>, <code>&gt;</code>, and <code>y)</code>, which is <em>not</em> how it reads to anyone with familiarity with C derived languages!</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_annex_c_punctuator_arguments_extension"><span>Annex C: Punctuator Arguments Extension</span><a href="#_annex_c_punctuator_arguments_extension">#</a></h3>
+<div class="paragraph">
+<p>This extension lets you take any character that is valid in an argument and treat it as a <em>reserved punctuator</em>.
+This is useful for defining your own domain-specific punctuators.
+For example, you might decide that the “equal sign” character is a punctuator which means the following directives would be equivalent:</p>
+</div>
+<pre><code>x = <span class="number">123</span>
+x=<span class="number">123</span></code></pre>
+<div class="paragraph">
+<p>With this extension, both directives have three arguments: <code>x</code>, <code>=</code>, and <code>123</code>.
+Without this extension, if you wanted <code>=</code> to be distinct from <code>x</code> and <code>123</code>, then the white space would be required.</p>
+</div>
 </div>
 </div>
 </div>
