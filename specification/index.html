@@ -504,13 +504,14 @@ It is possible newer standards may necessitate a revision of this specification.
 <h2 id="_annex_b_expression_arguments_extension"><span>Annex B: Expression Arguments Extension</span><a href="#_annex_b_expression_arguments_extension">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Implementations may include expression arguments.
-An expression argument is an “expression” enclosed in parentheses.
+<p>Implementations may support <em>expression arguments</em>.
+An expression argument is a parentheses enclosed “expression” that may appear wherever an <a href="#_argument">argument</a> is allowed.
 The interpretation and evaluation of an expression argument is implementation defined.</p>
 </div>
 <div class="paragraph">
-<p>This extension requires Left Parenthesis (U+0028) and Right Parenthesis (U+0029) to be considered reserved punctuators.
-If an implementation permits parenthesis in the expression argument, then they must be balanced.</p>
+<p>This extension requires Left Parenthesis (U+0028) and Right Parenthesis (U+0029) to be interpreted as <a href="#_reserved_punctuators">reserved punctuators</a>.
+If an implementation permits parenthesis inside the expression argument, then they must be <em>balanced</em>.
+Balanced means that for every Left Parenthesis (U+0028) there is a succeeding Right Parenthesis (U+0029).</p>
 </div>
 <div class="paragraph">
 <p>The production rules shall be amended as follows:</p>
