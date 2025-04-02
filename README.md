@@ -52,7 +52,12 @@ $ make
 $ make install
 ```
 
-or build with CMake.
+or build with CMake
+
+```
+$ cmake -B build
+$ cmake --build build --config Release
+```
 
 Code examples can be found in the [examples](examples/) directory.
 
