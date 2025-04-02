@@ -6,6 +6,10 @@
  * For full terms see the included LICENSE file.
  */
 
+// The implementation of Confetti in C is a tad more complex than it needs to be
+// because the API supports both a callback-based "tree" walking API as well as
+// an API for building an in-memory "tree" structure.
+
 #include "confetti.h"
 #include <stdio.h>
 #include <ctype.h>
@@ -79,12 +83,10 @@ struct conf_dir
 
 struct conf_doc
 {
-    void *user_data;
-    conf_allocfunc allocfunc;
-
     const char *string;
     const char *needle;
     
+    conf_walkfn walk;
     conf_dir *root;
 
     long comments_count;
@@ -147,7 +149,7 @@ static void *new(conf_doc *conf, size_t size)
     assert(conf != NULL);
     assert(size > 0);
     // LCOV_EXCL_STOP
-    return conf->allocfunc(conf->user_data, NULL, size);
+    return conf->options.memory_fn(conf->options.user_data, NULL, size);
 }
 
 static void delete(conf_doc *conf, void *ptr, size_t size)
@@ -157,7 +159,7 @@ static void delete(conf_doc *conf, void *ptr, size_t size)
     assert(ptr != NULL);
     assert(size > 0);
     // LCOV_EXCL_STOP
-    conf->allocfunc(conf->user_data, ptr, size);
+    conf->options.memory_fn(conf->options.user_data, ptr, size);
 }
 
 static uchar utf8decode(conf_doc *conf, const char *utf8, size_t *utf8_length)
@@ -650,63 +652,79 @@ static void scan_token(conf_doc *conf, const char *string, token *tok)
     die(conf, CONF_BAD_SYNTAX, string, "illegal character U+%04X", cp);
 }
 
-static token_type peek(conf_doc *conf, token *tok)
+static void record_comment(conf_doc *doc, const conf_comment *data)
+{
+    struct comment *comment = new(doc, sizeof(comment[0]));
+    if (comment == NULL)
+    {
+        die(doc, CONF_OUT_OF_MEMORY, doc->needle, "memory allocation failed");
+    }
+    comment->data.offset = data->offset;
+    comment->data.length = data->length;
+    comment->next = NULL;
+
+    if (doc->comment_head == NULL)
+    {
+        assert(doc->comment_tail == NULL); // LCOV_EXCL_BR_LINE
+        doc->comment_head = comment;
+        doc->comment_tail = comment;
+    }
+    else
+    {
+        assert(doc->comment_tail != NULL); // LCOV_EXCL_BR_LINE
+        doc->comment_tail->next = comment;
+        doc->comment_tail = comment;
+    }
+    doc->comments_count += 1;
+}
+
+static token_type peek(conf_doc *doc, token *tok)
 {
     // LCOV_EXCL_START
-    assert(conf != NULL);
+    assert(doc != NULL);
     assert(tok != NULL);
     // LCOV_EXCL_STOP
 
-    if (conf->peek.type == TOK_INVALID)
+    if (doc->peek.type == TOK_INVALID)
     {
         for (;;)
         {
-            scan_token(conf, conf->needle, &conf->peek);
-            if (conf->peek.type == TOK_WHITESPACE)
+            scan_token(doc, doc->needle, &doc->peek);
+            if (doc->peek.type == TOK_WHITESPACE)
             {
-                conf->needle += conf->peek.lexeme_length;
+                doc->needle += doc->peek.lexeme_length;
                 continue;
             }
-            else if (conf->peek.type == TOK_COMMENT)
+            else if (doc->peek.type == TOK_COMMENT)
             {
                 // Prevent the same comment from being reported twice.
                 // Comments might be parsed twice when the parser
                 // is rewound, but they should only be reported
                 // once to the user.
-                if (conf->comment_processed <= conf->peek.lexeme)
+                if (doc->comment_processed <= doc->peek.lexeme)
                 {
-                    struct comment *comment = new(conf, sizeof(comment[0]));
-                    if (comment == NULL)
+                    const conf_comment comment = {
+                        .offset = doc->peek.lexeme,
+                        .length = doc->peek.lexeme_length,
+                    };
+                    if (doc->walk == NULL)
                     {
-                        die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
+                        record_comment(doc, &comment);
                     }
-                    comment->data.offset = conf->peek.lexeme;
-                    comment->data.length = conf->peek.lexeme_length;
-                    comment->next = NULL;
-
-                    if (conf->comment_head == NULL)
+                    else if (doc->walk(doc->options.user_data, CONF_COMMENT, 0, NULL, &comment) != 0)
                     {
-                        assert(conf->comment_tail == NULL); // LCOV_EXCL_BR_LINE
-                        conf->comment_head = comment;
-                        conf->comment_tail = comment;
+                        die(doc, CONF_USER_ABORTED, doc->needle, "user aborted");
                     }
-                    else
-                    {
-                        assert(conf->comment_tail != NULL); // LCOV_EXCL_BR_LINE
-                        conf->comment_tail->next = comment;
-                        conf->comment_tail = comment;
-                    }
-                    conf->comments_count += 1;
-                    conf->comment_processed = comment->data.offset + comment->data.length;
+                    doc->comment_processed = comment.offset + comment.length;
                 }
-                conf->needle += conf->peek.lexeme_length;
+                doc->needle += doc->peek.lexeme_length;
                 continue;
             }
             break;
         }
     }
-    *tok = conf->peek;
-    return conf->peek.type;
+    *tok = doc->peek;
+    return doc->peek.type;
 }
 
 static token_type eat(conf_doc *conf, token *tok)
@@ -778,6 +796,7 @@ static size_t copy_literal(conf_doc *conf, char *dest, const token *tok)
     return nbytes;
 }
 
+//
 // Parsing directives is a two step process:
 //
 //   (1) arguments are first scanned and counted, additionally the total number
@@ -789,6 +808,7 @@ static size_t copy_literal(conf_doc *conf, char *dest, const token *tok)
 // The point of step #1 is to reduce the number of overall allocations and to avoid the
 // use of dynamic array (scanning a quoted literal is cheaper than allocating memory).
 //
+
 static void parse_directive(conf_doc *conf, conf_dir *parent, int depth)
 {
     // LCOV_EXCL_START
@@ -917,6 +937,138 @@ static void parse_directive(conf_doc *conf, conf_dir *parent, int depth)
     }
 }
 
+static void walk_directive(conf_doc *conf, int depth)
+{
+    // LCOV_EXCL_START
+    assert(conf != NULL);
+    assert(depth >= 0);
+    // LCOV_EXCL_STOP
+
+    token tok;
+
+    // (1) figure out how much memory is needed for the arguments
+
+    const token saved_peek = conf->peek; // save parser state
+    const char *saved_needle = conf->needle;
+
+    int args_count = 0;
+    int buffer_length = 0;
+    for (;;)
+    {
+        peek(conf, &tok);
+        if (tok.type == TOK_LITERAL)
+        {
+            args_count += 1;
+            buffer_length += copy_literal(conf, NULL, &tok) + 1; // +1 for null byte
+            eat(conf, &tok);
+        }
+        else if (tok.type == TOK_CONTINUATION)
+        {
+            eat(conf, &tok);
+        }
+        else
+        {
+            break;
+        }
+    }
+    conf->peek = saved_peek; // rewind parser state
+    conf->needle = saved_needle;
+
+    // (2) allocate storage for the arguments and copy the data to it
+
+    char *args_buffer = new(conf, buffer_length);
+    if (args_buffer == NULL)
+    {
+        die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
+    }
+
+    const int argc = args_count;
+    struct conf_arg *argv = new(conf, argc * sizeof(argv[0]));
+    if (argv == NULL)
+    {
+        delete(conf, args_buffer, buffer_length);
+        die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
+    }
+
+    memset(args_buffer, 0, buffer_length);
+
+    char *buffer = args_buffer;
+    args_count = 0;
+    for (;;)
+    {
+        peek(conf, &tok);
+        if (tok.type == TOK_LITERAL)
+        {
+            conf_arg *arg = &argv[args_count++];
+            arg->lexeme_offset = tok.lexeme;
+            arg->lexeme_length = tok.lexeme_length;
+            arg->value = buffer;
+            buffer += copy_literal(conf, buffer, &tok) + 1; // +1 for null byte
+            eat(conf, &tok);
+        }
+        else if (tok.type == TOK_CONTINUATION)
+        {
+            eat(conf, &tok);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    int r = conf->walk(conf->options.user_data, CONF_DIRECTIVE, argc, argv, NULL);
+    delete(conf, argv, argc * sizeof(argv[0]));
+    delete(conf, args_buffer, buffer_length);
+    if (r != 0)
+    {
+        die(conf, CONF_USER_ABORTED, conf->needle, "user aborted");
+    }
+
+    // If there is a terminating semicolon, then the can be no subdirectives.
+    if (tok.type == ';')
+    {
+        eat(conf, &tok); // consume ';'
+        return;
+    }
+
+    // Consume as many new lines as possible.
+    while (tok.type == TOK_NEWLINE)
+    {
+        eat(conf, &tok);
+        peek(conf, &tok);
+    }
+
+    // Check for a subdirective.
+    if (tok.type == '{')
+    {
+        eat(conf, &tok); // consume '{'
+
+        r = conf->walk(conf->options.user_data, CONF_SUBDIRECTIVE_PUSH, 0, NULL, NULL);
+        if (r != 0)
+        {
+            die(conf, CONF_USER_ABORTED, conf->needle, "user aborted");
+        }
+
+        parse_body(conf, NULL, depth + 1);
+
+        peek(conf, &tok);
+        if (tok.type == '}')
+        {
+            eat(conf, &tok); // consume '}'
+
+            r = conf->walk(conf->options.user_data, CONF_SUBDIRECTIVE_POP, 0, NULL, NULL);
+            if (r != 0)
+            {
+                die(conf, CONF_USER_ABORTED, conf->needle, "user aborted");
+            }
+        }
+        else
+        {
+            die(conf, CONF_BAD_SYNTAX, conf->needle, "expected '}'");
+        }
+    }
+}
+
 // Directive lists are parsed in a single pass and collected into a linked list.
 // After parsing is complete and the linked list is fully constructed, then the
 // list items are copied to an array for O(1) access.
@@ -945,8 +1097,17 @@ static void parse_body(conf_doc *conf, conf_dir *parent, int depth)
 
         if (tok.type == TOK_LITERAL)
         {
-            parse_directive(conf, parent, depth);
-            subdirs_count += 1;
+            if (parent == NULL)
+            {
+                walk_directive(conf, depth);
+                assert(conf->walk != NULL); // LCOV_EXCL_BR_LINE
+            }
+            else
+            {
+                parse_directive(conf, parent, depth);
+                subdirs_count += 1;
+                assert(conf->walk == NULL); // LCOV_EXCL_BR_LINE
+            }
             continue;
         }
 
@@ -1130,15 +1291,38 @@ void conf_free(conf_doc *conf)
     delete(conf, conf, sizeof(conf[0]));
 }
 
-conf_doc *conf_parse_ex(const char *string, const conf_options *options, conf_err *error, void *user_data, conf_allocfunc allocfunc)
+static void parse_doc(conf_doc *doc)
 {
-    conf_doc *conf, tmp = {0};
-    tmp.string = string;
-    tmp.needle = string;
-    tmp.user_data = user_data;
-    tmp.allocfunc = allocfunc;
-    tmp.err.where = -1;
-    tmp.err.code = CONF_NO_ERROR;
+    // Skip past the a BOM (byte order mark) character if present.
+    if (memchr(doc->needle, '\0', 3) == NULL)
+    {
+        if (memcmp(doc->needle, "\xEF\xBB\xBF", 3) == 0)
+        {
+            doc->needle += 3;
+        }
+    }
+
+    // Parse the Confetti document.
+    parse_body(doc, doc->root, 0);
+
+    // Verify the document ended by checking for extraneous tokens.
+    token tok;
+    peek(doc, &tok);
+    if (tok.type != TOK_EOF)
+    {
+        assert(tok.type == '}'); // LCOV_EXCL_BR_LINE
+        die(doc, CONF_BAD_SYNTAX, doc->needle, "found '}' without matching '{'");
+    }
+}
+
+conf_doc *conf_parse(const char *string, const conf_options *options, conf_err *error)
+{
+    conf_doc *doc, tmp = {
+        .string = string,
+        .needle = string,
+        .err.where = -1,
+        .err.code = CONF_NO_ERROR,
+    };
 
     if (options != NULL)
     {
@@ -1150,9 +1334,9 @@ conf_doc *conf_parse_ex(const char *string, const conf_options *options, conf_er
         tmp.options.max_depth = INT16_MAX; // Default maximum nesting depth.
     }
 
-    if (tmp.allocfunc == NULL)
+    if (tmp.options.memory_fn == NULL)
     {
-        tmp.allocfunc = &default_alloc;
+        tmp.options.memory_fn = &default_alloc;
     }
 
     if (string == NULL)
@@ -1165,29 +1349,20 @@ conf_doc *conf_parse_ex(const char *string, const conf_options *options, conf_er
         return NULL;
     }
 
-    // Skip past the a BOM (byte order mark) character if present.
-    if (memchr(tmp.needle, '\0', 3) == NULL)
-    {
-        if (memcmp(tmp.needle, "\xEF\xBB\xBF", 3) == 0)
-        {
-            tmp.needle += 3;
-        }
-    }
-
     if (setjmp(tmp.err_buf) != 0)
     {
-        assert(conf != NULL); // LCOV_EXCL_BR_LINE
+        assert(doc != NULL); // LCOV_EXCL_BR_LINE
         if (error != NULL)
         {
-            memcpy(error, &conf->err, sizeof(error[0]));
+            memcpy(error, &doc->err, sizeof(error[0]));
         }
-        conf_free(conf);
+        conf_free(doc);
         return NULL;
     }
 
     // Allocate the top-level directive and then begin parsing.
-    conf = new(&tmp, sizeof(tmp));
-    if (conf == NULL)
+    doc = new(&tmp, sizeof(tmp));
+    if (doc == NULL)
     {
         if (error != NULL)
         {
@@ -1196,48 +1371,100 @@ conf_doc *conf_parse_ex(const char *string, const conf_options *options, conf_er
         }
         return NULL;
     }
-    memcpy(conf, &tmp, sizeof(conf[0]));
-    conf->root = (conf_dir *)conf->padding;
-
-    parse_body(conf, conf->root, 0);
-
-    token tok;
-    peek(conf, &tok);
-    if (tok.type != TOK_EOF)
-    {
-        assert(tok.type == '}'); // LCOV_EXCL_BR_LINE
-        die(conf, CONF_BAD_SYNTAX, conf->needle, "found '}' without matching '{'");
-    }
+    memcpy(doc, &tmp, sizeof(doc[0]));
+    doc->root = (conf_dir *)doc->padding;
+    parse_doc(doc);
 
     // Convert the comments linked list to an array for O(1) access.
-    if (conf->comments_count > 0)
+    if (doc->comments_count > 0)
     {
-        struct comment **comments = new(conf, sizeof(comments[0]) * conf->comments_count);
+        struct comment **comments = new(doc, sizeof(comments[0]) * doc->comments_count);
         if (comments == NULL)
         {
-            die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
+            die(doc, CONF_OUT_OF_MEMORY, doc->needle, "memory allocation failed");
         }
 
         // Copy subdirective pointers to the array.
         long index = 0;
-        for (struct comment *curr = conf->comment_head; curr != NULL; curr = curr->next)
+        for (struct comment *curr = doc->comment_head; curr != NULL; curr = curr->next)
         {
             comments[index] = curr;
             index += 1;
         }
-        conf->comments = comments;
+        doc->comments = comments;
     }
 
     if (error != NULL)
     {
-        error->where = conf->needle - conf->string;
+        error->where = doc->needle - doc->string;
         error->code = CONF_NO_ERROR;
         strcpy(error->description, "no error");
     }
-    return conf;
+    return doc;
 }
 
-conf_doc *conf_parse(const char *string, const conf_options *options, conf_err *error)
+conf_errno conf_walk(const char *string, const conf_options *options, conf_err *error, conf_walkfn walk)
 {
-    return conf_parse_ex(string, options, error, NULL, &default_alloc);
+    conf_doc doc = {
+        .string = string,
+        .needle = string,
+        .walk = walk,
+        .err.where = -1,
+        .err.code = CONF_NO_ERROR,
+    };
+
+    if (options != NULL)
+    {
+        doc.options = *options;
+    }
+
+    if (doc.options.max_depth < 1)
+    {
+        doc.options.max_depth = INT16_MAX; // Default maximum nesting depth.
+    }
+
+    if (doc.options.memory_fn == NULL)
+    {
+        doc.options.memory_fn = &default_alloc;
+    }
+
+    if (string == NULL)
+    {
+        if (error != NULL)
+        {
+            error->code = CONF_INVALID_OPERATION;
+            strcpy(error->description, "missing string argument");
+        }
+        return CONF_INVALID_OPERATION;
+    }
+
+    if (walk == NULL)
+    {
+        if (error != NULL)
+        {
+            error->code = CONF_INVALID_OPERATION;
+            strcpy(error->description, "missing function argument");
+        }
+        return CONF_INVALID_OPERATION;
+    }
+
+    if (setjmp(doc.err_buf) != 0)
+    {
+        if (error != NULL)
+        {
+            memcpy(error, &doc.err, sizeof(error[0]));
+        }
+    }
+    else
+    {
+        parse_doc(&doc);
+        if (error != NULL)
+        {
+            error->where = doc.needle - doc.string;
+            error->code = CONF_NO_ERROR;
+            strcpy(error->description, "no error");
+        }
+    }
+    
+    return doc.err.code;
 }

@@ -39,10 +39,13 @@ elseif (CONFETTI_CODE_COVERAGE)
 endif ()
 
 add_executable(tests_confetti
-    test_parser.c
+    test_parse.c
+    test_walk.c
     test_custom_allocator.c
     test_out_of_memory.c
-    test_api.c
+    test_parse_api.c
+    test_walk_api.c
+    test_abort.c
     test_utils.c
     test_utils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/../confetti.h
@@ -82,11 +85,12 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) { return 0; }
             link_libraries(confetti)
 
             # Add the fuzz tests.
-            add_executable(fuzz_confetti fuzz_confetti.c)
-            target_link_libraries(fuzz_confetti confetti)
+            add_executable(fuzz_parse fuzz_parse.c)
+            add_executable(fuzz_walk fuzz_walk.c)
 
             # Register tests.
-            add_test(NAME FuzzConfetti COMMAND fuzz_confetti "${CMAKE_CURRENT_SOURCE_DIR}/corpus" -runs=10000)
+            add_test(NAME FuzzParse COMMAND fuzz_parse "${CMAKE_CURRENT_SOURCE_DIR}/corpus" -runs=10000)
+            add_test(NAME FuzzWalk COMMAND fuzz_walk "${CMAKE_CURRENT_SOURCE_DIR}/corpus" -runs=10000)
         endif ()
     endif ()
 endif ()

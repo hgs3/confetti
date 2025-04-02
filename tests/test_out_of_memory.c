@@ -36,25 +36,34 @@ static void *fallible_allocator(void *ud, void *ptr, size_t size)
     }
 }
 
-TEST(memory, out_of_memory, .iterations=COUNT_OF(tests_utf8))
+static int visit(void *user_data, conf_elem elem, int argc, const conf_arg *argv, const conf_comment *comnt)
+{
+    return 0;
+}
+
+TEST(memory, parser_out_of_memory, .iterations=COUNT_OF(tests_utf8))
 {
     const struct TestData *td = &tests_utf8[TEST_ITERATION];
     for (int i = 0; i < 1000; i++)
     {
         // Set the total number of successful allocations allowed.
-        int count = i;
+        int counter = i;
 
         // Try parsing the input until no memory error is returned.
+        conf_options options = {
+            .user_data = &counter,
+            .memory_fn = fallible_allocator,
+        };
         conf_err error = {0};
-        conf_doc *dir = conf_parse_ex((const char *)td->input, NULL, &error, &count, fallible_allocator);
+        conf_doc *dir = conf_parse((const char *)td->input, &options, &error);
         if (dir != NULL)
         {
             conf_free(dir); // Avoid leakage.
         }
 
         // Try parsing again without an error structure.
-        count = i;
-        dir = conf_parse_ex((const char *)td->input, NULL, NULL, &count, fallible_allocator);
+        counter = i;
+        dir = conf_parse((const char *)td->input, &options, NULL);
         if (dir != NULL)
         {
             conf_free(dir); // Avoid leakage.
@@ -74,9 +83,42 @@ TEST(memory, out_of_memory, .iterations=COUNT_OF(tests_utf8))
     ABORT("exceeded allocation failure limit");
 }
 
+TEST(memory, walker_out_of_memory, .iterations=COUNT_OF(tests_utf8))
+{
+    const struct TestData *td = &tests_utf8[TEST_ITERATION];
+    for (int i = 0; i < 1000; i++)
+    {
+        // Set the total number of successful allocations allowed.
+        int counter = i;
+
+        // Try parsing the input until no memory error is returned.
+        conf_options options = {
+            .user_data = &counter,
+            .memory_fn = fallible_allocator,
+        };
+        conf_err error = {0};
+        const conf_errno errno = conf_walk((const char *)td->input, &options, &error, visit);
+        if (errno != CONF_OUT_OF_MEMORY)
+        {
+            assert(errno != CONF_INVALID_OPERATION);
+            return;
+        }
+
+        ASSERT_EQ(CONF_OUT_OF_MEMORY, error.code);
+        ASSERT_GTEQ(error.where, 0);
+        ASSERT_STR_EQ(error.description, "memory allocation failed");
+    }
+
+    ABORT("exceeded allocation failure limit");
+}
+
 TEST(memory, null_error_structure)
 {
     int count = 0;
-    conf_doc *dir = conf_parse_ex("foo", NULL, NULL, &count, fallible_allocator);
+    conf_options options = {
+        .user_data = &count,
+        .memory_fn = fallible_allocator,
+    };
+    conf_doc *dir = conf_parse("foo", &options, NULL);
     ASSERT_NULL(dir);
 }

@@ -54,6 +54,8 @@ $ make install
 
 or build with CMake.
 
+Code examples can be found in the [examples](examples/) directory.
+
 ## Documentation
 
 Confetti language documentation is available on [its website](https://confetti.hgs3.me/).

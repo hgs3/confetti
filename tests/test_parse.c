@@ -12,7 +12,6 @@
 #include <string.h>
 #include <audition.h>
 
-
 TEST(parser, pretty_print, .iterations=COUNT_OF(tests_utf8))
 {
     const struct TestData *td = &tests_utf8[TEST_ITERATION];

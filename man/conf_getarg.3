@@ -1,0 +1,14 @@
+.\" --------------------------------------------------------------------------
+.SS Arguments structure
+The \fBconf_arg\fR structure includes the following fields:
+.PP
+.in +4n
+.EX
+long offset;
+long length;
+const char *value;
+.EE
+.in
+.PP
+The \fIvalue\fR field is the evaluated directive argument with all escaped characters evaluated, enclosing quotes removed, line continuations deleted, etc.
+The \fIoffset\fR and \fIlength\fR fields describe the indices of the directive arguments lexeme in UTF-8 code units in \fIstr\fR.
