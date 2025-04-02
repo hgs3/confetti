@@ -1,3 +1,4 @@
-add_executable(echo echo.c readstdin.c)
-target_link_libraries(echo PRIVATE confetti)
-target_include_directories(echo PRIVATE ..)
+link_libraries(confetti)
+include_directories(..)
+add_executable(parse parse.c readstdin.c)
+add_executable(walk walk.c readstdin.c)

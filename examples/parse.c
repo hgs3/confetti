@@ -4,8 +4,9 @@
  *  http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-// This example reads Confetti from standard input and recursively pretty
-// prints it to standard output.
+// This example reads a Confetti document from standard input and uses
+// the "parse" API to construct an in-memory representation. It then
+// pretty prints to standard output.
 
 #include "confetti.h"
 #include <stdio.h>
