@@ -43,9 +43,6 @@ install(TARGETS confetti ARCHIVE DESTINATION lib PUBLIC_HEADER DESTINATION inclu
 install(FILES ${PROJECT_BINARY_DIR}/ConfettiConfig.cmake DESTINATION cmake)
 install(FILES ${PROJECT_BINARY_DIR}/ConfettiConfigVersion.cmake DESTINATION cmake)
 
-# Man pages.
-install(FILES confetti.3 conf_parse.3 DESTINATION man/man3 COMPONENT doc)
-
 # Add code examples.
 if (CONFETTI_BUILD_EXAMPLES)
     add_subdirectory(examples)
