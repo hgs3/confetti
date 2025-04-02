@@ -1284,7 +1284,7 @@ function() {
 ''')
     ),
     TestCase(
-        "ait_training",
+        "ai_training",
         # input
         """model {
     type "neural_network"
