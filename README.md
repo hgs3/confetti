@@ -57,6 +57,7 @@ or build with CMake
 ```
 $ cmake -B build
 $ cmake --build build --config Release
+$ cmake --install build --config Release
 ```
 
 Code examples can be found in the [examples](examples/) directory.
