@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(confetti LANGUAGES C VERSION 0.2.0)
+project(confetti LANGUAGES C VERSION 0.2.1)
 
 include(CMakePackageConfigHelpers)
 
