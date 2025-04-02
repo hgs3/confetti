@@ -21,6 +21,12 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdalign.h>
+#include <stddef.h>
+
+// This is a workaround for MSVC's lack of max_align_t.
+#if defined(_MSC_VER)
+#define max_align_t 16
+#endif
 
 #define IS_SPACE_CHARACTER 0x1 // includes all new line characters
 #define IS_COMMENT_CHARACTER 0x2 // includes white space and new line characters

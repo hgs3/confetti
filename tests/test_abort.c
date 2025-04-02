@@ -36,10 +36,10 @@ TEST(conf_walk, aborted, .iterations=COUNT_OF(tests_utf8))
         // Try parsing the input until no memory error is returned.
         conf_options options = {.user_data = &tmp};
         conf_error error = {0};
-        const conf_errno errno = conf_walk((const char *)td->input, &options, &error, callback);
-        if (errno != CONF_USER_ABORTED)
+        const conf_errno code = conf_walk((const char *)td->input, &options, &error, callback);
+        if (code != CONF_USER_ABORTED)
         {
-            assert(errno != CONF_INVALID_OPERATION);
+            assert(code != CONF_INVALID_OPERATION);
             return;
         }
 

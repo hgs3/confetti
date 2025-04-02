@@ -168,8 +168,8 @@ static char *walk(const char *input)
         .user_data = &ud,
     };
 
-    conf_errno errno = conf_walk(input, &options, &error, walk_callback);
-    if (errno != CONF_NO_ERROR)
+    conf_errno code = conf_walk(input, &options, &error, walk_callback);
+    if (code != CONF_NO_ERROR)
     {
         strbuf_printf(ud.sb, "error: %s\n", error.description);
     }
@@ -292,8 +292,8 @@ static char *tokenize(const char *input)
         .user_data = &ud,
     };
     conf_error error = {0};
-    conf_errno errno = conf_walk(input, &options, &error, print_tokens);
-    if (errno != CONF_NO_ERROR)
+    conf_errno code = conf_walk(input, &options, &error, print_tokens);
+    if (code != CONF_NO_ERROR)
     {
         strbuf_clear(ud.sb);
         strbuf_printf(ud.sb, "error: %s\n", error.description);

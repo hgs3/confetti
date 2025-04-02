@@ -97,10 +97,10 @@ TEST(memory, walker_out_of_memory, .iterations=COUNT_OF(tests_utf8))
             .allocator = fallible_allocator,
         };
         conf_error error = {0};
-        const conf_errno errno = conf_walk((const char *)td->input, &options, &error, visit);
-        if (errno != CONF_OUT_OF_MEMORY)
+        const conf_errno code = conf_walk((const char *)td->input, &options, &error, visit);
+        if (code != CONF_OUT_OF_MEMORY)
         {
-            assert(errno != CONF_INVALID_OPERATION);
+            assert(code != CONF_INVALID_OPERATION);
             return;
         }
 
