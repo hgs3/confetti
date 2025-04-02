@@ -4,6 +4,8 @@ project(confetti LANGUAGES C VERSION 0.2.0)
 include(CMakePackageConfigHelpers)
 
 option(CONFETTI_BUILD_EXAMPLES "Build Confetti C API examples" ON)
+option(CONFETTI_BUILD_TESTS "Build Confetti tests" OFF)
+
 option(CONFETTI_CODE_COVERAGE "Toggle code coverage" OFF)
 option(CONFETTI_UNDEFINED_BEHAVIOR_SANITIZER "Toggle undefined behavior sanitizer" OFF)
 option(CONFETTI_ADDRESS_SANITIZER "Toggle address sanitizer" OFF)
@@ -51,7 +53,7 @@ endif ()
 
 # Register the tests if building from repo checkout.
 # The release acrhive omits the unit test.
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/tests")
+if (CONFETTI_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()

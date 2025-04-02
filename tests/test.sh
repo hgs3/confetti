@@ -24,7 +24,7 @@ set -e
 
 # Check code coverage.
 if command -v gcc &> /dev/null; then
-    CC=gcc cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_CODE_COVERAGE=ON -DCONFETTI_BUILD_EXAMPLES=OFF
+    CC=gcc cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_CODE_COVERAGE=ON -DCONFETTI_BUILD_EXAMPLES=OFF
     cmake --build ${OUTDIR}
     cmake --build ${OUTDIR}
     ctest --test-dir ${OUTDIR} --parallel --output-on-failure
@@ -48,19 +48,19 @@ fi
 # Clang sanitizers can only be run with Clang (duh).
 if command -v clang &> /dev/null; then
     # Run the Undefined Behavior Sanitizer.
-    CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_UNDEFINED_BEHAVIOR_SANITIZER=ON -DCONFETTI_BUILD_EXAMPLES=OFF
+    CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_UNDEFINED_BEHAVIOR_SANITIZER=ON -DCONFETTI_BUILD_EXAMPLES=OFF
     cmake --build ${OUTDIR}
     ctest --test-dir ${OUTDIR} --parallel --output-on-failure
     cmake -E remove_directory ${OUTDIR}
 
     # Run the Address Sanitizer.
-    CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_ADDRESS_SANITIZER=ON -DCONFETTI_BUILD_EXAMPLES=OFF
+    CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_ADDRESS_SANITIZER=ON -DCONFETTI_BUILD_EXAMPLES=OFF
     cmake --build ${OUTDIR}
     ctest --test-dir ${OUTDIR} --parallel --output-on-failure
     cmake -E remove_directory ${OUTDIR}
 
     # Run the Memory Sanitizer.
-    CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_MEMORY_SANITIZER=ON -DCONFETTI_BUILD_EXAMPLES=OFF
+    CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_MEMORY_SANITIZER=ON -DCONFETTI_BUILD_EXAMPLES=OFF
     cmake --build ${OUTDIR}
     ctest --test-dir ${OUTDIR} --parallel --output-on-failure
     cmake -E remove_directory ${OUTDIR}
