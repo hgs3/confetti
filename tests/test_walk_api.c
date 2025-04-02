@@ -12,7 +12,7 @@
 #include "confetti.h"
 #include <audition.h>
 
-static int callback(void *user_data, conf_elem elem, int argc, const conf_arg *argv, const conf_comment *comnt)
+static int callback(void *user_data, conf_elem elem, int argc, const conf_argument *argv, const conf_comment *comnt)
 {
     return 0;
 }
@@ -30,6 +30,15 @@ TEST(conf_walk, null_argument_for_everything_but_string)
 TEST(conf_walk, null_argument_for_options_and_error)
 {
     ASSERT_EQ(CONF_NO_ERROR, conf_walk("", NULL, NULL, callback));
+}
+
+TEST(conf_walk, null_argument_for_everything_but_string_and_error)
+{
+    conf_err err = {0};
+    ASSERT_EQ(CONF_NO_ERROR, conf_walk("", NULL, &err, callback));
+    ASSERT_EQ(CONF_NO_ERROR, err.code);
+    ASSERT_EQ(err.where, 0);
+    ASSERT_STR_EQ("no error", err.description);
 }
 
 TEST(conf_walk, null_string_argument)

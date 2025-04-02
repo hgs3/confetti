@@ -31,13 +31,13 @@ static void print_directive(conf_dir *dir, int depth)
     // Print this directives arguments, separated by a space character.
     //
 
-    const long argument_count = conf_getnarg(dir);
+    const long argument_count = conf_get_argument_count(dir);
     if (argument_count > 0)
     {
         indent(depth);
         for (long i = 0; i < argument_count; i++)
         {
-            conf_arg *arg = conf_getarg(dir, i);
+            conf_argument *arg = conf_get_argument(dir, i);
             printf("%s", arg->value);
             if (i < (argument_count - 1))
             {
@@ -50,13 +50,13 @@ static void print_directive(conf_dir *dir, int depth)
     // Recursively print this directives subdirectives.
     //
 
-    const long subdirective_count = conf_getnsubdir(dir);
+    const long subdirective_count = conf_get_directive_count(dir);
     if (subdirective_count > 0)
     {
         puts(" {");
         for (long i = 0; i < subdirective_count; i++)
         {
-            conf_dir *subdirective = conf_getsubdir(dir, i);
+            conf_dir *subdirective = conf_get_directive(dir, i);
             print_directive(subdirective, depth + 1);
         }
 
@@ -80,8 +80,8 @@ int main(int argc, char *argv[])
     //
 
     conf_err err = {0};
-    conf_doc *dir = conf_parse(input, NULL, &err);
-    if (dir == NULL)
+    conf_doc *doc = conf_parse(input, NULL, &err);
+    if (doc == NULL)
     {
         printf("error: %s\n", err.description);
         return 1;
@@ -91,17 +91,18 @@ int main(int argc, char *argv[])
     // (3) Pretty print the Confetti.
     //
 
-    for (long i = 0; i < conf_getndir(dir); i++)
+    conf_dir *root = conf_get_root(doc);
+    for (long i = 0; i < conf_get_directive_count(root); i++)
     {
-        conf_dir *subdir = conf_getdir(dir, i);
-        print_directive(subdir, 0);
+        conf_dir *directive = conf_get_directive(root, i);
+        print_directive(directive, 0);
     }
 
     //
     // (4) Cleanup after ourselves.
     //
     
-    conf_free(dir);
+    conf_free(doc);
     free(input);
     return 0;
 }

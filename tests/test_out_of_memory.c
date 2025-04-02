@@ -36,7 +36,7 @@ static void *fallible_allocator(void *ud, void *ptr, size_t size)
     }
 }
 
-static int visit(void *user_data, conf_elem elem, int argc, const conf_arg *argv, const conf_comment *comnt)
+static int visit(void *user_data, conf_elem elem, int argc, const conf_argument *argv, const conf_comment *comnt)
 {
     return 0;
 }

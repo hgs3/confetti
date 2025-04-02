@@ -46,7 +46,7 @@ struct UserData
     struct Directive *previous_directive;
 };
 
-static int walk_callback(void *user_data, conf_elem elem, int argc, const conf_arg *argv, const conf_comment *comnt)
+static int walk_callback(void *user_data, conf_elem elem, int argc, const conf_argument *argv, const conf_comment *comnt)
 {
     struct UserData *ud = user_data;
     struct Directive *parent = ud->parent_directive;
@@ -185,7 +185,7 @@ static char *walk(const char *input)
     return strbuf_drop(ud.sb);
 }
 
-static int print_tokens(void *user_data, conf_elem elem, int argc, const conf_arg *argv, const conf_comment *comnt)
+static int print_tokens(void *user_data, conf_elem elem, int argc, const conf_argument *argv, const conf_comment *comnt)
 {
     struct UserData *ud = user_data;
 
@@ -207,7 +207,7 @@ static int print_tokens(void *user_data, conf_elem elem, int argc, const conf_ar
 
         for (int i = 0; i < argc; i++)
         {
-            const conf_arg *arg = &argv[i];
+            const conf_argument *arg = &argv[i];
 
             whitespace(ud->sb, ud->depth + 1);
             strbuf_printf(ud->sb, "argument {\n");
@@ -266,7 +266,7 @@ static int print_tokens(void *user_data, conf_elem elem, int argc, const conf_ar
     return 0;
 }
 
-static int print_comments(void *user_data, conf_elem elem, int argc, const conf_arg *argv, const conf_comment *comnt)
+static int print_comments(void *user_data, conf_elem elem, int argc, const conf_argument *argv, const conf_comment *comnt)
 {
     struct UserData *ud = user_data;
     if (elem == CONF_COMMENT)

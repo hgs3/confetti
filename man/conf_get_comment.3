@@ -9,7 +9,7 @@
 .\" --------------------------------------------------------------------------
 .TH "CONFETTI" "3" "April 1st 2025" "Confetti 0.2.0"
 .SH NAME
-confetti \- configuration language and parser
+conf_get_comment, conf_get_comment_count \- retrieve comments
 .\" --------------------------------------------------------------------------
 .SH LIBRARY
 Configuration parser (libconfetti, -lconfetti)
@@ -17,31 +17,30 @@ Configuration parser (libconfetti, -lconfetti)
 .SH SYNOPSIS
 .nf
 .B #include <confetti.h>
+.PP
+.BI "conf_comment *conf_get_comment(conf_doc *" doc ", long " index ");"
+.BI "long conf_get_comment_count(conf_doc *" doc ");"
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
-Confetti is a configuration language that combines the readability of Unix configuration files with the flexibility of S-expressions.
-It is minimalistic, untyped, and opinionated.
-Schema conformance is validated by the user application.
+The \fBconf_get_comment\fR function returns the Confetti comment at \fIindex\fR for the Confetti document \fIdoc\fR.
+.PP
+The \fBconf_get_comment_count\fR function returns the number of comments discovered in the Confetti document \fIdoc\fR.
+.PP
+The \fBconf_comment\fR structure includes the following fields:
+.PP
+.in +4n
+.EX
+size_t offset;
+size_t length;
+.EE
+.in
+.PP
+The \fIoffset\fR and \fIlength\fR fields describe the span of UTF-8 code units where the comment was found in the Confetti source text.
 .\" --------------------------------------------------------------------------
-.SH SEE ALSO
-.BR conf_walk (3),
-.BR conf_parse (3),
-.BR conf_free (3),
-.BR conf_get_comment (3),
-.BR conf_get_comment_count (3),
-.BR conf_get_directive (3),
-.BR conf_get_directive_count (3),
-.BR conf_get_subdirective (3),
-.BR conf_get_subdirective_count (3),
-.BR conf_get_argument (3),
-.BR conf_get_argument_count (3)
-.\" --------------------------------------------------------------------------
-.SH INTERNET RESOURCES
-The formal specification and source code for Confetti can be found on
-.UR https://github.com/hgs3/confetti
-its GitHub page
-.UE .
+.SH RETURN VALUE
+The Confetti comment at \fIindex\fR.
+If \fIindex\fR is out-of-bounds or \fIdoc\fR is \fCNULL\fR, then \fCNULL\fR is returned.
 .\" --------------------------------------------------------------------------
 .SH LICENSING
 Confetti is Free Software distributed under the MIT License.

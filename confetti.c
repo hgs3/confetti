@@ -71,7 +71,7 @@ struct conf_dir
     long subdir_count;
     long arguments_count;
 
-    conf_arg *arguments;
+    conf_argument *arguments;
     
     conf_dir **subdir;
     conf_dir *subdir_head;
@@ -858,7 +858,7 @@ static void parse_directive(conf_doc *conf, conf_dir *parent, int depth)
     dir->buffer_length = buffer_length;
 
     const long argc = argument_count;
-    conf_arg *argv = new(conf, sizeof(argv[0]) * argc);
+    conf_argument *argv = new(conf, sizeof(argv[0]) * argc);
     if (argv == NULL)
     {
         delete(conf, dir, size);
@@ -874,7 +874,7 @@ static void parse_directive(conf_doc *conf, conf_dir *parent, int depth)
         peek(conf, &tok);
         if (tok.type == TOK_LITERAL)
         {
-            conf_arg *arg = &argv[argument_count++];
+            conf_argument *arg = &argv[argument_count++];
             arg->lexeme_offset = tok.lexeme;
             arg->lexeme_length = tok.lexeme_length;
             arg->value = buffer;
@@ -983,7 +983,7 @@ static void walk_directive(conf_doc *conf, int depth)
     }
 
     const int argc = args_count;
-    struct conf_arg *argv = new(conf, argc * sizeof(argv[0]));
+    struct conf_argument *argv = new(conf, argc * sizeof(argv[0]));
     if (argv == NULL)
     {
         delete(conf, args_buffer, buffer_length);
@@ -999,7 +999,7 @@ static void walk_directive(conf_doc *conf, int depth)
         peek(conf, &tok);
         if (tok.type == TOK_LITERAL)
         {
-            conf_arg *arg = &argv[args_count++];
+            conf_argument *arg = &argv[args_count++];
             arg->lexeme_offset = tok.lexeme;
             arg->lexeme_length = tok.lexeme_length;
             arg->value = buffer;
@@ -1154,7 +1154,7 @@ static void parse_body(conf_doc *conf, conf_dir *parent, int depth)
     }
 }
 
-conf_dir *conf_getsubdir(conf_dir *dir, long index)
+conf_dir *conf_get_directive(conf_dir *dir, long index)
 {
     if (dir == NULL)
     {
@@ -1167,7 +1167,7 @@ conf_dir *conf_getsubdir(conf_dir *dir, long index)
     return dir->subdir[index];
 }
 
-long conf_getnsubdir(conf_dir *dir)
+long conf_get_directive_count(conf_dir *dir)
 {
     if (dir == NULL)
     {
@@ -1176,25 +1176,16 @@ long conf_getnsubdir(conf_dir *dir)
     return dir->subdir_count;
 }
 
-conf_dir *conf_getdir(conf_doc *doc, long index)
+conf_dir *conf_get_root(conf_doc *doc)
 {
     if (doc == NULL)
     {
         return NULL;
     }
-    return conf_getsubdir(doc->root, index);
+    return doc->root;
 }
 
-long conf_getndir(conf_doc *doc)
-{
-    if (doc == NULL)
-    {
-        return 0;
-    }
-    return conf_getnsubdir(doc->root);
-}
-
-conf_arg *conf_getarg(conf_dir *dir, long index)
+conf_argument *conf_get_argument(conf_dir *dir, long index)
 {
     if (index < 0 || index >= dir->arguments_count)
     {
@@ -1203,7 +1194,7 @@ conf_arg *conf_getarg(conf_dir *dir, long index)
     return &dir->arguments[index];
 }
 
-long conf_getnarg(conf_dir *dir)
+long conf_get_argument_count(conf_dir *dir)
 {
     if (dir == NULL)
     {
@@ -1212,7 +1203,7 @@ long conf_getnarg(conf_dir *dir)
     return dir->arguments_count;
 }
 
-conf_comment *conf_getremark(conf_doc *conf, long index)
+conf_comment *conf_get_comment(conf_doc *conf, long index)
 {
     if (index < 0 || index >= conf->comments_count)
     {
@@ -1221,7 +1212,7 @@ conf_comment *conf_getremark(conf_doc *conf, long index)
     return &conf->comments[index]->data;
 }
 
-long conf_getnremark(conf_doc *conf)
+long conf_get_comment_count(conf_doc *conf)
 {
     if (conf == NULL)
     {

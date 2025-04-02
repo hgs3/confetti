@@ -13,7 +13,7 @@
 #include <assert.h>
 #include <audition.h>
 
-static int callback(void *user_data, conf_elem elem, int argc, const conf_arg *argv, const conf_comment *comnt)
+static int callback(void *user_data, conf_elem elem, int argc, const conf_argument *argv, const conf_comment *comnt)
 {
     int *callbacks_remaining = user_data;
     if (*callbacks_remaining <= 0)

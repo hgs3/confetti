@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <string.h>
 
-static int callback(void *user_data, conf_elem elem, int argc, const conf_arg *argv, const conf_comment *comnt)
+static int callback(void *user_data, conf_elem elem, int argc, const conf_argument *argv, const conf_comment *comnt)
 {
     return 0;
 }

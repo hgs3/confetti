@@ -26,7 +26,7 @@ static void indent(int depth)
     }
 }
 
-static int step(void *user_data, conf_elem type, int argc, const conf_arg *argv, const conf_comment *comment)
+static int step(void *user_data, conf_elem type, int argc, const conf_argument *argv, const conf_comment *comment)
 {
     int *depth = user_data; // The subdirective depth is used to indent the output when pretty printing.
     switch (type)

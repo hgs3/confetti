@@ -57,69 +57,56 @@ TEST(conf_parse, low_max_depth)
     ASSERT_STR_EQ("maximum nesting depth exceeded", err.description);
 }
 
-TEST(conf_getdir, null_confetti)
+TEST(conf_get_root, null_confetti)
 {
-    ASSERT_NULL(conf_getdir(NULL, 0));
+    ASSERT_NULL(conf_get_root(NULL));
 }
 
-TEST(conf_getdir, out_of_bounds)
-{
-    conf_doc *doc = conf_parse("foo", NULL, NULL);
-    ASSERT_NULL(conf_getdir(doc, -1));
-    ASSERT_NULL(conf_getdir(doc, 1));
-    conf_free(doc);
-}
-
-TEST(conf_getremark, out_of_bounds)
+TEST(conf_get_comment, out_of_bounds)
 {
     conf_doc *doc = conf_parse("# This is a comment.", NULL, NULL);
-    ASSERT_NULL(conf_getremark(doc, -1));
-    ASSERT_NULL(conf_getremark(doc, 1));
+    ASSERT_NULL(conf_get_comment(doc, -1));
+    ASSERT_NULL(conf_get_comment(doc, 1));
     conf_free(doc);
 }
 
-TEST(conf_getsubdir, null_confetti)
+TEST(conf_get_directive, null_confetti)
 {
-    ASSERT_NULL(conf_getsubdir(NULL, 0));
+    ASSERT_NULL(conf_get_directive(NULL, 0));
 }
 
-TEST(conf_getsubdir, out_of_bounds)
+TEST(conf_get_directive, out_of_bounds)
 {
     conf_doc *doc = conf_parse("foo", NULL, NULL);
-    conf_dir *dir = conf_getdir(doc, 0);
+    conf_dir *dir = conf_get_root(doc);
     ASSERT_NONNULL(dir);
-    ASSERT_NULL(conf_getsubdir(dir, -1));
-    ASSERT_NULL(conf_getsubdir(dir, 1));
+    ASSERT_NULL(conf_get_directive(dir, -1));
+    ASSERT_NULL(conf_get_directive(dir, 1));
     conf_free(doc);
 }
 
-TEST(conf_getndir, null_confetti)
+TEST(conf_get_directive_count, null_confetti)
 {
-    ASSERT_EQ(conf_getndir(NULL), 0);
+    ASSERT_EQ(conf_get_directive_count(NULL), 0);
 }
 
-TEST(conf_getnsubdir, null_confetti)
+TEST(conf_get_argument_count, null_confetti)
 {
-    ASSERT_EQ(conf_getnsubdir(NULL), 0);
+    ASSERT_EQ(conf_get_argument_count(NULL), 0);
 }
 
-TEST(conf_getnarg, null_confetti)
+TEST(conf_get_comment_count, null_confetti)
 {
-    ASSERT_EQ(conf_getnarg(NULL), 0);
+    ASSERT_EQ(conf_get_comment_count(NULL), 0);
 }
 
-TEST(conf_getnremark, null_confetti)
-{
-    ASSERT_EQ(conf_getnremark(NULL), 0);
-}
-
-TEST(conf_getarg, out_of_bounds)
+TEST(conf_get_argument, out_of_bounds)
 {
     conf_doc *doc = conf_parse("foo", NULL, NULL);
-    conf_dir *dir = conf_getdir(doc, 0);
+    conf_dir *dir = conf_get_root(doc);
     ASSERT_NONNULL(dir);
-    ASSERT_NULL(conf_getarg(dir, -1));
-    ASSERT_NULL(conf_getarg(dir, 1));
+    ASSERT_NULL(conf_get_argument(dir, -1));
+    ASSERT_NULL(conf_get_argument(dir, 1));
     conf_free(doc);
 }
 

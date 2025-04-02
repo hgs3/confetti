@@ -162,12 +162,12 @@ static void print_tokens(struct StringBuf *sb, conf_dir *dir, int depth)
     whitespace(sb, depth);
     strbuf_puts(sb, "command {");
 
-    const long arg_count = conf_getnarg(dir);
+    const long arg_count = conf_get_argument_count(dir);
     if (arg_count > 0)
     {
         for (long i = 0; i < arg_count; i++)
         {
-            conf_arg *arg = conf_getarg(dir, i);
+            conf_argument *arg = conf_get_argument(dir, i);
 
             whitespace(sb, depth+1);
             strbuf_printf(sb, "argument {\n");
@@ -195,7 +195,7 @@ static void print_tokens(struct StringBuf *sb, conf_dir *dir, int depth)
         }
     }
 
-    const long subdir_count = conf_getnsubdir(dir);
+    const long subdir_count = conf_get_directive_count(dir);
     if (subdir_count > 0)
     {
         whitespace(sb, depth+1);
@@ -203,7 +203,7 @@ static void print_tokens(struct StringBuf *sb, conf_dir *dir, int depth)
 
         for (long i = 0; i < subdir_count; i++)
         {
-            print_tokens(sb, conf_getsubdir(dir, i), depth+2);
+            print_tokens(sb, conf_get_directive(dir, i), depth+2);
         }
 
         whitespace(sb, depth+1);
@@ -218,10 +218,10 @@ static void print_directive(struct StringBuf *sb, conf_dir *dir, int depth)
 {
     whitespace(sb, depth);
 
-    const long arg_count = conf_getnarg(dir);
+    const long arg_count = conf_get_argument_count(dir);
     for (long i = 0; i < arg_count; i++)
     {
-        conf_arg *arg = conf_getarg(dir, i);
+        conf_argument *arg = conf_get_argument(dir, i);
         strbuf_printf(sb, "<%s>", arg->value);
         if (i < (arg_count - 1))
         {
@@ -229,7 +229,7 @@ static void print_directive(struct StringBuf *sb, conf_dir *dir, int depth)
         }
     }
 
-    const long subdir_count = conf_getnsubdir(dir);
+    const long subdir_count = conf_get_directive_count(dir);
     if (subdir_count == 0)
     {
         strbuf_puts(sb, "");
@@ -239,7 +239,7 @@ static void print_directive(struct StringBuf *sb, conf_dir *dir, int depth)
     strbuf_puts(sb, " [");
     for (long i = 0; i < subdir_count; i++)
     {
-        print_directive(sb, conf_getsubdir(dir, i), depth + 1);
+        print_directive(sb, conf_get_directive(dir, i), depth + 1);
     }
 
     whitespace(sb, depth);
@@ -250,21 +250,23 @@ char *parse(const char *input)
 {
     StringBuf *sb = strbuf_new();
     conf_err error = {0};
-    conf_doc *dir = conf_parse(input, NULL, &error);
+    conf_doc *doc = conf_parse(input, NULL, &error);
     if (error.code != CONF_NO_ERROR)
     {
-        assert(dir == NULL);
+        assert(doc == NULL);
         strbuf_printf(sb, "error: %s\n", error.description);
     }
     else
     {
-        assert(dir != NULL);
-        for (long i = 0; i < conf_getndir(dir); i++)
+        assert(doc != NULL);
+
+        conf_dir *root = conf_get_root(doc);
+        for (long i = 0; i < conf_get_directive_count(root); i++)
         {
-            conf_dir *subdir = conf_getdir(dir, i);
+            conf_dir *subdir = conf_get_directive(root, i);
             print_directive(sb, subdir, 0);
         }
-        conf_free(dir);
+        conf_free(doc);
     }
     return strbuf_drop(sb);
 }
@@ -273,29 +275,30 @@ static char *tokenize(const char *input)
 {
     StringBuf *sb = strbuf_new();
     conf_err error = {0};
-    conf_doc *dir = conf_parse(input, NULL, &error);
+    conf_doc *doc = conf_parse(input, NULL, &error);
     if (error.code != CONF_NO_ERROR)
     {
         strbuf_printf(sb, "error: %s\n", error.description);
     }
     else
     {
-        for (long i = 0; i < conf_getndir(dir); i++)
+        conf_dir *root = conf_get_root(doc);
+        for (long i = 0; i < conf_get_directive_count(root); i++)
         {
-            conf_dir *subdir = conf_getdir(dir, i);
+            conf_dir *subdir = conf_get_directive(root, i);
             print_tokens(sb, subdir, 0);
         }
 
-        for (long i = 0; i < conf_getnremark(dir); i++)
+        for (long i = 0; i < conf_get_comment_count(doc); i++)
         {
-            conf_comment *comment = conf_getremark(dir, i);
+            conf_comment *comment = conf_get_comment(doc, i);
             strbuf_printf(sb, "comment {\n");
             strbuf_printf(sb, "    offset %zu\n", comment->offset);
             strbuf_printf(sb, "    length %zu\n", comment->length);
             strbuf_puts(sb, "}");
         }
     }
-    conf_free(dir);
+    conf_free(doc);
     return strbuf_drop(sb);
 }
 

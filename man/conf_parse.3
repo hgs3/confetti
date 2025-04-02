@@ -7,9 +7,9 @@
 .\" entire resulting derived work is distributed under the terms of a
 .\" permission notice identical to this one.
 .\" --------------------------------------------------------------------------
-.TH "CONFETTI" "3" "Jan 7th 2025" "Confetti 0.2.0"
+.TH "CONFETTI" "3" "April 1st 2025" "Confetti 0.2.0"
 .SH NAME
-conf_parse \- parse confetti
+conf_parse, conf_free \- parse confetti
 .\" --------------------------------------------------------------------------
 .SH LIBRARY
 Configuration parser (libconfetti, -lconfetti)
@@ -19,6 +19,7 @@ Configuration parser (libconfetti, -lconfetti)
 .B #include <confetti.h>
 .PP
 .BI "conf_doc *conf_parse(const char *" str ", const conf_options *" opts ", conf_err *" err ");"
+.BI "void conf_free(conf_doc *" doc ");"
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
@@ -59,7 +60,6 @@ void *user_data;
 .EE
 .in
 .PP
-The \fIextensions\fR field is a bitmask of official extensions to apply during parsing.
 The \fImax_depth\fR field, if non-zero, specifies the maximum nesting depth of a Confetti subdirectives.
 The \fImemory_fn\fR field, if non-NULL, must point to a user implemented custom memory allocator, the behavior of which is described in the following subsection.
 The \fIuser_data\fR field is a user pointer passed to the \fImemory_fn\fR function as-is.

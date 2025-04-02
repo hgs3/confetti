@@ -9,7 +9,7 @@
 .\" --------------------------------------------------------------------------
 .TH "CONFETTI" "3" "April 1st 2025" "Confetti 0.2.0"
 .SH NAME
-confetti \- configuration language and parser
+conf_get_argument, conf_get_argument_count \- retrieve a directive's argument
 .\" --------------------------------------------------------------------------
 .SH LIBRARY
 Configuration parser (libconfetti, -lconfetti)
@@ -17,31 +17,36 @@ Configuration parser (libconfetti, -lconfetti)
 .SH SYNOPSIS
 .nf
 .B #include <confetti.h>
+.PP
+.BI "conf_argument *conf_get_argument(conf_dir *" directive ", long " index ");"
+.BI "long conf_get_argument_count(conf_dir *" directive ");"
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
-Confetti is a configuration language that combines the readability of Unix configuration files with the flexibility of S-expressions.
-It is minimalistic, untyped, and opinionated.
-Schema conformance is validated by the user application.
+The \fBconf_get_argument\fR function returns the N'th argument for \fIdirective\fR where N is specified by \fIindex\fR.
+.PP
+The \fBconf_get_argument_count\fR function returns the number of arguments \fIdirective\fR has.
+.PP
+The \fBconf_argument\fR structure includes the following fields:
+.PP
+.in +4n
+.EX
+size_t lexeme_offset;
+size_t lexeme_length;
+const char *value;
+.EE
+.in
+.PP
+The \fIvalue\fR field is the argument as a null-terminated UTF-8 encoded string.
+The \fIlexeme_offset\fR and \fIlexeme_length\fR fields describe the span of UTF-8 code units where the argument was found in the Confetti source text.
+.\" --------------------------------------------------------------------------
+.SH RETURN VALUE
+The Nth argument for a directive.
+If \fIindex\fR is out-of-bounds or \fIdirective\fR is \fCNULL\fR, then \fCNULL\fR is returned.
 .\" --------------------------------------------------------------------------
 .SH SEE ALSO
-.BR conf_walk (3),
-.BR conf_parse (3),
-.BR conf_free (3),
-.BR conf_get_comment (3),
-.BR conf_get_comment_count (3),
-.BR conf_get_directive (3),
-.BR conf_get_directive_count (3),
 .BR conf_get_subdirective (3),
-.BR conf_get_subdirective_count (3),
-.BR conf_get_argument (3),
-.BR conf_get_argument_count (3)
-.\" --------------------------------------------------------------------------
-.SH INTERNET RESOURCES
-The formal specification and source code for Confetti can be found on
-.UR https://github.com/hgs3/confetti
-its GitHub page
-.UE .
+.BR conf_get_subdirective_count (3)
 .\" --------------------------------------------------------------------------
 .SH LICENSING
 Confetti is Free Software distributed under the MIT License.
