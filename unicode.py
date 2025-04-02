@@ -7,7 +7,7 @@
 # For full terms see the included LICENSE file.
 
 # This script builds a two-stage table for referencing Unicode character
-# properties in O(n), without branching, and with reasonable compression.
+# properties in O(1), without branching, and with reasonable compression.
 # For details on the algorithm, consult the Unicode Standard 5.1: Data
 # Structures for Character Conversion.
 
