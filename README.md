@@ -3,7 +3,7 @@
 **Confetti** is a configuration language and parser library written in C11 with no external dependencies.
 
 Confetti is intended for human-editable configuration files.
-It is minimalistic, untyped, and opinionated.
+It is minimalistic, untyped, and unopinionated.
 Schema conformance is validated by the user application.
 
 Confetti does **not** compete with JSON or XML, it competes with [INI files](https://en.wikipedia.org/wiki/INI_file).
