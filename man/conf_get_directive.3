@@ -9,7 +9,7 @@
 .\" --------------------------------------------------------------------------
 .TH "CONFETTI" "3" "April 2nd 2025" "Confetti 0.2.1"
 .SH NAME
-conf_get_directive, conf_get_directive_count \- retrieve directives
+conf_get_directive, conf_get_directive_count \- get directives and subdirectives
 .\" --------------------------------------------------------------------------
 .SH LIBRARY
 Configuration parser (libconfetti, -lconfetti)
@@ -18,20 +18,20 @@ Configuration parser (libconfetti, -lconfetti)
 .nf
 .B #include <confetti.h>
 .PP
-.BI "conf_directive *conf_get_directive(conf_document *" doc ", long " index ");"
-.BI "long conf_get_directive_count(conf_document *" doc ");"
+.BI "conf_directive *conf_get_directive(conf_document *" dir ", long " index ");"
+.BI "long conf_get_directive_count(conf_document *" dir ");"
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
-The \fBconf_get_directive\fR function returns the Confetti directive at \fIindex\fR for the Confetti document \fIdoc\fR.
+The \fBconf_get_directive\fR function returns the subdirective at \fIindex\fR for the Confetti directive \fIdir\fR.
 .PP
-The \fBconf_get_directive_count\fR function returns the number of directives in the Confetti document \fIdoc\fR.
+The \fBconf_get_directive_count\fR function returns the number of subdirectives in the Confetti directive \fIdir\fR.
 .PP
-Consult the SEE ALSO section for functions that the opaque type \fBconf_directive\fR can be called with.
+Review the SEE ALSO section for functions that the opaque type \fBconf_directive\fR can be used with.
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
-The Confetti directive at \fIindex\fR.
-If \fIindex\fR is out-of-bounds or \fIdoc\fR is \fCNULL\fR, then \fCNULL\fR is returned.
+The subdirective or subdirective count for the Confetti directive \fIdir\fR.
+If \fIindex\fR is out-of-bounds or \fIdir\fR is \fCNULL\fR, then \fCNULL\fR is returned.
 .\" --------------------------------------------------------------------------
 .SH SEE ALSO
 .BR conf_get_subdirective (3),

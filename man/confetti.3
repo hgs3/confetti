@@ -21,27 +21,63 @@ Configuration parser (libconfetti, -lconfetti)
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
 Confetti is a configuration language that combines the readability of Unix configuration files with the flexibility of S-expressions.
-It is minimalistic, untyped, and opinionated.
+It is minimalistic, untyped, and unopinionated.
 Schema conformance is validated by the user application.
+.PP
+The Confetti library is implemented in C11 and provides two public interfaces for processing Confetti source text.
+The first interface walks a Confetti document without building an in-memory representation of the document.
+See \fBconf_walk\fR(3) for details.
+The second interface builds an in-memory representation of the Confetti document which can be inspected in a freeform way.
+See \fBconf_parse\fR(3) for details.
+.\" --------------------------------------------------------------------------
+.SH EXAMPLE
+The following is an example of a Confetti conformant configuration file:
+.PP
+.in +4n
+.EX
+# This is a comment.
+
+probe-device eth0 eth1
+
+user * {
+    login anonymous
+    password "${ENV:ANONPASS}"
+    machine 167.89.14.1
+    proxy {
+        try-ports 582 583 584
+    }
+}
+
+user "Joe Williams" {
+    login joe
+    machine 167.89.14.1
+}
+.EE
+.in
 .\" --------------------------------------------------------------------------
 .SH SEE ALSO
 .BR conf_walk (3),
 .BR conf_parse (3),
 .BR conf_free (3),
+.BR conf_get_root (3),
 .BR conf_get_comment (3),
 .BR conf_get_comment_count (3),
 .BR conf_get_directive (3),
 .BR conf_get_directive_count (3),
-.BR conf_get_subdirective (3),
-.BR conf_get_subdirective_count (3),
 .BR conf_get_argument (3),
 .BR conf_get_argument_count (3)
 .\" --------------------------------------------------------------------------
 .SH INTERNET RESOURCES
-The formal specification and source code for Confetti can be found on
-.UR https://github.com/hgs3/confetti
-its GitHub page
+The website for Confetti, which hosts learning materials, examples, and the specification, is published at
+.UR https://confetti.hgs3.me
+https://confetti.hgs3.me
 .UE .
+.PP
+The source code for the Confetti C library is published at
+.UR https://github.com/hgs3/confetti
+https://github.com/hgs3/confetti
+.UE .
+If you need support or encounter a bug, then please report it on the issue tracker.
 .\" --------------------------------------------------------------------------
 .SH LICENSING
 Confetti is Free Software distributed under the MIT License.

@@ -18,15 +18,16 @@ Configuration parser (libconfetti, -lconfetti)
 .nf
 .B #include <confetti.h>
 .PP
-.BI "conf_argument *conf_get_argument(conf_dir *" directive ", long " index ");"
-.BI "long conf_get_argument_count(conf_dir *" directive ");"
+.BI "conf_argument *conf_get_argument(conf_dir *" dir ", long " index ");"
+.BI "long conf_get_argument_count(conf_dir *" dir ");"
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
-The \fBconf_get_argument\fR function returns the N'th argument for \fIdirective\fR where N is specified by \fIindex\fR.
+The \fBconf_get_argument\fR function returns the argument at \fIindex\fR for directive \fIdir\fR.
 .PP
-The \fBconf_get_argument_count\fR function returns the number of arguments \fIdirective\fR has.
-.PP
+The \fBconf_get_argument_count\fR function returns the number of arguments \fIdir\fR has.
+.\" --------------------------------------------------------------------------
+.SS Argument structure
 The \fBconf_argument\fR structure includes the following fields:
 .PP
 .in +4n
@@ -38,11 +39,11 @@ const char *value;
 .in
 .PP
 The \fIvalue\fR field is the argument as a null-terminated UTF-8 encoded string.
-The \fIlexeme_offset\fR and \fIlexeme_length\fR fields describe the span of UTF-8 code units where the argument was found in the Confetti source text.
+The \fIlexeme_offset\fR and \fIlexeme_length\fR fields describe the span of UTF-8 code units of the argument in the Confetti source text.
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
-The Nth argument for a directive.
-If \fIindex\fR is out-of-bounds or \fIdirective\fR is \fCNULL\fR, then \fCNULL\fR is returned.
+The argument or argument count for the Confetti directive \fIdir\fR.
+If \fIindex\fR is out-of-bounds or \fIdir\fR is \fCNULL\fR, then \fCNULL\fR is returned.
 .\" --------------------------------------------------------------------------
 .SH SEE ALSO
 .BR conf_get_subdirective (3),

@@ -23,10 +23,11 @@ Configuration parser (libconfetti, -lconfetti)
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
-The \fBconf_get_comment\fR function returns the Confetti comment at \fIindex\fR for the Confetti document \fIdoc\fR.
+The \fBconf_get_comment\fR function returns the comment at \fIindex\fR for the Confetti document \fIdoc\fR.
 .PP
 The \fBconf_get_comment_count\fR function returns the number of comments discovered in the Confetti document \fIdoc\fR.
-.PP
+.\" --------------------------------------------------------------------------
+.SS Comment structure
 The \fBconf_comment\fR structure includes the following fields:
 .PP
 .in +4n
@@ -36,10 +37,10 @@ size_t length;
 .EE
 .in
 .PP
-The \fIoffset\fR and \fIlength\fR fields describe the span of UTF-8 code units where the comment was found in the Confetti source text.
+The \fIoffset\fR and \fIlength\fR fields describe the span of UTF-8 code units of the comment in the Confetti source text.
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
-The Confetti comment at \fIindex\fR.
+The comment or comment count for the Confetti document \fIdoc\fR.
 If \fIindex\fR is out-of-bounds or \fIdoc\fR is \fCNULL\fR, then \fCNULL\fR is returned.
 .\" --------------------------------------------------------------------------
 .SH LICENSING

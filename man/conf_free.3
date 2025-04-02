@@ -1,1 +1,33 @@
-.so conf_parse.3
+.\" Permission is granted to make and distribute verbatim copies of this
+.\" manual provided the copyright notice and this permission notice are
+.\" preserved on all copies.
+.\"
+.\" Permission is granted to copy and distribute modified versions of this
+.\" manual under the conditions for verbatim copying, provided that the
+.\" entire resulting derived work is distributed under the terms of a
+.\" permission notice identical to this one.
+.\" --------------------------------------------------------------------------
+.TH "CONFETTI" "3" "April 2nd 2025" "Confetti 0.2.1"
+.SH NAME
+conf_free \- free a confetti document
+.\" --------------------------------------------------------------------------
+.SH LIBRARY
+Configuration parser (libconfetti, -lconfetti)
+.\" --------------------------------------------------------------------------
+.SH SYNOPSIS
+.nf
+.B #include <confetti.h>
+.PP
+.BI "void conf_free(conf_document *" doc ");"
+.fi
+.\" --------------------------------------------------------------------------
+.SH DESCRIPTION
+The \fBconf_free\fR function releases resources associated with a Confetti document \fIdoc\fR.
+If \fIdoc\fR is \fCNULL\fR, then the function performs no action.
+.\" --------------------------------------------------------------------------
+.SH SEE ALSO
+.BR conf_parse (3)
+.\" --------------------------------------------------------------------------
+.SH LICENSING
+Confetti is Free Software distributed under the MIT License.
+Please see the LICENSE file included with the Confetti distribution for details.

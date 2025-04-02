@@ -22,31 +22,37 @@ Configuration parser (libconfetti, -lconfetti)
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
-The \fBconf_walk\fR function parses \fIstr\fR as Confetti source text and invokes the function \fIcb\fR when it discovers something semanticly interesting, like a directive or the begining or end of a subdirective.
-If \fBconf_walk\fR fails, it returns an error code which is one of \fBconf_errno\fR values.
-The conditions under which these constants are returned is documented in RETURN VALUE.
+The \fBconf_walk\fR function parses \fIstr\fR as Confetti source text and invokes the function \fIcb\fR when it discovers something semantically interesting, like a directive or the beginning or end of a subdirective.
+If \fBconf_walk\fR fails, it returns an error code which is one of \fBconf_errno\fR values and populates \fIerr\fR, if specified, with details.
+The conditions under which each \fBconf_errno\fR constant is returned is documented in RETURN VALUE.
 .PP
 The \fIstr\fR and \fIcb\fR arguments are required, all other arguments are optional.
+The implementation of \fIcb\fR must return the integer zero if parsing should continue, otherwise it should return non-zero to abort parsing.
+.PP
+The behavior of the Confetti parser can be controlled with the optional \fIopts\fR argument.
 See \fBconf_parse\fR(3) for documentation on \fIopts\fR and \fIerr\fR.
 .\" --------------------------------------------------------------------------
 .SS Walk function
-The \fBconf_walkcb\fR function accepts four arguments:
+The \fBconf_walkcb\fR function receives five arguments:
 .PP
 .in +4n
 .EX
 void *ud;
-conf_mark mark;
+conf_mark element;
 int argc;
 const conf_arg *argv;
+const conf_comment *comment;
 .EE
 .in
 .PP
-The implementation of \fIcb\fR must return the integer zero if parsing should continue, otherwise it should return a non-zero integero to abort parsing.
-The \fImark\fR argument is one of the following:
+The \fIud\fR field is the user data pointer specified on the \fIopts\fR structure.
+It is passed through to the callback by the Confetti parser as-is.
+.PP
+The \fIelement\fR field is one of the following:
 .TP
 .BR CONF_DIRECTIVE
-When the parser finds a directive.
-The \fIargc\fR and \fIargv\fR arguments will be populated with details about the directives arguments.
+When the parser processes a directive.
+The \fIargc\fR and \fIargv\fR fields will be populated with the directives arguments.
 .TP
 .BR CONF_SUBDIRECTIVE_PUSH
 When the parser is entering a subdirective group.
@@ -55,7 +61,8 @@ When the parser is entering a subdirective group.
 When the parser is leaving a subdirective group.
 .TP
 .BR CONF_COMMENT
-When the parser finds a comment.
+When the parser discovers a comment.
+The \fIcomment\fR field will be populated the location of the comment in the Confetti source text.
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
 The \fBconf_walk\fR function will return one of the following \fBconf_errno\fR constants.
@@ -66,7 +73,7 @@ When \fIstr\fR is parsed without errors.
 .TP
 .BR CONF_NO_MEMORY
 If dynamic memory allocation fails.
-The implementation garuntees all intermediate allocations will be freed to avoid resource leakage.
+The implementation guarantees all intermediate allocations will be freed to avoid resource leakage.
 .TP
 .BR CONF_BAD_SYNTAX,
 If a Confetti syntax error is discovered.
@@ -85,5 +92,5 @@ If parsing is aborted.
 The implementation of \fBcb\fR must return a non-zero integer to indicate that parsing should abort.
 .\" --------------------------------------------------------------------------
 .SH LICENSING
-Confetti is Free Software distributed under the GNU Lesser General Public License version 3.
+Confetti is Free Software distributed under the MIT License.
 Please see the LICENSE file included with the Confetti distribution for details.
