@@ -183,8 +183,8 @@ It represents various tasks that you could potentially run via the command line.
 <h2 id="_user_interface"><span>User Interface</span><a href="#_user_interface">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Any custom, structured, text-based file format could use Confetti in interesting ways.
-The following example shows how Confetti could be used for desinging user interfaces.</p>
+<p>This example demonstrates how Confetti could be used for designing user interfaces.
+It takes inspiration from <a href="https://doc.qt.io/qt-6/qtqml-documents-topic.html">QML</a> which is a document markup language developed by the Qt project for designing user interfaces with the Qt framework.</p>
 </div>
 <pre><code><span class="directive">Application</span> {
     <span class="directive">VerticalLayout</span> {
@@ -211,13 +211,13 @@ function() {
 <p>Below is an example of what a Confetti configuration file might look like for an AI model, particularly a machine learning model such as a neural network:</p>
 </div>
 <pre><code><span class="directive">model</span> {
-    <span class="directive">type</span> <span class="quoted">"neural_network"</span>
-    <span class="directive">architecture</span> {
-      <span class="directive">layers</span> {
-        <span class="directive">layer</span> { <span class="directive">type</span> input; <span class="directive">size</span> <span class="number">784</span> }
-        <span class="directive">layer</span> { <span class="directive">type</span> dense; <span class="directive">units</span> <span class="number">128</span>; <span class="directive">activation</span> <span class="quoted">"relu"</span> }
-        <span class="directive">layer</span> { <span class="directive">type</span> output; <span class="directive">units</span> <span class="number">10</span>; <span class="directive">activation</span> <span class="quoted">"softmax"</span> }
-      }
+  <span class="directive">type</span> <span class="quoted">"neural_network"</span>
+  <span class="directive">architecture</span> {
+    <span class="directive">layers</span> {
+      <span class="directive">layer</span> { <span class="directive">type</span> input; <span class="directive">size</span> <span class="number">784</span> }
+      <span class="directive">layer</span> { <span class="directive">type</span> dense; <span class="directive">units</span> <span class="number">128</span>; <span class="directive">activation</span> <span class="quoted">"relu"</span> }
+      <span class="directive">layer</span> { <span class="directive">type</span> output; <span class="directive">units</span> <span class="number">10</span>; <span class="directive">activation</span> <span class="quoted">"softmax"</span> }
+    }
   }
 
   <span class="directive">training</span> {
@@ -232,7 +232,12 @@ function() {
 <h2 id="_material_definitions"><span>Material Definitions</span><a href="#_material_definitions">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Here <code>material</code>, <code>opacity</code>, <code>pass</code>, <code>diffuse</code>, and <code>blend-mode</code> are interpreted as <strong>commands</strong> by the user application.
+<p>The Confetti grammar is <em>almost</em> compatible with the <a href="https://en.wikipedia.org/wiki/Wavefront_.obj_file">Wavefront .OBJ</a> file format, which is a geometry definition file format popular in computer graphics.
+The <code>.OBJ</code> format is <em>line-based</em> and has directives or <em>commands</em>, much like Confetti.</p>
+</div>
+<div class="paragraph">
+<p>The following example demonstrates how Confetti can be used to create pseudo-groups like the <code>.OBJ</code> format.
+Here <code>material</code>, <code>opacity</code>, <code>pass</code>, <code>diffuse</code>, and <code>blend-mode</code> are interpreted as <strong>commands</strong> by the user application.
 For example, the application would interpret the <code>material</code> command as the definition of a new material and all subsequent commands as belonging to it.</p>
 </div>
 <pre><code><span class="directive">material</span> water
@@ -248,7 +253,13 @@ For example, the application would interpret the <code>material</code> command a
 <h2 id="_domain_specific_languages"><span>Domain Specific Languages</span><a href="#_domain_specific_languages">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>You can create domain specific languages with Confetti.</p>
+<p><a href="https://en.wikipedia.org/wiki/S-expression">S-expressions</a> are a simple and recursive way of representing both data and code.
+The classic parentheses with polish notation provides minimalistic syntactic structure.
+Confetti brings that flexibility to Unix configuration and INI files, except with C-like notation.</p>
+</div>
+<div class="paragraph">
+<p>This section of examples demonstrates how the Confetti grammar is flexible enough to represent domain specific languages (code) in addition to plain structures (data).
+As you view these examples, keep in mind Confetti has no keywords or control flow — syntax highlighting is just for show.</p>
 </div>
 <div class="sect2">
 <h3 id="_stack_based_language"><span>Stack-Based Language</span><a href="#_stack_based_language">#</a></h3>
