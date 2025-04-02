@@ -1,0 +1,74 @@
+command {
+    argument {
+        offset 0
+        length 8
+        value "material"
+    }
+    argument {
+        offset 9
+        length 5
+        value "water"
+    }
+}
+command {
+    argument {
+        offset 19
+        length 7
+        value "opacity"
+    }
+    argument {
+        offset 27
+        length 3
+        value "0.5"
+    }
+}
+command {
+    argument {
+        offset 35
+        length 4
+        value "pass"
+    }
+}
+command {
+    argument {
+        offset 48
+        length 7
+        value "diffuse"
+    }
+    argument {
+        offset 56
+        length 27
+        value "materials/liquids/water.png"
+    }
+}
+command {
+    argument {
+        offset 88
+        length 4
+        value "pass"
+    }
+}
+command {
+    argument {
+        offset 101
+        length 7
+        value "diffuse"
+    }
+    argument {
+        offset 109
+        length 28
+        value "materials/liquids/water2.png"
+    }
+}
+command {
+    argument {
+        offset 146
+        length 10
+        value "blend-mode"
+    }
+    argument {
+        offset 157
+        length 8
+        value "additive"
+    }
+}

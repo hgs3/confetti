@@ -1,0 +1,26 @@
+<model> [
+    <type> <neural_network>
+    <architecture> [
+        <layers> [
+            <layer> [
+                <type> <input>
+                <size> <784>
+            ]
+            <layer> [
+                <type> <dense>
+                <units> <128>
+                <activation> <relu>
+            ]
+            <layer> [
+                <type> <output>
+                <units> <10>
+                <activation> <softmax>
+            ]
+        ]
+    ]
+    <training> [
+        <data> </path/to/training/data>
+        <epochs> <20>
+        <early_stopping> <on>
+    ]
+]

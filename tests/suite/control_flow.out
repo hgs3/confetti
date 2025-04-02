@@ -1,0 +1,9 @@
+<set> <$retry-count> <to> <3>
+<for> <$i> <in> <$retry-count> [
+    <if> <$is_admin> [
+        <print> <Access granted>
+        <send_email> <admin@example.com>
+        <exit> <0>
+    ]
+]
+<exit> <1>

@@ -1,0 +1,6 @@
+<push> <1>
+<push> <2>
+<add>
+<pop> <$x>
+<print> <1 + 2 =>
+<print> <$x>

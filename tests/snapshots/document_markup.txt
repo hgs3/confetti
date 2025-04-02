@@ -1,0 +1,126 @@
+command {
+    argument {
+        offset 0
+        length 7
+        value "chapter"
+    }
+    argument {
+        offset 8
+        length 11
+        value "The Raven"
+    }
+}
+command {
+    argument {
+        offset 20
+        length 6
+        value "author"
+    }
+    argument {
+        offset 27
+        length 17
+        value "Edgar Allan Poe"
+    }
+}
+command {
+    argument {
+        offset 45
+        length 7
+        value "section"
+    }
+    argument {
+        offset 53
+        length 11
+        value "First Act"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 69
+                length 9
+                value "paragraph"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 85
+                        length 64
+                        value "Once upon a midnight dreary, while I pondered, weak and weary,"
+                    }
+                }
+                command {
+                    argument {
+                        offset 154
+                        length 25
+                        value "Over many a quaint and "
+                    }
+                    argument {
+                        offset 180
+                        length 4
+                        value "bold"
+                    }
+                    subcommands {
+                        command {
+                            argument {
+                                offset 185
+                                length 9
+                                value "curious"
+                            }
+                        }
+                    }
+                }
+                command {
+                    argument {
+                        offset 196
+                        length 28
+                        value " volume of forgotten lore-"
+                    }
+                }
+            }
+        }
+        command {
+            argument {
+                offset 231
+                length 9
+                value "paragraph"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 247
+                        length 64
+                        value "While I nodded, nearly napping, suddenly there came a tapping,"
+                    }
+                }
+                command {
+                    argument {
+                        offset 316
+                        length 17
+                        value "As of some one "
+                    }
+                    argument {
+                        offset 334
+                        length 6
+                        value "italic"
+                    }
+                    subcommands {
+                        command {
+                            argument {
+                                offset 341
+                                length 8
+                                value "gently"
+                            }
+                        }
+                    }
+                }
+                command {
+                    argument {
+                        offset 351
+                        length 38
+                        value " rapping-rapping at my chamber door."
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,116 @@
+command {
+    argument {
+        offset 0
+        length 3
+        value "set"
+    }
+    argument {
+        offset 4
+        length 12
+        value "$retry-count"
+    }
+    argument {
+        offset 17
+        length 2
+        value "to"
+    }
+    argument {
+        offset 20
+        length 1
+        value "3"
+    }
+}
+command {
+    argument {
+        offset 22
+        length 3
+        value "for"
+    }
+    argument {
+        offset 26
+        length 2
+        value "$i"
+    }
+    argument {
+        offset 29
+        length 2
+        value "in"
+    }
+    argument {
+        offset 32
+        length 12
+        value "$retry-count"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 51
+                length 2
+                value "if"
+            }
+            argument {
+                offset 54
+                length 9
+                value "$is_admin"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 74
+                        length 5
+                        value "print"
+                    }
+                    argument {
+                        offset 80
+                        length 16
+                        value "Access granted"
+                    }
+                }
+                command {
+                    argument {
+                        offset 105
+                        length 10
+                        value "send_email"
+                    }
+                    argument {
+                        offset 116
+                        length 19
+                        value "admin@example.com"
+                    }
+                }
+                command {
+                    argument {
+                        offset 144
+                        length 4
+                        value "exit"
+                    }
+                    argument {
+                        offset 149
+                        length 1
+                        value "0"
+                    }
+                }
+            }
+        }
+    }
+}
+command {
+    argument {
+        offset 170
+        length 4
+        value "exit"
+    }
+    argument {
+        offset 175
+        length 1
+        value "1"
+    }
+}
+comment {
+    offset 151
+    length 10
+}
+comment {
+    offset 177
+    length 31
+}

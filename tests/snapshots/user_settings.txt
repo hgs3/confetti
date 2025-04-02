@@ -1,0 +1,48 @@
+command {
+    argument {
+        offset 0
+        length 8
+        value "username"
+    }
+    argument {
+        offset 9
+        length 7
+        value "JohnDoe"
+    }
+}
+command {
+    argument {
+        offset 17
+        length 8
+        value "language"
+    }
+    argument {
+        offset 26
+        length 5
+        value "en-US"
+    }
+}
+command {
+    argument {
+        offset 32
+        length 5
+        value "theme"
+    }
+    argument {
+        offset 38
+        length 4
+        value "dark"
+    }
+}
+command {
+    argument {
+        offset 43
+        length 13
+        value "notifications"
+    }
+    argument {
+        offset 57
+        length 2
+        value "on"
+    }
+}

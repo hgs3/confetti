@@ -1,0 +1,142 @@
+command {
+    argument {
+        offset 0
+        length 6
+        value "states"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 13
+                length 12
+                value "greet_player"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 36
+                        length 7
+                        value "look_at"
+                    }
+                    argument {
+                        offset 44
+                        length 7
+                        value "$player"
+                    }
+                }
+                command {
+                    argument {
+                        offset 60
+                        length 4
+                        value "wait"
+                    }
+                    argument {
+                        offset 65
+                        length 2
+                        value "1s"
+                    }
+                }
+                command {
+                    argument {
+                        offset 130
+                        length 7
+                        value "walk_to"
+                    }
+                    argument {
+                        offset 138
+                        length 7
+                        value "$player"
+                    }
+                }
+                command {
+                    argument {
+                        offset 154
+                        length 3
+                        value "say"
+                    }
+                    argument {
+                        offset 158
+                        length 24
+                        value "Good evening traveler."
+                    }
+                }
+            }
+        }
+        command {
+            argument {
+                offset 194
+                length 10
+                value "last_words"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 215
+                        length 3
+                        value "say"
+                    }
+                    argument {
+                        offset 219
+                        length 20
+                        value "Tis a cruel world!"
+                    }
+                }
+            }
+        }
+    }
+}
+command {
+    argument {
+        offset 249
+        length 6
+        value "events"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 262
+                length 14
+                value "player_spotted"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 287
+                        length 10
+                        value "goto_state"
+                    }
+                    argument {
+                        offset 298
+                        length 12
+                        value "greet_player"
+                    }
+                }
+            }
+        }
+        command {
+            argument {
+                offset 322
+                length 4
+                value "died"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 337
+                        length 10
+                        value "goto_state"
+                    }
+                    argument {
+                        offset 348
+                        length 10
+                        value "last_words"
+                    }
+                }
+            }
+        }
+    }
+}
+comment {
+    offset 68
+    length 53
+}

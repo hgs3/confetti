@@ -1,0 +1,15 @@
+<Application> [
+    <VerticalLayout> [
+        <Label> [
+            <text> <This application has a single button.>
+        ]
+        <Button> [
+            <text> <Click Me>
+            <on_click> <
+function() {
+    console.log(`You clicked a button named: ${this.text}`);
+}
+>
+        ]
+    ]
+]

@@ -1,0 +1,78 @@
+command {
+    argument {
+        offset 0
+        length 11
+        value "application"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 18
+                length 7
+                value "version"
+            }
+            argument {
+                offset 26
+                length 5
+                value "1.2.3"
+            }
+        }
+        command {
+            argument {
+                offset 36
+                length 11
+                value "auto-update"
+            }
+            argument {
+                offset 48
+                length 4
+                value "true"
+            }
+        }
+        command {
+            argument {
+                offset 57
+                length 9
+                value "log-level"
+            }
+            argument {
+                offset 67
+                length 5
+                value "debug"
+            }
+        }
+    }
+}
+command {
+    argument {
+        offset 76
+        length 7
+        value "display"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 90
+                length 10
+                value "resolution"
+            }
+            argument {
+                offset 101
+                length 9
+                value "1920x1080"
+            }
+        }
+        command {
+            argument {
+                offset 115
+                length 11
+                value "full-screen"
+            }
+            argument {
+                offset 127
+                length 4
+                value "true"
+            }
+        }
+    }
+}

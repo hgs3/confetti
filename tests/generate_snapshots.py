@@ -1094,6 +1094,356 @@ z
         # output
         Success("")
     ),
+    # This is the "kichen sink" example from the Confetii website.
+    TestCase(
+        "kitchen_sink",
+        # input
+        """# This is a comment.
+
+probe-device eth0 eth1
+
+user * {
+    login anonymous
+    password "${ENV:ANONPASS}"
+    machine 167.89.14.1
+    proxy {
+        try-ports 582 583 584
+    }
+}
+
+user "Joe Williams" {
+    login joe
+    machine 167.89.14.1
+}""",
+        # output
+        Success("""<probe-device> <eth0> <eth1>
+<user> <*> [
+    <login> <anonymous>
+    <password> <${ENV:ANONPASS}>
+    <machine> <167.89.14.1>
+    <proxy> [
+        <try-ports> <582> <583> <584>
+    ]
+]
+<user> <Joe Williams> [
+    <login> <joe>
+    <machine> <167.89.14.1>
+]
+""")
+    ),
+    TestCase(
+        "user_settings",
+        # input
+        """username JohnDoe
+language en-US
+theme dark
+notifications on
+""",
+        # output
+        Success("""<username> <JohnDoe>
+<language> <en-US>
+<theme> <dark>
+<notifications> <on>
+""")
+    ),
+    TestCase(
+        "application_settings",
+        # input
+        """application {
+    version 1.2.3
+    auto-update true
+    log-level debug
+}
+
+display {
+    resolution 1920x1080
+    full-screen true
+}
+""",
+        # output
+        Success("""<application> [
+    <version> <1.2.3>
+    <auto-update> <true>
+    <log-level> <debug>
+]
+<display> [
+    <resolution> <1920x1080>
+    <full-screen> <true>
+]
+"""),
+    ),
+    TestCase(
+        "document_markup",
+        # input
+        """chapter "The Raven"
+author "Edgar Allan Poe"
+section "First Act" {
+  paragraph {
+    "Once upon a midnight dreary, while I pondered, weak and weary,"
+    "Over many a quaint and " bold{"curious"} " volume of forgotten lore-\"
+  }
+  paragraph {
+    "While I nodded, nearly napping, suddenly there came a tapping,"
+    "As of some one " italic{"gently"} " rapping-rapping at my chamber door."
+  }
+}
+""",
+        # output
+        Success("""<chapter> <The Raven>
+<author> <Edgar Allan Poe>
+<section> <First Act> [
+    <paragraph> [
+        <Once upon a midnight dreary, while I pondered, weak and weary,>
+        <Over many a quaint and > <bold> [
+            <curious>
+        ]
+        < volume of forgotten lore->
+    ]
+    <paragraph> [
+        <While I nodded, nearly napping, suddenly there came a tapping,>
+        <As of some one > <italic> [
+            <gently>
+        ]
+        < rapping-rapping at my chamber door.>
+    ]
+]
+""")
+    ),
+    TestCase(
+        "workflow_automation",
+        # input
+        """build {
+    description "Compile the source code"
+    command "gcc -o program source.c"
+}
+
+clean {
+    description "Clean the build directory"
+    command "rm -rf build/"
+}
+
+test {
+    description "Run unit tests"
+    command "./tests/run.sh"
+    depends_on { build }
+}""",
+        # output
+        Success("""<build> [
+    <description> <Compile the source code>
+    <command> <gcc -o program source.c>
+]
+<clean> [
+    <description> <Clean the build directory>
+    <command> <rm -rf build/>
+]
+<test> [
+    <description> <Run unit tests>
+    <command> <./tests/run.sh>
+    <depends_on> [
+        <build>
+    ]
+]
+""")
+    ),
+    TestCase(
+        "user_interface",
+        # input
+        '''Application {
+    VerticalLayout {
+        Label {
+            text "This application has a single button."
+        }
+
+        Button {
+            text "Click Me"
+            on_click """
+function() {
+    console.log(`You clicked a button named: ${this.text}`);
+}
+"""
+        }
+    }
+}
+''',
+        # output
+        Success('''<Application> [
+    <VerticalLayout> [
+        <Label> [
+            <text> <This application has a single button.>
+        ]
+        <Button> [
+            <text> <Click Me>
+            <on_click> <
+function() {
+    console.log(`You clicked a button named: ${this.text}`);
+}
+>
+        ]
+    ]
+]
+''')
+    ),
+    TestCase(
+        "ait_training",
+        # input
+        """model {
+    type "neural_network"
+    architecture {
+      layers {
+        layer { type input; size 784 }
+        layer { type dense; units 128; activation "relu" }
+        layer { type output; units 10; activation "softmax" }
+      }
+  }
+
+  training {
+    data "/path/to/training/data"
+    epochs 20
+    early_stopping on
+  }
+}
+""",
+        # output
+        Success("""<model> [
+    <type> <neural_network>
+    <architecture> [
+        <layers> [
+            <layer> [
+                <type> <input>
+                <size> <784>
+            ]
+            <layer> [
+                <type> <dense>
+                <units> <128>
+                <activation> <relu>
+            ]
+            <layer> [
+                <type> <output>
+                <units> <10>
+                <activation> <softmax>
+            ]
+        ]
+    ]
+    <training> [
+        <data> </path/to/training/data>
+        <epochs> <20>
+        <early_stopping> <on>
+    ]
+]
+""")
+    ),
+    TestCase(
+        "material_definitions",
+        # input
+        """material water
+    opacity 0.5
+    pass
+        diffuse materials/liquids/water.png
+    pass
+        diffuse materials/liquids/water2.png
+        blend-mode additive
+""",
+        # output
+        Success("""<material> <water>
+<opacity> <0.5>
+<pass>
+<diffuse> <materials/liquids/water.png>
+<pass>
+<diffuse> <materials/liquids/water2.png>
+<blend-mode> <additive>
+"""),
+    ),
+    TestCase(
+        "stack_based_language",
+        # input
+        """push 1
+push 2
+add     # Pop the top two numbers and push their sum.
+pop $x  # Pop the sum and store it in $x.
+print "1 + 2 ="
+print $x
+""",
+        # output
+        Success("""<push> <1>
+<push> <2>
+<add>
+<pop> <$x>
+<print> <1 + 2 =>
+<print> <$x>
+""")
+    ),
+    TestCase(
+        "control_flow",
+        # input
+        """set $retry-count to 3
+for $i in $retry-count {
+    if $is_admin {
+        print "Access granted"
+        send_email "admin@example.com"
+        exit 0 # Success!
+    }
+}
+exit 1 # Failed to confirm admin role.
+""",
+        # output
+        Success("""<set> <$retry-count> <to> <3>
+<for> <$i> <in> <$retry-count> [
+    <if> <$is_admin> [
+        <print> <Access granted>
+        <send_email> <admin@example.com>
+        <exit> <0>
+    ]
+]
+<exit> <1>
+""")
+    ),
+    TestCase(
+        "state_machine",
+        # input
+        """states {
+    greet_player {
+        look_at $player
+        wait 1s # Pause one second before walking towards the player.
+        walk_to $player
+        say "Good evening traveler."
+    }
+
+    last_words {
+        say "Tis a cruel world!"
+    }
+}
+
+events {
+    player_spotted {
+        goto_state greet_player
+    }
+
+    died {
+        goto_state last_words
+    }
+}
+""",
+        Success("""<states> [
+    <greet_player> [
+        <look_at> <$player>
+        <wait> <1s>
+        <walk_to> <$player>
+        <say> <Good evening traveler.>
+    ]
+    <last_words> [
+        <say> <Tis a cruel world!>
+    ]
+]
+<events> [
+    <player_spotted> [
+        <goto_state> <greet_player>
+    ]
+    <died> [
+        <goto_state> <last_words>
+    ]
+]
+""")
+    )
 ]
 
 longest_input = 0

@@ -1,0 +1,75 @@
+command {
+    argument {
+        offset 0
+        length 4
+        value "push"
+    }
+    argument {
+        offset 5
+        length 1
+        value "1"
+    }
+}
+command {
+    argument {
+        offset 7
+        length 4
+        value "push"
+    }
+    argument {
+        offset 12
+        length 1
+        value "2"
+    }
+}
+command {
+    argument {
+        offset 14
+        length 3
+        value "add"
+    }
+}
+command {
+    argument {
+        offset 68
+        length 3
+        value "pop"
+    }
+    argument {
+        offset 72
+        length 2
+        value "$x"
+    }
+}
+command {
+    argument {
+        offset 110
+        length 5
+        value "print"
+    }
+    argument {
+        offset 116
+        length 9
+        value "1 + 2 ="
+    }
+}
+command {
+    argument {
+        offset 126
+        length 5
+        value "print"
+    }
+    argument {
+        offset 132
+        length 2
+        value "$x"
+    }
+}
+comment {
+    offset 22
+    length 45
+}
+comment {
+    offset 76
+    length 33
+}

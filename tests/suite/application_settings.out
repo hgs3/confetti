@@ -1,0 +1,9 @@
+<application> [
+    <version> <1.2.3>
+    <auto-update> <true>
+    <log-level> <debug>
+]
+<display> [
+    <resolution> <1920x1080>
+    <full-screen> <true>
+]

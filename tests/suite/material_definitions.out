@@ -1,0 +1,7 @@
+<material> <water>
+<opacity> <0.5>
+<pass>
+<diffuse> <materials/liquids/water.png>
+<pass>
+<diffuse> <materials/liquids/water2.png>
+<blend-mode> <additive>

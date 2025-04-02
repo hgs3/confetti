@@ -1,0 +1,140 @@
+command {
+    argument {
+        offset 22
+        length 12
+        value "probe-device"
+    }
+    argument {
+        offset 35
+        length 4
+        value "eth0"
+    }
+    argument {
+        offset 40
+        length 4
+        value "eth1"
+    }
+}
+command {
+    argument {
+        offset 46
+        length 4
+        value "user"
+    }
+    argument {
+        offset 51
+        length 1
+        value "*"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 59
+                length 5
+                value "login"
+            }
+            argument {
+                offset 65
+                length 9
+                value "anonymous"
+            }
+        }
+        command {
+            argument {
+                offset 79
+                length 8
+                value "password"
+            }
+            argument {
+                offset 88
+                length 17
+                value "${ENV:ANONPASS}"
+            }
+        }
+        command {
+            argument {
+                offset 110
+                length 7
+                value "machine"
+            }
+            argument {
+                offset 118
+                length 11
+                value "167.89.14.1"
+            }
+        }
+        command {
+            argument {
+                offset 134
+                length 5
+                value "proxy"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 150
+                        length 9
+                        value "try-ports"
+                    }
+                    argument {
+                        offset 160
+                        length 3
+                        value "582"
+                    }
+                    argument {
+                        offset 164
+                        length 3
+                        value "583"
+                    }
+                    argument {
+                        offset 168
+                        length 3
+                        value "584"
+                    }
+                }
+            }
+        }
+    }
+}
+command {
+    argument {
+        offset 181
+        length 4
+        value "user"
+    }
+    argument {
+        offset 186
+        length 14
+        value "Joe Williams"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 207
+                length 5
+                value "login"
+            }
+            argument {
+                offset 213
+                length 3
+                value "joe"
+            }
+        }
+        command {
+            argument {
+                offset 221
+                length 7
+                value "machine"
+            }
+            argument {
+                offset 229
+                length 11
+                value "167.89.14.1"
+            }
+        }
+    }
+}
+comment {
+    offset 0
+    length 20
+}

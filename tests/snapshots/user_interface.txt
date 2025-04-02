@@ -1,0 +1,76 @@
+command {
+    argument {
+        offset 0
+        length 11
+        value "Application"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 18
+                length 14
+                value "VerticalLayout"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 43
+                        length 5
+                        value "Label"
+                    }
+                    subcommands {
+                        command {
+                            argument {
+                                offset 63
+                                length 4
+                                value "text"
+                            }
+                            argument {
+                                offset 68
+                                length 39
+                                value "This application has a single button."
+                            }
+                        }
+                    }
+                }
+                command {
+                    argument {
+                        offset 127
+                        length 6
+                        value "Button"
+                    }
+                    subcommands {
+                        command {
+                            argument {
+                                offset 148
+                                length 4
+                                value "text"
+                            }
+                            argument {
+                                offset 153
+                                length 10
+                                value "Click Me"
+                            }
+                        }
+                        command {
+                            argument {
+                                offset 176
+                                length 8
+                                value "on_click"
+                            }
+                            argument {
+                                offset 185
+                                length 83
+                                value "
+function() {
+    console.log(`You clicked a button named: ${this.text}`);
+}
+"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

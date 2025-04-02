@@ -1,0 +1,207 @@
+command {
+    argument {
+        offset 0
+        length 5
+        value "model"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 12
+                length 4
+                value "type"
+            }
+            argument {
+                offset 17
+                length 16
+                value "neural_network"
+            }
+        }
+        command {
+            argument {
+                offset 38
+                length 12
+                value "architecture"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 59
+                        length 6
+                        value "layers"
+                    }
+                    subcommands {
+                        command {
+                            argument {
+                                offset 76
+                                length 5
+                                value "layer"
+                            }
+                            subcommands {
+                                command {
+                                    argument {
+                                        offset 84
+                                        length 4
+                                        value "type"
+                                    }
+                                    argument {
+                                        offset 89
+                                        length 5
+                                        value "input"
+                                    }
+                                }
+                                command {
+                                    argument {
+                                        offset 96
+                                        length 4
+                                        value "size"
+                                    }
+                                    argument {
+                                        offset 101
+                                        length 3
+                                        value "784"
+                                    }
+                                }
+                            }
+                        }
+                        command {
+                            argument {
+                                offset 115
+                                length 5
+                                value "layer"
+                            }
+                            subcommands {
+                                command {
+                                    argument {
+                                        offset 123
+                                        length 4
+                                        value "type"
+                                    }
+                                    argument {
+                                        offset 128
+                                        length 5
+                                        value "dense"
+                                    }
+                                }
+                                command {
+                                    argument {
+                                        offset 135
+                                        length 5
+                                        value "units"
+                                    }
+                                    argument {
+                                        offset 141
+                                        length 3
+                                        value "128"
+                                    }
+                                }
+                                command {
+                                    argument {
+                                        offset 146
+                                        length 10
+                                        value "activation"
+                                    }
+                                    argument {
+                                        offset 157
+                                        length 6
+                                        value "relu"
+                                    }
+                                }
+                            }
+                        }
+                        command {
+                            argument {
+                                offset 174
+                                length 5
+                                value "layer"
+                            }
+                            subcommands {
+                                command {
+                                    argument {
+                                        offset 182
+                                        length 4
+                                        value "type"
+                                    }
+                                    argument {
+                                        offset 187
+                                        length 6
+                                        value "output"
+                                    }
+                                }
+                                command {
+                                    argument {
+                                        offset 195
+                                        length 5
+                                        value "units"
+                                    }
+                                    argument {
+                                        offset 201
+                                        length 2
+                                        value "10"
+                                    }
+                                }
+                                command {
+                                    argument {
+                                        offset 205
+                                        length 10
+                                        value "activation"
+                                    }
+                                    argument {
+                                        offset 216
+                                        length 9
+                                        value "softmax"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        command {
+            argument {
+                offset 243
+                length 8
+                value "training"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 258
+                        length 4
+                        value "data"
+                    }
+                    argument {
+                        offset 263
+                        length 24
+                        value "/path/to/training/data"
+                    }
+                }
+                command {
+                    argument {
+                        offset 292
+                        length 6
+                        value "epochs"
+                    }
+                    argument {
+                        offset 299
+                        length 2
+                        value "20"
+                    }
+                }
+                command {
+                    argument {
+                        offset 306
+                        length 14
+                        value "early_stopping"
+                    }
+                    argument {
+                        offset 321
+                        length 2
+                        value "on"
+                    }
+                }
+            }
+        }
+    }
+}

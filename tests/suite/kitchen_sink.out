@@ -1,0 +1,13 @@
+<probe-device> <eth0> <eth1>
+<user> <*> [
+    <login> <anonymous>
+    <password> <${ENV:ANONPASS}>
+    <machine> <167.89.14.1>
+    <proxy> [
+        <try-ports> <582> <583> <584>
+    ]
+]
+<user> <Joe Williams> [
+    <login> <joe>
+    <machine> <167.89.14.1>
+]

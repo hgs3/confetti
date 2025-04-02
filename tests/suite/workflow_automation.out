@@ -1,0 +1,15 @@
+<build> [
+    <description> <Compile the source code>
+    <command> <gcc -o program source.c>
+]
+<clean> [
+    <description> <Clean the build directory>
+    <command> <rm -rf build/>
+]
+<test> [
+    <description> <Run unit tests>
+    <command> <./tests/run.sh>
+    <depends_on> [
+        <build>
+    ]
+]

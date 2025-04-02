@@ -1,0 +1,115 @@
+command {
+    argument {
+        offset 0
+        length 5
+        value "build"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 12
+                length 11
+                value "description"
+            }
+            argument {
+                offset 24
+                length 25
+                value "Compile the source code"
+            }
+        }
+        command {
+            argument {
+                offset 54
+                length 7
+                value "command"
+            }
+            argument {
+                offset 62
+                length 25
+                value "gcc -o program source.c"
+            }
+        }
+    }
+}
+command {
+    argument {
+        offset 91
+        length 5
+        value "clean"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 103
+                length 11
+                value "description"
+            }
+            argument {
+                offset 115
+                length 27
+                value "Clean the build directory"
+            }
+        }
+        command {
+            argument {
+                offset 147
+                length 7
+                value "command"
+            }
+            argument {
+                offset 155
+                length 15
+                value "rm -rf build/"
+            }
+        }
+    }
+}
+command {
+    argument {
+        offset 174
+        length 4
+        value "test"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 185
+                length 11
+                value "description"
+            }
+            argument {
+                offset 197
+                length 16
+                value "Run unit tests"
+            }
+        }
+        command {
+            argument {
+                offset 218
+                length 7
+                value "command"
+            }
+            argument {
+                offset 226
+                length 16
+                value "./tests/run.sh"
+            }
+        }
+        command {
+            argument {
+                offset 247
+                length 10
+                value "depends_on"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 260
+                        length 5
+                        value "build"
+                    }
+                }
+            }
+        }
+    }
+}
