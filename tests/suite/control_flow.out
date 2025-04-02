@@ -5,5 +5,8 @@
         <send_email> <admin@example.com>
         <exit> <0>
     ]
+    <else> [
+        <sleep> <1s>
+    ]
 ]
 <exit> <1>

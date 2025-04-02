@@ -4,3 +4,7 @@
 <pop> <$x>
 <print> <1 + 2 =>
 <print> <$x>
+<func> <sum> <x> <y> [
+    <add>
+    <return> <1>
+]

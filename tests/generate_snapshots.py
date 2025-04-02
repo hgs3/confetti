@@ -1362,6 +1362,11 @@ add     # Pop the top two numbers and push their sum.
 pop $x  # Pop the sum and store it in $x.
 print "1 + 2 ="
 print $x
+
+func sum x y {
+    add       # Pop the function arguments and push their sum.
+    return 1  # One return value is left on the stack.
+}
 """,
         # output
         Success("""<push> <1>
@@ -1370,6 +1375,10 @@ print $x
 <pop> <$x>
 <print> <1 + 2 =>
 <print> <$x>
+<func> <sum> <x> <y> [
+    <add>
+    <return> <1>
+]
 """)
     ),
     TestCase(
@@ -1381,6 +1390,8 @@ for $i in $retry-count {
         print "Access granted"
         send_email "admin@example.com"
         exit 0 # Success!
+    } else {
+        sleep 1s # Lets try again after a moment.
     }
 }
 exit 1 # Failed to confirm admin role.
@@ -1393,8 +1404,29 @@ exit 1 # Failed to confirm admin role.
         <send_email> <admin@example.com>
         <exit> <0>
     ]
+    <else> [
+        <sleep> <1s>
+    ]
 ]
 <exit> <1>
+""")
+    ),
+    TestCase(
+        "shell_commands",
+        # input
+        """cat myfile.txt
+
+do {
+  ./webserver -p 8080
+  ./database --api-key 123 --data-dir /var/lib/db/
+} > output.txt
+""",
+        Success("""<cat> <myfile.txt>
+<do> [
+    <./webserver> <-p> <8080>
+    <./database> <--api-key> <123> <--data-dir> </var/lib/db/>
+]
+<>> <output.txt>
 """)
     ),
     TestCase(

@@ -4,6 +4,8 @@ for $i in $retry-count {
         print "Access granted"
         send_email "admin@example.com"
         exit 0 # Success!
+    } else {
+        sleep 1s # Lets try again after a moment.
     }
 }
 exit 1 # Failed to confirm admin role.

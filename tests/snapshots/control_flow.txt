@@ -92,16 +92,37 @@ command {
                 }
             }
         }
+        command {
+            argument {
+                offset 168
+                length 4
+                value "else"
+            }
+            subcommands {
+                command {
+                    argument {
+                        offset 183
+                        length 5
+                        value "sleep"
+                    }
+                    argument {
+                        offset 189
+                        length 2
+                        value "1s"
+                    }
+                }
+            }
+        }
     }
 }
 command {
     argument {
-        offset 170
+        offset 233
         length 4
         value "exit"
     }
     argument {
-        offset 175
+        offset 238
         length 1
         value "1"
     }
@@ -111,6 +132,10 @@ comment {
     length 10
 }
 comment {
-    offset 177
+    offset 192
+    length 32
+}
+comment {
+    offset 240
     length 31
 }

@@ -1,0 +1,77 @@
+command {
+    argument {
+        offset 0
+        length 3
+        value "cat"
+    }
+    argument {
+        offset 4
+        length 10
+        value "myfile.txt"
+    }
+}
+command {
+    argument {
+        offset 16
+        length 2
+        value "do"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 23
+                length 11
+                value "./webserver"
+            }
+            argument {
+                offset 35
+                length 2
+                value "-p"
+            }
+            argument {
+                offset 38
+                length 4
+                value "8080"
+            }
+        }
+        command {
+            argument {
+                offset 45
+                length 10
+                value "./database"
+            }
+            argument {
+                offset 56
+                length 9
+                value "--api-key"
+            }
+            argument {
+                offset 66
+                length 3
+                value "123"
+            }
+            argument {
+                offset 70
+                length 10
+                value "--data-dir"
+            }
+            argument {
+                offset 81
+                length 12
+                value "/var/lib/db/"
+            }
+        }
+    }
+}
+command {
+    argument {
+        offset 96
+        length 1
+        value ">"
+    }
+    argument {
+        offset 98
+        length 10
+        value "output.txt"
+    }
+}

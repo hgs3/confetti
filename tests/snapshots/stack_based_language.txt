@@ -65,6 +65,49 @@ command {
         value "$x"
     }
 }
+command {
+    argument {
+        offset 136
+        length 4
+        value "func"
+    }
+    argument {
+        offset 141
+        length 3
+        value "sum"
+    }
+    argument {
+        offset 145
+        length 1
+        value "x"
+    }
+    argument {
+        offset 147
+        length 1
+        value "y"
+    }
+    subcommands {
+        command {
+            argument {
+                offset 155
+                length 3
+                value "add"
+            }
+        }
+        command {
+            argument {
+                offset 218
+                length 6
+                value "return"
+            }
+            argument {
+                offset 225
+                length 1
+                value "1"
+            }
+        }
+    }
+}
 comment {
     offset 22
     length 45
@@ -72,4 +115,12 @@ comment {
 comment {
     offset 76
     length 33
+}
+comment {
+    offset 165
+    length 48
+}
+comment {
+    offset 228
+    length 40
 }
