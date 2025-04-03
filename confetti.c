@@ -1503,7 +1503,7 @@ static void parse_document(conf_document *doc)
     }
 }
 
-static void init_punctuator_arguments_tables(conf_document *doc, const char *punctuator)
+static void init_punctuator_arguments_tables(conf_document *doc, const char **punctuator_arguments)
 {
     struct counters
     {
@@ -1519,11 +1519,34 @@ static void init_punctuator_arguments_tables(conf_document *doc, const char *pun
     size_t index = 0;
     for (;;)
     {
-        const size_t length = strlen(&punctuator[index]);
+        const char *string = punctuator_arguments[index];
+        if (string == NULL)
+        {
+            break;
+        }
+
+        const size_t length = strlen(string);
         if (length == 0)
         {
             break;
         }
+
+        // Verify the string only contains valid argument characters; it
+        // cannot contain white space, reserved, or forbidden characters.
+        for (;;)
+        {
+            const uchar cp = utf8decode(doc, string, NULL);
+            if (cp == '\0')
+            {
+                break;
+            }
+
+            if ((cp & IS_ARGUMENT_CHARACTER) == 0)
+            {
+                die(doc, CONF_INVALID_OPERATION, doc->needle, "illegal punctuator argument character");
+            }
+        }
+
         index += length + 1;
         count += 1;
     }
@@ -1552,7 +1575,12 @@ static void init_punctuator_arguments_tables(conf_document *doc, const char *pun
     index = 0;
     for (;;)
     {
-        const char *string = &punctuator[index];
+        const char *string = punctuator_arguments[index];
+        if (string == NULL)
+        {
+            break;
+        }
+
         const uchar cp = utf8decode(doc, string, NULL);
         const size_t length = strlen(string);
         if (length == 0)
@@ -1603,7 +1631,12 @@ static void init_punctuator_arguments_tables(conf_document *doc, const char *pun
     index = 0;
     for (;;)
     {
-        const char *string = &punctuator[index];
+        const char *string = punctuator_arguments[index];
+        if (string == NULL)
+        {
+            break;
+        }
+
         const uchar cp = utf8decode(doc, string, NULL);
         const size_t length = strlen(string);
         if (length == 0)

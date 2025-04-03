@@ -25,7 +25,7 @@ typedef struct conf_options
     struct {
         bool c_style_comments;
         bool expression_arguments;
-        const char *punctuator_arguments;
+        const char **punctuator_arguments;
     } extensions;
 } conf_options;
 
