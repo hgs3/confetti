@@ -1091,14 +1091,14 @@ static void parse_directive(conf_document *conf, conf_directive *parent, int dep
         parent->subdir_tail->next = dir;
         parent->subdir_tail = dir;
     }
-
-    // If there is a terminating semicolon, then the can be no subdirectives.
+    
+    // Check for an optional, terminating semicolon.
     if (tok.type == ';')
     {
         eat(conf, &tok); // consume ';'
         return;
     }
-    
+
     // Consume as many new lines as possible.
     while (tok.type == TOK_NEWLINE)
     {
@@ -1106,7 +1106,7 @@ static void parse_directive(conf_document *conf, conf_directive *parent, int dep
         peek(conf, &tok);
     }
 
-    // Check for a subdirective.
+    // Check for an optional subdirective.
     if (tok.type == '{')
     {
         eat(conf, &tok); // consume '{'
@@ -1116,10 +1116,17 @@ static void parse_directive(conf_document *conf, conf_directive *parent, int dep
         if (tok.type == '}')
         {
             eat(conf, &tok); // consume '}'
+            peek(conf, &tok);
         }
         else
         {
             die(conf, CONF_BAD_SYNTAX, conf->needle, "expected '}'");
+        }
+
+        // Check for an optional, terminating semicolon.
+        if (tok.type == ';')
+        {
+            eat(conf, &tok); // consume ';'
         }
     }
 }
@@ -1211,7 +1218,7 @@ static void walk_directive(conf_document *conf, int depth)
         die(conf, CONF_USER_ABORTED, conf->needle, "user aborted");
     }
 
-    // If there is a terminating semicolon, then the can be no subdirectives.
+    // Check for an optional, terminating semicolon.
     if (tok.type == ';')
     {
         eat(conf, &tok); // consume ';'
@@ -1225,7 +1232,7 @@ static void walk_directive(conf_document *conf, int depth)
         peek(conf, &tok);
     }
 
-    // Check for a subdirective.
+    // Check for an optional subdirective.
     if (tok.type == '{')
     {
         eat(conf, &tok); // consume '{'
@@ -1242,6 +1249,7 @@ static void walk_directive(conf_document *conf, int depth)
         if (tok.type == '}')
         {
             eat(conf, &tok); // consume '}'
+            peek(conf, &tok);
 
             r = conf->walk(conf->options.user_data, CONF_SUBDIRECTIVE_POP, 0, NULL, NULL);
             if (r != 0)
@@ -1252,6 +1260,12 @@ static void walk_directive(conf_document *conf, int depth)
         else
         {
             die(conf, CONF_BAD_SYNTAX, conf->needle, "expected '}'");
+        }
+
+        // Check for a terminating semicolon.
+        if (tok.type == ';')
+        {
+            eat(conf, &tok); // consume ';'
         }
     }
 }
