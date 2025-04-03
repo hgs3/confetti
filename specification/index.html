@@ -179,8 +179,7 @@ However, for readability, these words do not appear in all uppercase letters in 
 <h2 id="_lexical_structure"><span>Lexical Structure</span><a href="#_lexical_structure">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Confetti source text consists of zero or more Unicode scalar values.
-For compatibility with source code editing tools that add end-of-file markers, if the last character of the source text is a Control-Z character (U+001A), implementations may delete this character.</p>
+<p>Confetti source text consists of zero or more Unicode scalar values.</p>
 </div>
 <div class="paragraph">
 <p>The Confetti language consists of zero or more <em>directives</em>.
@@ -196,7 +195,7 @@ Forbidden characters must not appear in the source text.</p>
 <div class="sect2">
 <h3 id="_white_space"><span>White Space</span><a href="#_white_space">#</a></h3>
 <div class="paragraph">
-<p>White space characters are those Unicode characters with the <code>Whitespace</code> property, including <a href="#_line_terminators">line terminators</a>.</p>
+<p>White space characters are those Unicode characters with the <code>Whitespace</code> property.</p>
 </div>
 </div>
 <div class="sect2">
@@ -308,18 +307,23 @@ Forbidden characters must not appear in the source text.</p>
 <div class="sect2">
 <h3 id="_directive"><span>Directive</span><a href="#_directive">#</a></h3>
 <div class="paragraph">
-<p>A directive shall consist of a sequence of one or more arguments and optional subdirectives.
-Directives shall be terminated by either a character from the <a href="#_line_terminators">line terminator</a> character set, a semicolon (U+003B) character, or the beginning of a subdirective.</p>
+<p>A directive is a command or statement.</p>
 </div>
 <div class="paragraph">
-<p>Subdirectives are a sequence of zero or more directives.
-Subdirectives begin with a Left Curly Bracket (U+007B) and terminate with a Right Curly Bracket (U+007D).</p>
+<p>A simple directive must be a sequence of one or more <a href="#_argument">arguments</a>.
+A simple directive must be terminated by a character from the <a href="#_line_terminators">line terminator</a> character set or a Semicolon (U+003B) character.</p>
+</div>
+<div class="paragraph">
+<p>A compound directive must be a sequence of one or more <a href="#_argument">arguments</a>, zero or more <a href="#_line_terminators">line terminators</a>, and subdirectives.
+Subdirectives shall be a sequence of zero or more directives enclosed by curly braces.
+Subdirectives begin with a Left Curly Bracket (U+007B) and terminate with a Right Curly Bracket (U+007D).
+A compound directive may be succeeded by a Semicolon (U+003B) character.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_argument"><span>Argument</span><a href="#_argument">#</a></h3>
 <div class="paragraph">
-<p>A directive “argument” shall be a sequence of one or more characters from the argument character set.
+<p>An argument shall be a sequence of one or more characters from the argument character set.
 The argument character set shall consist of any Unicode scalar value excluding characters from the <a href="#_white_space">white space</a>, <a href="#_line_terminators">line terminator</a>, <a href="#_reserved_punctuators">reserved punctuator</a>, and <a href="#_forbidden_characters">forbidden</a> character sets.</p>
 </div>
 <div class="paragraph">
@@ -427,9 +431,9 @@ compound-directive = &lt;arguments&gt; { &lt;newline-char&gt; } &lt;subdirective
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-ebnf" data-lang="ebnf">      newline-char = [ \u000A \u000B \u000C \u000D \u0085 \u2028 \u2029 ]
-     argument-char = [^ \p{Whitespace} \p{gc=Control} \p{gc=Surrogate} \p{gc=Unassigned} \u0022 \u003B \u007B \u007D ]
-        space-char = [ \p{Whitespace} ]</code></pre>
+<pre class="highlight"><code class="language-ebnf" data-lang="ebnf">     argument-char = [^ \p{Whitespace} \p{gc=Control} \p{gc=Surrogate} \p{gc=Unassigned} \u0022 \u0023 \u003B \u007B \u007D ]
+      newline-char = [ \u000A \u000B \u000C \u000D \u0085 \u2028 \u2029 ]
+        space-char = [ [ \p{Whitespace} ] - [ \u000A \u000B \u000C \u000D \u0085 \u2028 \u2029 ] ]</code></pre>
 </div>
 </div>
 </div>
@@ -446,9 +450,11 @@ compound-directive = &lt;arguments&gt; { &lt;newline-char&gt; } &lt;subdirective
 <h2 id="_parsers"><span>Parsers</span><a href="#_parsers">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>An implementation may set limits on the size of texts that it accepts.
-An implementation may set limits on the maximum depth of subdirectives.
-An implementation may set limits on the length of arguments, quoted and unquoted.</p>
+<p>An implementation may set limits on the size of the Confetti source text that it accepts.
+An implementation may set limits on the maximum nesting depth of subdirectives.
+An implementation may set limits on the number of Unicode scalar values an <a href="#_argument">argument</a> can have.
+An implementation may set limits on the number of arguments a directive can have.
+An implementation may set limits on the number of subdirectives a directive can have.</p>
 </div>
 </div>
 </div>
@@ -515,13 +521,13 @@ It is possible newer standards may necessitate a revision of this specification.
 <div class="sectionbody">
 <div class="paragraph">
 <p>Implementations may support <em>expression arguments</em>.
-An expression argument is a parentheses enclosed “expression” that may appear wherever an <a href="#_argument">argument</a> is allowed.
+An expression argument is a user-defined expression that may appear wherever an <a href="#_argument">argument</a> is allowed.
 The interpretation and evaluation of an expression argument is implementation defined.</p>
 </div>
 <div class="paragraph">
 <p>This extension requires Left Parenthesis (U+0028) and Right Parenthesis (U+0029) to be interpreted as <a href="#_reserved_punctuators">reserved punctuators</a>.
-If an implementation permits parenthesis inside the expression argument, then they must be <em>balanced</em>.
-Balanced means that for every Left Parenthesis (U+0028) there is a succeeding Right Parenthesis (U+0029).</p>
+If an implementation permits parenthesis in the expression argument, then they must be <em>balanced</em>.
+Parentheses are balanced if for every Left Parenthesis (U+0028) there is a succeeding Right Parenthesis (U+0029).</p>
 </div>
 <div class="paragraph">
 <p>The production rules shall be amended as follows:</p>
