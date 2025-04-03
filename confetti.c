@@ -88,6 +88,12 @@ struct conf_directive
     char buffer[];
 };
 
+struct punctuators
+{
+    long count;
+    char buffer[];
+};
+
 struct conf_document
 {
     const char *string;
@@ -95,6 +101,13 @@ struct conf_document
     
     conf_walkfn walk;
     conf_directive *root;
+
+    struct punctuators **punctuators;
+    long punctuators_count;
+
+    uchar *starters;
+    size_t starters_size;
+    long starters_count;
 
     long comments_count;
     struct comment **comments;
@@ -653,6 +666,43 @@ static void scan_multi_line_comment(conf_document *conf, const char *string, tok
     tok->flags = 0;
 }
 
+static bool scan_punctuator_argument(conf_document *conf, const char *string, token *tok, uchar starter)
+{
+    // LCOV_EXCL_START
+    assert(conf != NULL);
+    assert(conf->punctuators_count > 0);
+    assert(conf->starters_count > 0);
+    assert(string != NULL);
+    assert(tok != NULL);
+    // LCOV_EXCL_STOP
+
+    for (long i = 0; i < conf->starters_count; i++)
+    {
+        if (conf->starters[i] != starter)
+        {
+            continue;
+        }
+
+        size_t buffer_offset = 0;
+        const struct punctuators *punct = conf->punctuators[i];
+        for (long i = 0; i < punct->count; i++)
+        {
+            const char *string = &punct->buffer[buffer_offset];
+            const size_t string_length = strlen(string);
+            if (strncmp(string, string, string_length) == 0)
+            {
+                tok->lexeme = string - conf->string;
+                tok->lexeme_length =  string_length;
+                tok->type = TOK_LITERAL;
+                return true;       
+            }
+            buffer_offset += string_length + 1;
+        }
+    }
+
+    return false;
+}
+
 static void scan_token(conf_document *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
@@ -680,6 +730,29 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
         if (string[0] == '/' && string[1] == '*')
         {
             scan_multi_line_comment(conf, string, tok);
+            return;
+        }
+    }
+
+    if (is_newline(conf, string, &tok->lexeme_length))
+    {
+        tok->type = TOK_NEWLINE;
+        tok->lexeme = string - conf->string;
+        tok->flags = 0;
+        return;
+    }
+
+    const uchar cp = utf8decode(conf, string, NULL);
+    if (conf_uniflags(cp) & IS_SPACE_CHARACTER)
+    {
+        scan_whitespace(conf, string, tok);
+        return;
+    }
+
+    if (conf->punctuators_count > 0)
+    {
+        if (scan_punctuator_argument(conf, string, tok, cp))
+        {
             return;
         }
     }
@@ -735,21 +808,6 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
             tok->flags = 0;
             return;
         }
-    }
-
-    if (is_newline(conf, string, &tok->lexeme_length))
-    {
-        tok->type = TOK_NEWLINE;
-        tok->lexeme = string - conf->string;
-        tok->flags = 0;
-        return;
-    }
-
-    const uchar cp = utf8decode(conf, string, NULL);
-    if (conf_uniflags(cp) & IS_SPACE_CHARACTER)
-    {
-        scan_whitespace(conf, string, tok);
-        return;
     }
 
     if (conf_uniflags(cp) & IS_ARGUMENT_CHARACTER)
@@ -1370,45 +1428,55 @@ static void free_directive(conf_document *conf, conf_directive *dir)
     delete(conf, dir, sizeof(dir[0]) + dir->buffer_length);
 }
 
-void conf_free(conf_document *conf)
+void conf_free(conf_document *doc)
 {
-    if (conf == NULL)
+    if (doc == NULL)
     {
         return;
     }
-    assert(conf->root != NULL); // LCOV_EXCL_BR_LINE
+    assert(doc->root != NULL); // LCOV_EXCL_BR_LINE
 
-    conf_directive *root = conf->root;
+    conf_directive *root = doc->root;
     conf_directive *dir = root->subdir_head;
     while (dir != NULL)
     {
         conf_directive *next = dir->next;
-        free_directive(conf, dir);
+        free_directive(doc, dir);
         dir = next;
     }
 
     if (root->subdir_count > 0)
     {
-        delete(conf, root->subdir, sizeof(root->subdir[0]) * root->subdir_count);
+        delete(doc, root->subdir, sizeof(root->subdir[0]) * root->subdir_count);
     }
 
-    if (conf->comments_count > 0)
+    if (doc->comments_count > 0)
     {
-        struct comment *comment = conf->comment_head;
+        struct comment *comment = doc->comment_head;
         while (comment != NULL)
         {
             struct comment *next = comment->next;
-            delete(conf, comment, sizeof(comment[0]));
+            delete(doc, comment, sizeof(comment[0]));
             comment = next;
         }
 
-        if (conf->comments != NULL)
+        if (doc->comments != NULL)
         {
-            delete(conf, conf->comments, sizeof(conf->comments[0]) * conf->comments_count);
+            delete(doc, doc->comments, sizeof(doc->comments[0]) * doc->comments_count);
         }
     }
 
-    delete(conf, conf, sizeof(conf[0]));
+    if (doc->starters != NULL)
+    {
+        delete(doc, doc->starters, doc->starters_size);
+    }
+
+    if (doc->punctuators != NULL)
+    {
+        delete(doc, doc->punctuators, sizeof(doc->punctuators[0]) * doc->punctuators_count);
+    }
+
+    delete(doc, doc, sizeof(doc[0]));
 }
 
 static void parse_document(conf_document *doc)
@@ -1435,8 +1503,161 @@ static void parse_document(conf_document *doc)
     }
 }
 
+static void init_punctuator_arguments_tables(conf_document *doc, const char *punctuator)
+{
+    struct counters
+    {
+        long unique_strings;
+        long buffer_length;
+    };
+
+    uchar *starters = NULL;
+    struct counters *counters = NULL;
+
+    // Count how many punctuator arguments there are.
+    long count = 0;
+    size_t index = 0;
+    for (;;)
+    {
+        const size_t length = strlen(&punctuator[index]);
+        if (length == 0)
+        {
+            break;
+        }
+        index += length + 1;
+        count += 1;
+    }
+
+    // Create an array large enough to accommodate the unique starting character of each punctuator.
+    // The array might not be fully used if multiple punctuators begin with the same character.
+    starters = new(doc, sizeof(starters[0]) * count);
+    if (starters == NULL)
+    {
+        assert(0 && "OUT OF MEMORY!");
+        goto cleanup;
+    }
+    doc->starters = starters;
+    doc->starters_size = sizeof(starters[0]) * count;
+
+    // Create a temporary array for counters.
+    counters = new(doc, sizeof(counters[0]) * count);
+    if (counters == NULL)
+    {
+        assert(0 && "OUT OF MEMORY!");
+        goto cleanup;
+    }
+    
+    // Count all unique starter characters.
+    size_t unique_starters = 0;
+    index = 0;
+    for (;;)
+    {
+        const char *string = &punctuator[index];
+        const uchar cp = utf8decode(doc, string, NULL);
+        const size_t length = strlen(string);
+        if (length == 0)
+        {
+            break;
+        }
+        index += length + 1;
+
+        // Check if this starting character is already in the starter set.
+        // This is an O(1) operation, but the assumption is (1) there won't be too many custom punctuators
+        // in real world applications and (2) the memory layout of this structure is fairly compact in memory.
+        uchar *starter = starters;
+        struct counters *counter = counters;
+        for (size_t i = 0; i < unique_starters; i++, starter++, counter++)
+        {
+            if ((*starter) == cp)
+            {
+                counter->buffer_length += length + 1;
+                counter->unique_strings += 1;
+                starter = NULL;
+                counter = NULL;
+                break;
+            }
+        }
+
+        // If this starter hasn't been registered yet, then register it.
+        if (starter == NULL)
+        {
+            (*starter) = cp;
+            counter->buffer_length = length + 1;
+            counter->unique_strings = 1;
+            unique_starters += 1;
+        }
+    }
+    doc->starters_count = unique_starters;
+
+    // Allocate an array large enough to accomidate pointers to each string for each unique starter.
+    struct punctuators **punctuators = new(doc, sizeof(punctuators[0]) * unique_starters);
+    if (punctuators == NULL)
+    {
+        assert(0 && "OUT OF MEMORY!");
+        goto cleanup;
+    }
+    doc->punctuators = punctuators;
+    doc->punctuators_count = unique_starters;
+
+    // Begin copying the punctuator data to a cache-friendly buffer.
+    index = 0;
+    for (;;)
+    {
+        const char *string = &punctuator[index];
+        const uchar cp = utf8decode(doc, string, NULL);
+        const size_t length = strlen(string);
+        if (length == 0)
+        {
+            break;
+        }
+        index += length + 1;
+
+        // Check if this starting character is already in the starter set.
+        // This is an O(1) operation, but the assumption is (1) there won't be too many custom punctuators
+        // in real world applications and (2) the memory layout of this structure is fairly compact in memory.
+        struct punctuators *punct = NULL;
+        struct counters *counter = NULL;
+        for (size_t i = 0; i < unique_starters; i++)
+        {
+            if (starters[i] == cp)
+            {
+                if (punctuators[i] == NULL)
+                {
+                    counter = &counters[i];
+                    counter->buffer_length = 0; // Reset and use as the next-to-copy index.
+                    punct = new(doc, sizeof(punct[0]) + sizeof(punct[0].buffer[0]) * counter->buffer_length);
+                    if (punct == NULL)
+                    {
+                        assert(0 && "OUT OF MEMORY!");
+                        goto cleanup;
+                    }
+                    punct->count = counter->unique_strings;
+                    punctuators[i] = punct;
+                }
+                else
+                {
+                    counter = &counters[i];
+                    punct = punctuators[i];
+                }
+                break;
+            }
+        }
+        assert(punct != NULL);
+        assert(counter != NULL);
+
+        // Copy the punctuator to the cache-friendly buffer.
+        memcpy(&punct->buffer[counter->buffer_length], string, length + 1);
+    }
+
+cleanup:
+    if (counters != NULL)
+    {
+        delete(doc, counters, sizeof(counters[0]) * count);
+    }
+}
+
 // Initializes a Confetti document structure. This initilaization is common to both the walk() and parse() interfaces.
-static conf_errno initialize_document(conf_document *doc, const char *string,const conf_options *options, conf_error *error, conf_walkfn walk)
+static conf_errno initialize_document(conf_document *doc, const char *string, const conf_options *options, conf_error *error, conf_walkfn walk)
 {
     memset(doc, 0, sizeof(doc[0]));
     doc->string = string;
@@ -1468,6 +1689,20 @@ static conf_errno initialize_document(conf_document *doc, const char *string,con
             strcpy(error->description, "missing string argument");
         }
         return CONF_INVALID_OPERATION;
+    }
+
+    if (doc->options.extensions.punctuator_arguments)
+    {
+        if (setjmp(doc->err_buf) != 0)
+        {
+            if (error != NULL)
+            {
+                memcpy(error, &doc->err, sizeof(error[0]));
+            }
+            conf_free(doc);
+            return doc->err.code;
+        }
+        init_punctuator_arguments_tables(doc, doc->options.extensions.punctuator_arguments);
     }
 
     return CONF_NO_ERROR;
