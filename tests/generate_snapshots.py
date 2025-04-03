@@ -280,6 +280,54 @@ test_cases: List[TestCase] = [
         Success("<foo>\n<bar>\n<baz>\n")
     ),
     TestCase(
+        "term_after_subdirectives",
+        # input
+        "foo { bar } ; baz",
+        # output
+        Success("""<foo> [
+    <bar>
+]
+<baz>
+""")
+    ),
+        TestCase(
+        "term_after_multi_line_subdirectives",
+        # input
+        """foo
+{
+    bar
+};
+baz""",
+        # output
+        Success("""<foo> [
+    <bar>
+]
+<baz>
+""")
+    ),
+    TestCase(
+        "term_after_subdirectives_twice",
+        # input
+        "foo { bar } ; baz { qux } ;",
+        # output
+        Success("""<foo> [
+    <bar>
+]
+<baz> [
+    <qux>
+]
+""")
+    ),
+    TestCase(
+        "term_after_empty_subdirectives",
+        # input
+        "foo{};bar",
+        # output
+        Success("""<foo>
+<bar>
+""")
+    ),
+    TestCase(
         "extraneous_term",
         # input
         "foo;;bar",
@@ -287,9 +335,53 @@ test_cases: List[TestCase] = [
         Error("error: unexpected ';'\n")
     ),
     TestCase(
-        "term_after_subdirectives",
+        "extraneous_term_after_newline",
         # input
-        "foo{};bar",
+        """foo
+; bar
+""",
+        # output
+        Error("error: unexpected ';'\n")
+    ),
+    TestCase(
+        "extraneous_term_after_subdirectives",
+        # input
+        "foo { bar } ;; baz",
+        # output
+        Error("error: unexpected ';'\n")
+    ),
+    TestCase(
+        "extraneous_term_before_subdirective",
+        # input
+        "foo ; { bar } baz",
+        # output
+        Error("error: unexpected '{'\n")
+    ),
+    TestCase(
+        "extraneous_term_after_newline_before_subdirectives",
+        # input
+        """foo
+; { bar }""",
+        # output
+        Error("error: unexpected ';'\n")
+    ),
+    TestCase(
+        "extraneous_term_after_subdirectives",
+        # input
+        """foo { bar }
+; baz""",
+        # output
+        Error("error: unexpected ';'\n")
+    ),
+    TestCase(
+        "extraneous_term_after_multi_line_subdirectives",
+        # input
+        """foo
+{
+    bar
+}
+;
+baz""",
         # output
         Error("error: unexpected ';'\n")
     ),
