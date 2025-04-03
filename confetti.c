@@ -1193,6 +1193,10 @@ conf_directive *conf_get_root(conf_document *doc)
 
 conf_argument *conf_get_argument(conf_directive *dir, long index)
 {
+    if (dir == NULL)
+    {
+        return NULL;
+    }
     if (index < 0 || index >= dir->arguments_count)
     {
         return NULL;
@@ -1209,22 +1213,26 @@ long conf_get_argument_count(conf_directive *dir)
     return dir->arguments_count;
 }
 
-conf_comment *conf_get_comment(conf_document *conf, long index)
+conf_comment *conf_get_comment(conf_document *doc, long index)
 {
-    if (index < 0 || index >= conf->comments_count)
+    if (doc == NULL)
     {
         return NULL;
     }
-    return &conf->comments[index]->data;
+    if (index < 0 || index >= doc->comments_count)
+    {
+        return NULL;
+    }
+    return &doc->comments[index]->data;
 }
 
-long conf_get_comment_count(conf_document *conf)
+long conf_get_comment_count(conf_document *doc)
 {
-    if (conf == NULL)
+    if (doc == NULL)
     {
         return 0;
     }
-    return conf->comments_count;
+    return doc->comments_count;
 }
 
 static void free_directive(conf_document *conf, conf_directive *dir)

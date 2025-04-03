@@ -70,7 +70,12 @@ TEST(conf_get_comment, out_of_bounds)
     conf_free(doc);
 }
 
-TEST(conf_get_directive, null_confetti)
+TEST(conf_get_comment, null_document)
+{
+    ASSERT_EQ(conf_get_comment(NULL, 0), 0);
+}
+
+TEST(conf_get_directive, null_document)
 {
     ASSERT_NULL(conf_get_directive(NULL, 0));
 }
@@ -85,17 +90,17 @@ TEST(conf_get_directive, out_of_bounds)
     conf_free(doc);
 }
 
-TEST(conf_get_directive_count, null_confetti)
+TEST(conf_get_directive_count, null_directive)
 {
     ASSERT_EQ(conf_get_directive_count(NULL), 0);
 }
 
-TEST(conf_get_argument_count, null_confetti)
+TEST(conf_get_argument_count, null_directive)
 {
     ASSERT_EQ(conf_get_argument_count(NULL), 0);
 }
 
-TEST(conf_get_comment_count, null_confetti)
+TEST(conf_get_comment_count, null_document)
 {
     ASSERT_EQ(conf_get_comment_count(NULL), 0);
 }
@@ -110,3 +115,7 @@ TEST(conf_get_argument, out_of_bounds)
     conf_free(doc);
 }
 
+TEST(conf_get_argument, null_directive)
+{
+    ASSERT_EQ(conf_get_argument(NULL, 0), 0);
+}
