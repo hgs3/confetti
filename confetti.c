@@ -28,10 +28,11 @@
 #define max_align_t 16
 #endif
 
-#define IS_SPACE_CHARACTER 0x1 // includes all new line characters
-#define IS_COMMENT_CHARACTER 0x2 // includes white space and new line characters
-#define IS_ARGUMENT_CHARACTER 0x4
-#define IS_ESCAPABLE_CHARACTER 0x8 // union of argument and reserved punctuator characters
+#define IS_FORBIDDEN_CHARACTER 0x1 // set of forbidden characters
+#define IS_SPACE_CHARACTER 0x2 // set of white space and new line characters
+#define IS_PUNCTUATOR_CHARACTER 0x4 // set of reserved punctuator characters
+#define IS_ARGUMENT_CHARACTER 0x8 // set of characters that are valid in an unquoted argument
+#define IS_ESCAPABLE_CHARACTER (IS_ARGUMENT_CHARACTER | IS_PUNCTUATOR_CHARACTER)
 
 typedef uint32_t uchar;
 
@@ -322,7 +323,63 @@ static bool is_newline(conf_document *conf, const char *string, size_t *length)
     return false;
 }
 
-static void scan_triple_quoted_literal(conf_document *conf, const char *string, token *tok)
+// Scan expression arguments is implemented using a "virtual" stack data structure.
+// When '(' is encountered, it's pushed, when ')' is encountered, it's popped.
+// When the stack is empty, the expression has been fully processed.
+static void scan_expression_argument(conf_document *conf, const char *string, token *tok)
+{
+    // LCOV_EXCL_START
+    assert(conf != NULL);
+    assert(string != NULL);
+    assert(string[0] == '(');
+    assert(tok != NULL);
+    // LCOV_EXCL_STOP
+
+    const char *at = string + 1; // +1 to skip the opening '(' character
+    size_t stack = 1; // "push" an opening '(' character onto the "stack"
+
+    for (;;)
+    {
+        if (at[0] == '\0')
+        {
+            die(conf, CONF_BAD_SYNTAX, string, "incomplete expression");
+        }
+        
+        if (at[0] == '(')
+        {
+            stack += 1; // "push" a '(' character onto the stack
+            at += 1;
+        }
+        else if (at[0] == ')')
+        {
+            stack -= 1; // "pop" a ')' character from the stack
+            at += 1;
+
+            // If the "stack" is empty, then the complete expression has been processed.
+            if (stack == 0)
+            {
+                break;
+            }
+        }
+        else
+        {
+            size_t length = 0;
+            const uchar cp = utf8decode(conf, at, &length);
+            if (conf_uniflags(cp) & IS_FORBIDDEN_CHARACTER)
+            {
+                die(conf, CONF_BAD_SYNTAX, at, "illegal character");
+            }
+            at += length;
+        }
+    }
+
+    tok->lexeme = string - conf->string;
+    tok->lexeme_length = at - string;
+    tok->type = TOK_LITERAL;
+    tok->flags = CONF_QUOTED;
+}
+
+static void scan_triple_quoted_argument(conf_document *conf, const char *string, token *tok)
 {
     const char *at = string;
     size_t length;
@@ -386,7 +443,7 @@ static void scan_triple_quoted_literal(conf_document *conf, const char *string, 
     tok->flags = CONF_TRIPLE_QUOTED;
 }
 
-static void scan_single_quoted_literal(conf_document *conf, const char *string, token *tok)
+static void scan_single_quoted_argument(conf_document *conf, const char *string, token *tok)
 {
     const char *at = string;
     size_t length;
@@ -518,11 +575,12 @@ static void scan_whitespace(conf_document *conf, const char *string, token *tok)
     tok->flags = 0;
 }
 
-static void scan_comment(conf_document *conf, const char *string, token *tok)
+static void scan_single_line_comment(conf_document *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
     assert(string != NULL);
+    assert(string[0] == '#' || (string[0] == '/' && string[1] == '/'));
     assert(tok != NULL);
     // LCOV_EXCL_STOP
 
@@ -542,7 +600,46 @@ static void scan_comment(conf_document *conf, const char *string, token *tok)
 
         length = 0;
         const uchar cp = utf8decode(conf, at, &length);
-        if ((conf_uniflags(cp) & IS_COMMENT_CHARACTER) == 0)
+        if (conf_uniflags(cp) & IS_FORBIDDEN_CHARACTER)
+        {
+            die(conf, CONF_BAD_SYNTAX, at, "illegal character");
+        }
+
+        at += length;
+    }
+
+    tok->lexeme = string - conf->string;
+    tok->lexeme_length = at - string;
+    tok->type = TOK_COMMENT;
+    tok->flags = 0;
+}
+
+static void scan_multi_line_comment(conf_document *conf, const char *string, token *tok)
+{
+    // LCOV_EXCL_START
+    assert(conf != NULL);
+    assert(string != NULL);
+    assert(string[0] == '/' && string[1] == '*');
+    assert(tok != NULL);
+    // LCOV_EXCL_STOP
+
+    const char *at = string;
+    for (;;)
+    {
+        if (*at == '\0')
+        {
+            die(conf, CONF_BAD_SYNTAX, string, "unterminated multi-line comment");
+        }
+
+        if (at[0] == '*' && at[1] == '/')
+        {
+            at += 2;
+            break;
+        }
+
+        size_t length = 0;
+        const uchar cp = utf8decode(conf, at, &length);
+        if (conf_uniflags(cp) & IS_FORBIDDEN_CHARACTER)
         {
             die(conf, CONF_BAD_SYNTAX, at, "illegal character");
         }
@@ -566,8 +663,34 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
 
     if (string[0] == '#')
     {
-        scan_comment(conf, string, tok);
+        scan_single_line_comment(conf, string, tok);
         return;
+    }
+
+    if (conf->options.extensions.c_style_comments)
+    {
+        // Check for a C style single line comment, e.g. "// this is a commment"
+        if (string[0] == '/' && string[1] == '/')
+        {
+            scan_single_line_comment(conf, string, tok);
+            return;
+        }
+
+        // Check for a C style multi-line comment, e.g. "/* this is a commment */"
+        if (string[0] == '/' && string[1] == '*')
+        {
+            scan_multi_line_comment(conf, string, tok);
+            return;
+        }
+    }
+
+    if (conf->options.extensions.expression_arguments)
+    {
+        if (string[0] == '(')
+        {
+            scan_expression_argument(conf, string, tok);
+            return;
+        }
     }
 
     if ((string[0] == '{') || (string[0] == '}'))
@@ -583,11 +706,11 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
     {
         if ((string[1] == '"') && (string[2] == '"'))
         {
-            scan_triple_quoted_literal(conf, string, tok);
+            scan_triple_quoted_argument(conf, string, tok);
         }
         else
         {
-            scan_single_quoted_literal(conf, string, tok);
+            scan_single_quoted_argument(conf, string, tok);
         }
         return;
     }
@@ -1288,7 +1411,7 @@ void conf_free(conf_document *conf)
     delete(conf, conf, sizeof(conf[0]));
 }
 
-static void parse_doc(conf_document *doc)
+static void parse_document(conf_document *doc)
 {
     // Skip past the a BOM (byte order mark) character if present.
     if (memchr(doc->needle, '\0', 3) == NULL)
@@ -1312,28 +1435,29 @@ static void parse_doc(conf_document *doc)
     }
 }
 
-conf_document *conf_parse(const char *string, const conf_options *options, conf_error *error)
+// Initializes a Confetti document structure. This initilaization is common to both the walk() and parse() interfaces.
+static conf_errno initialize_document(conf_document *doc, const char *string,const conf_options *options, conf_error *error, conf_walkfn walk)
 {
-    conf_document *doc, tmp = {
-        .string = string,
-        .needle = string,
-        .err.where = -1,
-        .err.code = CONF_NO_ERROR,
-    };
+    memset(doc, 0, sizeof(doc[0]));
+    doc->string = string;
+    doc->needle = string;
+    doc->err.where = -1;
+    doc->err.code = CONF_NO_ERROR;
+    doc->walk = walk;
 
     if (options != NULL)
     {
-        tmp.options = *options;
+        doc->options = *options;
     }
 
-    if (tmp.options.max_depth < 1)
+    if (doc->options.max_depth < 1)
     {
-        tmp.options.max_depth = INT16_MAX; // Default maximum nesting depth.
+        doc->options.max_depth = INT16_MAX; // Default maximum nesting depth.
     }
 
-    if (tmp.options.allocator == NULL)
+    if (doc->options.allocator == NULL)
     {
-        tmp.options.allocator = &default_alloc;
+        doc->options.allocator = &default_alloc;
     }
 
     if (string == NULL)
@@ -1343,6 +1467,30 @@ conf_document *conf_parse(const char *string, const conf_options *options, conf_
             error->code = CONF_INVALID_OPERATION;
             strcpy(error->description, "missing string argument");
         }
+        return CONF_INVALID_OPERATION;
+    }
+
+    return CONF_NO_ERROR;
+}
+
+// This function ensures there is consistant formatting of the "no error" message
+// regardless of how the document was parsed.
+static void no_error(conf_document *doc, conf_error *error)
+{
+    if (error != NULL)
+    {
+        error->where = doc->needle - doc->string;
+        error->code = CONF_NO_ERROR;
+        strcpy(error->description, "no error");
+    }
+}
+
+conf_document *conf_parse(const char *string, const conf_options *options, conf_error *error)
+{
+    conf_document *doc, tmp;
+    const conf_errno eno = initialize_document(&tmp, string, options, error, NULL);
+    if (eno != CONF_NO_ERROR)
+    {
         return NULL;
     }
 
@@ -1370,7 +1518,7 @@ conf_document *conf_parse(const char *string, const conf_options *options, conf_
     }
     memcpy(doc, &tmp, sizeof(doc[0]));
     doc->root = (conf_directive *)doc->padding;
-    parse_doc(doc);
+    parse_document(doc);
 
     // Convert the comments linked list to an array for O(1) access.
     if (doc->comments_count > 0)
@@ -1391,50 +1539,21 @@ conf_document *conf_parse(const char *string, const conf_options *options, conf_
         doc->comments = comments;
     }
 
-    if (error != NULL)
-    {
-        error->where = doc->needle - doc->string;
-        error->code = CONF_NO_ERROR;
-        strcpy(error->description, "no error");
-    }
+    no_error(doc, error);
     return doc;
 }
 
 conf_errno conf_walk(const char *string, const conf_options *options, conf_error *error, conf_walkfn walk)
 {
-    conf_document doc = {
-        .string = string,
-        .needle = string,
-        .walk = walk,
-        .err.where = -1,
-        .err.code = CONF_NO_ERROR,
-    };
-
-    if (options != NULL)
+    conf_document doc;
+    const conf_errno eno = initialize_document(&doc, string, options, error, walk);
+    if (eno != CONF_NO_ERROR)
     {
-        doc.options = *options;
+        return eno;
     }
 
-    if (doc.options.max_depth < 1)
-    {
-        doc.options.max_depth = INT16_MAX; // Default maximum nesting depth.
-    }
-
-    if (doc.options.allocator == NULL)
-    {
-        doc.options.allocator = &default_alloc;
-    }
-
-    if (string == NULL)
-    {
-        if (error != NULL)
-        {
-            error->code = CONF_INVALID_OPERATION;
-            strcpy(error->description, "missing string argument");
-        }
-        return CONF_INVALID_OPERATION;
-    }
-
+    // The document walker interface requires a callback function to invoke
+    // when an "interesting" document element is found, e.g. a directive.
     if (walk == NULL)
     {
         if (error != NULL)
@@ -1445,22 +1564,19 @@ conf_errno conf_walk(const char *string, const conf_options *options, conf_error
         return CONF_INVALID_OPERATION;
     }
 
+    // Setup exception-like handling for unrecoverable errors.
     if (setjmp(doc.err_buf) != 0)
     {
         if (error != NULL)
         {
             memcpy(error, &doc.err, sizeof(error[0]));
         }
+        return doc.err.code;
     }
     else
     {
-        parse_doc(&doc);
-        if (error != NULL)
-        {
-            error->where = doc.needle - doc.string;
-            error->code = CONF_NO_ERROR;
-            strcpy(error->description, "no error");
-        }
+        parse_document(&doc);
+        no_error(&doc, error);
     }
     
     return doc.err.code;

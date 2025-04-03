@@ -10,6 +10,7 @@
 #define CONFETTI_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef void *(*conf_allocfn)(void *user_data, void *ptr, size_t size);
 
@@ -21,6 +22,11 @@ typedef struct conf_options
     void *user_data;
     conf_allocfn allocator;
     int max_depth;
+    struct {
+        bool c_style_comments;
+        bool expression_arguments;
+        const char *punctuator_arguments;
+    } extensions;
 } conf_options;
 
 typedef enum conf_errno

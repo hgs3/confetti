@@ -20,10 +20,10 @@ import argparse
 from urllib.request import urlretrieve
 
 # Flag(s) assigned to the relevent Unicode character.
-IS_SPACE = 0x1
-IS_COMMENT = 0x2
-IS_ARGUMENT = 0x4
-IS_ESCAPABLE = 0x8
+IS_FORBIDDEN = 0x1
+IS_SPACE = 0x2
+IS_PUNCTUATOR = 0x4
+IS_ARGUMENT = 0x8
 
 UNICODE_VERSION = "16.0.0"
 MAX_CODEPOINTS = 0x110000  # Defined by the Unicode Consortium.
@@ -73,8 +73,10 @@ def compile_table() -> None:
             else:
                 next_codepoint = codepoint
             for cp in range(codepoint, next_codepoint + 1):
-                if gc not in ["Cc", "Cs", "Cn"]:
-                    codepoints[cp] = IS_COMMENT | IS_ARGUMENT | IS_ESCAPABLE
+                if gc in ["Cc", "Cs", "Cn"]:
+                    codepoints[cp] = IS_FORBIDDEN
+                else:
+                    codepoints[cp] = IS_ARGUMENT
 
     with open(os.path.join("PropList.txt"), encoding="utf-8-sig") as file:
         for record in csv.reader(decomment(file), delimiter=";"):
@@ -82,15 +84,14 @@ def compile_table() -> None:
             property = record[1].strip()
             if property == "White_Space": # This includes new line characters.
                 for cp in range(start, stop):
-                    codepoints[cp] = IS_SPACE | IS_COMMENT
+                    codepoints[cp] = IS_SPACE
 
-    # Only comments may contain reserved punctuators.
-    codepoints[ord('"')] = IS_COMMENT | IS_ESCAPABLE
-    codepoints[ord("'")] = IS_COMMENT | IS_ESCAPABLE
-    codepoints[ord('#')] = IS_COMMENT | IS_ESCAPABLE
-    codepoints[ord(';')] = IS_COMMENT | IS_ESCAPABLE
-    codepoints[ord('{')] = IS_COMMENT | IS_ESCAPABLE
-    codepoints[ord('}')] = IS_COMMENT | IS_ESCAPABLE
+    codepoints[ord('"')] = IS_PUNCTUATOR
+    codepoints[ord("'")] = IS_PUNCTUATOR
+    codepoints[ord('#')] = IS_PUNCTUATOR
+    codepoints[ord(';')] = IS_PUNCTUATOR
+    codepoints[ord('{')] = IS_PUNCTUATOR
+    codepoints[ord('}')] = IS_PUNCTUATOR
 
     # This dictionary is used to keep an ordered set of all unique code points.
     # Many of the code points within the Unicode code space have overlapping properties so
