@@ -406,7 +406,7 @@ eth1</code></pre>
 <h2 id="_grammar"><span>Grammar</span><a href="#_grammar">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The complete EBNF grammar:</p>
+<p>The formal grammar:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -419,24 +419,18 @@ compound-directive = &lt;arguments&gt; { &lt;newline-char&gt; } &lt;subdirective
    simple-argument = &lt;argument-char&gt; { &lt;argument-char&gt; }
    quoted-argument = &lt;single-quoted&gt; | &lt;triple-quoted&gt;
      single-quoted = `"` { &lt;argument-char&gt; | &lt;space-char&gt; } `"`
-     triple-quoted = `"""` { &lt;argument-char&gt; | &lt;space-char&gt; | &lt;newline-char&gt; } `"""`
-      newline-char = ? line terminator character ? <b class="conum">(1)</b>
-     argument-char = ? argument character ? <b class="conum">(2)</b>
-        space-char = ? white space character ? <b class="conum">(3)</b></code></pre>
+     triple-quoted = `"""` { &lt;argument-char&gt; | &lt;space-char&gt; | &lt;newline-char&gt; } `"""`</code></pre>
 </div>
 </div>
-<div class="colist arabic">
-<ol>
-<li>
-<p><a href="#_line_terminators">Line terminator characters</a></p>
-</li>
-<li>
-<p><a href="#_argument">Argument characters</a></p>
-</li>
-<li>
-<p><a href="#_white_space">White space characters</a></p>
-</li>
-</ol>
+<div class="paragraph">
+<p>The lexical grammar:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-ebnf" data-lang="ebnf">      newline-char = [ \u000A \u000B \u000C \u000D \u0085 \u2028 \u2029 ]
+     argument-char = [^ \p{Whitespace} \p{gc=Control} \p{gc=Surrogate} \p{gc=Unassigned} \u0022 \u003B \u007B \u007D ]
+        space-char = [ \p{Whitespace} ]</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -462,11 +456,14 @@ An implementation may set limits on the length of arguments, quoted and unquoted
 <h2 id="_normative_references"><span>Normative References</span><a href="#_normative_references">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
+<p>This specification is written against the Unicode Standard version 16.0.
+It is possible newer standards may necessitate a revision of this specification.</p>
+</div>
+<div class="paragraph">
 <p>This specification defines grammar rules using EBNF as defined in ISO/IEC 14977:1996.</p>
 </div>
 <div class="paragraph">
-<p>This specification is written against the Unicode Standard version 16.0.
-It is possible newer standards may necessitate a revision of this specification.</p>
+<p>This specification defines lexical grammar rules using Unicode character set notation as defined in Unicode Technical Standard #35.</p>
 </div>
 </div>
 </div>
