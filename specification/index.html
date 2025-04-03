@@ -420,10 +420,10 @@ compound-directive = &lt;arguments&gt; { &lt;newline-char&gt; } &lt;subdirective
      subdirectives = `{` &lt;directives&gt; `}`
          arguments = &lt;argument&gt; { &lt;argument&gt; }
           argument = &lt;simple-argument&gt; | &lt;quoted-argument&gt;
-   simple-argument = &lt;argument-char&gt; { &lt;argument-char&gt; }
+   simple-argument = &lt;graphical-char&gt; { &lt;graphical-char&gt; }
    quoted-argument = &lt;single-quoted&gt; | &lt;triple-quoted&gt;
-     single-quoted = `"` { &lt;argument-char&gt; | &lt;space-char&gt; } `"`
-     triple-quoted = `"""` { &lt;argument-char&gt; | &lt;space-char&gt; | &lt;newline-char&gt; } `"""`</code></pre>
+     single-quoted = `"` { &lt;graphical-char&gt; | &lt;space-char&gt; } `"`
+     triple-quoted = `"""` { &lt;graphical-char&gt; | &lt;space-char&gt; | &lt;newline-char&gt; } `"""`</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -431,9 +431,9 @@ compound-directive = &lt;arguments&gt; { &lt;newline-char&gt; } &lt;subdirective
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-ebnf" data-lang="ebnf">     argument-char = [^ \p{Whitespace} \p{gc=Control} \p{gc=Surrogate} \p{gc=Unassigned} \u0022 \u0023 \u003B \u007B \u007D ]
+<pre class="highlight"><code class="language-ebnf" data-lang="ebnf">    graphical-char = [^ \p{Whitespace} \p{gc=Control} \p{gc=Surrogate} \p{gc=Unassigned} ]
       newline-char = [ \u000A \u000B \u000C \u000D \u0085 \u2028 \u2029 ]
-        space-char = [ [ \p{Whitespace} ] - [ \u000A \u000B \u000C \u000D \u0085 \u2028 \u2029 ] ]</code></pre>
+        space-char = [ [ \p{Whitespace} ] - [ &lt;newline-char&gt; ] ]</code></pre>
 </div>
 </div>
 </div>
