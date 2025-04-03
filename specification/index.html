@@ -99,7 +99,7 @@
 <li><a href="#_bidirectional_control_characters">Bidirectional Control Characters</a></li>
 </ul>
 </li>
-<li><a href="#_lexical_grammar">Lexical Grammar</a></li>
+<li><a href="#_grammar">Grammar</a></li>
 <li><a href="#_language_extensions">Language Extensions</a></li>
 <li><a href="#_parsers">Parsers</a></li>
 <li><a href="#_normative_references">Normative References</a></li>
@@ -403,27 +403,40 @@ eth1</code></pre>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_lexical_grammar"><span>Lexical Grammar</span><a href="#_lexical_grammar">#</a></h2>
+<h2 id="_grammar"><span>Grammar</span><a href="#_grammar">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The complete EBNF grammar:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-ebnf" data-lang="ebnf">     directives = { &lt;directive&gt; | &lt;newline-char&gt; }
-      directive = &lt;arguments&gt; [ &lt;subdirectives&gt; | &lt;directive-term&gt; ]
-  subdirectives = { &lt;newline-char&gt; } `{` &lt;directives&gt; `}`
- directive-term = &lt;newline-char&gt; | `;`
-      arguments = &lt;argument&gt; { &lt;argument&gt; }
-       argument = &lt;simple-argument&gt; | &lt;quoted-argument&gt;
-simple-argument = &lt;argument-char&gt; { &lt;argument-char&gt; }
-quoted-argument = &lt;single-quoted&gt; | &lt;triple-quoted&gt;
-  single-quoted = `"` { &lt;argument-char&gt; | &lt;space-char&gt; } `"`
-  triple-quoted = `"""` { &lt;argument-char&gt; | &lt;space-char&gt; | &lt;newline-char&gt; } `"""`
-   newline-char = ? line terminator character ?
-  argument-char = ? argument character ?
-     space-char = ? white space character ?</code></pre>
+<pre class="highlight"><code class="language-ebnf" data-lang="ebnf">        directives = { &lt;simple-directive&gt; | &lt;compound-directive&gt; | &lt;newline-char&gt; }
+  simple-directive = &lt;arguments&gt; ( &lt;newline-char&gt; | `;` )
+compound-directive = &lt;arguments&gt; { &lt;newline-char&gt; } &lt;subdirectives&gt; [ `;` ]
+     subdirectives = `{` &lt;directives&gt; `}`
+         arguments = &lt;argument&gt; { &lt;argument&gt; }
+          argument = &lt;simple-argument&gt; | &lt;quoted-argument&gt;
+   simple-argument = &lt;argument-char&gt; { &lt;argument-char&gt; }
+   quoted-argument = &lt;single-quoted&gt; | &lt;triple-quoted&gt;
+     single-quoted = `"` { &lt;argument-char&gt; | &lt;space-char&gt; } `"`
+     triple-quoted = `"""` { &lt;argument-char&gt; | &lt;space-char&gt; | &lt;newline-char&gt; } `"""`
+      newline-char = ? line terminator character ? <b class="conum">(1)</b>
+     argument-char = ? argument character ? <b class="conum">(2)</b>
+        space-char = ? white space character ? <b class="conum">(3)</b></code></pre>
 </div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p><a href="#_line_terminators">Line terminator characters</a></p>
+</li>
+<li>
+<p><a href="#_argument">Argument characters</a></p>
+</li>
+<li>
+<p><a href="#_white_space">White space characters</a></p>
+</li>
+</ol>
 </div>
 </div>
 </div>
@@ -528,10 +541,11 @@ expression-argument ::= `(` ? implementation defined ? `)`</code></pre>
 <h2 id="_annex_c_punctuator_arguments_extension"><span>Annex C: Punctuator Arguments Extension</span><a href="#_annex_c_punctuator_arguments_extension">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Implementations may define their own punctuator arguments.</p>
+<p>Implementations may define their own <em>punctuator arguments</em>.
+A punctuator argument is a self-delimiting argument that may appear wherever an <a href="#_argument">argument</a> is allowed.</p>
 </div>
 <div class="paragraph">
-<p>Punctuator arguments shall consist of one or more Unicode scalar values that, under standard interpretation, are valid characters in an <a href="#_argument">argument</a>.</p>
+<p>Punctuator arguments shall consist of one or more characters from the <a href="#_argument">argument character set</a>.</p>
 </div>
 <div class="paragraph">
 <p>Punctuator arguments must be self-delimiting; that is, they are treated as a single argument.
