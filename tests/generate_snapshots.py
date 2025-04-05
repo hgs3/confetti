@@ -2069,6 +2069,15 @@ set y = (x * x)
         [ExpressionArgumentsExtension()]
     ),
     TestCase(
+        "expression_argument_parentheses_argument",
+        # input
+        "())",
+        # output
+        Success("<> <)>\n"),
+        # extensions
+        [ExpressionArgumentsExtension()]
+    ),
+    TestCase(
         "expression_argument_with_a_malformed_character",
         # input
         b"(\xF0\x28\x8C\xBC)", # Overlong encoded SPACE (U+0020).

@@ -1,0 +1,13 @@
+command {
+    argument {
+        offset 0
+        length 2
+        value ""
+        expression
+    }
+    argument {
+        offset 2
+        length 1
+        value ")"
+    }
+}
