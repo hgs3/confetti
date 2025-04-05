@@ -1911,6 +1911,33 @@ events {
         [CommentExtension()]
     ),
     TestCase(
+        "c_single_line_comment_with_illegal_character",
+        # input
+        "// This comment contains a forbidden character \x01.",
+        # output
+        Error("error: illegal character\n"),
+        # extensions
+        [CommentExtension()]
+    ),
+    TestCase(
+        "c_single_line_comment_with_a_malformed_character",
+        # input
+        b"// Malformed UTF-8: \xF0\x28\x8C\xBC", # Overlong encoded SPACE (U+0020).
+        # output
+        Error("error: malformed UTF-8\n"),
+        # extensions
+        [CommentExtension()]
+    ),
+    TestCase(
+        "c_single_line_empty_comment",
+        # input
+        "//",
+        # output
+        Success(""),
+        # extensions
+        [CommentExtension()]
+    ),
+    TestCase(
         "c_multi_line_comment",
         # input
         """/* This is a
@@ -1940,7 +1967,34 @@ events {
 """),
         # extensions
         [CommentExtension()]
-    )
+    ),
+    TestCase(
+        "c_multi_line_comment_with_illegal_character",
+        # input
+        "/* This comment contains a forbidden character \x01. */",
+        # output
+        Error("error: illegal character\n"),
+        # extensions
+        [CommentExtension()]
+    ),
+    TestCase(
+        "c_multi_line_comment_with_a_malformed_character",
+        # input
+        b"/* Malformed UTF-8: \xF0\x28\x8C\xBC */", # Overlong encoded SPACE (U+0020).
+        # output
+        Error("error: malformed UTF-8\n"),
+        # extensions
+        [CommentExtension()]
+    ),
+    TestCase(
+        "c_multi_line_empty_comment",
+        # input
+        "/**/",
+        # output
+        Success(""),
+        # extensions
+        [CommentExtension()]
+    ),
 ]
 
 longest_input = 0
