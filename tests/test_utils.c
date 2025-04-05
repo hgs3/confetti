@@ -214,11 +214,16 @@ static void print_tokens(struct StringBuf *sb, conf_directive *dir, int depth)
     strbuf_puts(sb, "}");
 }
 
-static char *tokenize(const char *input)
+static char *tokenize(const char *input, const conf_extensions *extensions)
 {
     StringBuf *sb = strbuf_new();
+
+    const conf_options options = {
+        .extensions = extensions,
+    };
+
     conf_error error = {0};
-    conf_document *doc = conf_parse(input, NULL, &error);
+    conf_document *doc = conf_parse(input, &options, &error);
     if (error.code != CONF_NO_ERROR)
     {
         strbuf_printf(sb, "error: %s\n", error.description);
@@ -245,9 +250,9 @@ static char *tokenize(const char *input)
     return strbuf_drop(sb);
 }
 
-void compare_snapshots(const char *name, const char *input)
+void compare_snapshots(const char *name, const char *input, const conf_extensions *extensions)
 {
-    char *actual = tokenize(input);
+    char *actual = tokenize(input, extensions);
 
     if (!audit_isdir(PATH_TO_SNAPSHOTS))
     {

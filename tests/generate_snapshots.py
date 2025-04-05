@@ -1909,6 +1909,37 @@ events {
         Success(""),
         # extensions
         [CommentExtension()]
+    ),
+    TestCase(
+        "c_multi_line_comment",
+        # input
+        """/* This is a
+   multi-line comment. */""",
+        # output
+        Success(""),
+        # extensions
+        [CommentExtension()]
+    ),
+    TestCase(
+        "c_multi_line_comment_unterminated",
+        # input
+        "/* This is a multi-line comment.",
+        # output
+        Error("error: unterminated multi-line comment\n"),
+        # extensions
+        [CommentExtension()]
+    ),
+    TestCase(
+        "c_comments_intermixed_with_directives",
+        # input
+        """foo /* This is a multi-line comment. */ bar
+/* This is also a multi-line comment { */ baz //{""",
+        # output
+        Success("""<foo> <bar>
+<baz>
+"""),
+        # extensions
+        [CommentExtension()]
     )
 ]
 
