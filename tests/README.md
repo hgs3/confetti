@@ -22,9 +22,9 @@ You can ignore the tests that require extensions your Confetti implemntation doe
 
 | Extension | Description
 | --- | --- |
-| `.ext_comments` | Indicates the comment syntax extension is needed. The file contents can be ignored. |
-| `.ext_expr_args` | Indicates the expression arguments extension is needed. The file contents can be ignored. |
-| `.ext_punct_args` | Indicates the punctuator arguments extension is needed. This file contains a line-separated list of punctuator arguments. |
+| `.ext_c_style_comments` | Indicates the comment syntax extension is needed. The file contents can be ignored. |
+| `.ext_expression_arguments` | Indicates the expression arguments extension is needed. The file contents can be ignored. |
+| `.ext_custom_punctuators` | Indicates the punctuator arguments extension is needed. This file contains a line-separated list of punctuator arguments. |
 
 # How Confetti is Tested
 

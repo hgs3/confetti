@@ -1592,7 +1592,7 @@ static void init_punctuator_arguments_tables(conf_document *doc, const char **pu
         assert(0 && "OUT OF MEMORY!");
         goto cleanup;
     }
-    
+
     // Count all unique starter characters.
     size_t unique_starters = 0;
     index = 0;

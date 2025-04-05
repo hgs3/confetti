@@ -1995,6 +1995,97 @@ events {
         # extensions
         [CommentExtension()]
     ),
+    TestCase(
+        "expression_argument_empty",
+        # input
+        "()",
+        # output
+        Success("<>\n"),
+        # extensions
+        [ExpressionArgumentsExtension()]
+    ),
+    TestCase(
+        "expression_argument_single_character",
+        # input
+        "(x)",
+        # output
+        Success("<x>\n"),
+        # extensions
+        [ExpressionArgumentsExtension()]
+    ),
+    TestCase(
+        "expression_argument_multi_character",
+        # input
+        "(x ^ y)",
+        # output
+        Success("<x ^ y>\n"),
+        # extensions
+        [ExpressionArgumentsExtension()]
+    ),
+    TestCase(
+        "expression_argument_nested_parentheses",
+        # input
+        "(x && (y + (1 * z) / 5) - 2)",
+        # output
+        Success("<x && (y + (1 * z) / 5) - 2>\n"),
+        # extensions
+        [ExpressionArgumentsExtension()]
+    ),
+    TestCase(
+        "expression_argument_in_directive",
+        # input
+        """set x = (1 + 2 + 3)
+set y = (x * x)
+""",
+        # output
+        Success("""<set> <x> <=> <1 + 2 + 3>
+<set> <y> <=> <x * x>
+"""),
+        # extensions
+        [ExpressionArgumentsExtension()]
+    ),
+    TestCase(
+        "expression_argument_with_subdirective",
+        # input
+        """if ((x + y) == z) {
+    print "x + y = " (z)
+}
+""",
+        # output
+        Success("""<if> <(x + y) == z> [
+    <print> <x + y = > <z>
+]
+"""),
+        # extensions
+        [ExpressionArgumentsExtension()]
+    ),
+    TestCase(
+        "expression_argument_unbalanced_parentheses",
+        # input
+        "(()",
+        # output
+        Error("error: incomplete expression\n"),
+        # extensions
+        [ExpressionArgumentsExtension()]
+    ),
+    TestCase(
+        "expression_argument_with_a_malformed_character",
+        # input
+        b"(\xF0\x28\x8C\xBC)", # Overlong encoded SPACE (U+0020).
+        # output
+        Error("error: malformed UTF-8\n"),
+        # extensions
+        [ExpressionArgumentsExtension()]
+    ),
+    TestCase(
+        "expression_argument_illegal_character",
+        # input
+        b"(\x01)",
+        # output
+        Error("error: illegal character\n"),
+        # extensions
+        [ExpressionArgumentsExtension()]
+    ),
 ]
 
 longest_input = 0
@@ -2024,7 +2115,10 @@ for tcase in test_cases:
     # Include extensions.
     for extension in tcase.extensions:
         if isinstance(extension, CommentExtension):
-            with open(f"suite/{tcase.name}.ext_comments", "wb") as out:
+            with open(f"suite/{tcase.name}.ext_c_style_comments", "wb") as out:
+                pass
+        elif isinstance(extension, ExpressionArgumentsExtension):
+            with open(f"suite/{tcase.name}.ext_expression_arguments", "wb") as out:
                 pass
 
     longest_input = max(longest_input, len(bytes))
@@ -2060,6 +2154,8 @@ with open(f"test_suite.h", "w", encoding="utf-8", newline="\n") as out:
         for extension in tcase.extensions:
             if isinstance(extension, CommentExtension):
                 out.write(".c_style_comments=true, ")
+            elif isinstance(extension, ExpressionArgumentsExtension):
+                out.write(".expression_arguments=true, ")
         out.write("} ")
         out.write("},\n")
     out.write("};\n")
