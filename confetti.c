@@ -56,12 +56,14 @@ typedef enum conf_argflag
 {
     CONF_QUOTED = 0x1,
     CONF_TRIPLE_QUOTED = 0x2,
+    CONF_EXPRESSION = 0x4,
 } conf_argflag;
 
 typedef struct token
 {
     size_t lexeme;
     size_t lexeme_length;
+    size_t trim;
     token_type type;
     conf_argflag flags;
 } token;
@@ -390,7 +392,8 @@ static void scan_expression_argument(conf_document *conf, const char *string, to
     tok->lexeme = string - conf->string;
     tok->lexeme_length = at - string;
     tok->type = TOK_LITERAL;
-    tok->flags = CONF_QUOTED;
+    tok->flags = CONF_EXPRESSION;
+    tok->trim = 1;
 }
 
 static void scan_triple_quoted_argument(conf_document *conf, const char *string, token *tok)
@@ -455,6 +458,7 @@ static void scan_triple_quoted_argument(conf_document *conf, const char *string,
     tok->lexeme_length = at - string;
     tok->type = TOK_LITERAL;
     tok->flags = CONF_TRIPLE_QUOTED;
+    tok->trim = 3;
 }
 
 static void scan_single_quoted_argument(conf_document *conf, const char *string, token *tok)
@@ -523,6 +527,7 @@ static void scan_single_quoted_argument(conf_document *conf, const char *string,
     tok->lexeme_length = at - string;
     tok->type = TOK_LITERAL;
     tok->flags = CONF_QUOTED;
+    tok->trim = 1;
 }
 
 static void scan_literal(conf_document *conf, const char *string, token *tok)
@@ -560,6 +565,7 @@ static void scan_literal(conf_document *conf, const char *string, token *tok)
     tok->lexeme_length = at - string;
     tok->type = TOK_LITERAL;
     tok->flags = 0;
+    tok->trim = 0;
 }
 
 static void scan_whitespace(conf_document *conf, const char *string, token *tok)
@@ -587,6 +593,7 @@ static void scan_whitespace(conf_document *conf, const char *string, token *tok)
     tok->lexeme_length = at - string;
     tok->type = TOK_WHITESPACE;
     tok->flags = 0;
+    tok->trim = 0;
 }
 
 static void scan_single_line_comment(conf_document *conf, const char *string, token *tok)
@@ -626,6 +633,7 @@ static void scan_single_line_comment(conf_document *conf, const char *string, to
     tok->lexeme_length = at - string;
     tok->type = TOK_COMMENT;
     tok->flags = 0;
+    tok->trim = 0;
 }
 
 static void scan_multi_line_comment(conf_document *conf, const char *string, token *tok)
@@ -665,6 +673,7 @@ static void scan_multi_line_comment(conf_document *conf, const char *string, tok
     tok->lexeme_length = at - string;
     tok->type = TOK_COMMENT;
     tok->flags = 0;
+    tok->trim = 0;
 }
 
 static bool scan_punctuator_argument(conf_document *conf, const char *string, token *tok, uchar starter)
@@ -740,6 +749,7 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
         tok->type = TOK_NEWLINE;
         tok->lexeme = string - conf->string;
         tok->flags = 0;
+        tok->trim = 0;
         return;
     }
 
@@ -773,6 +783,7 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
         tok->lexeme = string - conf->string;
         tok->lexeme_length = 1;
         tok->flags = 0;
+        tok->trim = 0;
         return;
     }
     
@@ -795,6 +806,7 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
         tok->lexeme = string - conf->string;
         tok->lexeme_length = 1;
         tok->flags = 0;
+        tok->trim = 0;
         return;
     }
 
@@ -807,6 +819,7 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
             tok->lexeme = string - conf->string;
             tok->lexeme_length = length + 1;
             tok->flags = 0;
+            tok->trim = 0;
             return;
         }
     }
@@ -825,6 +838,7 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
         tok->lexeme = string - conf->string;
         tok->lexeme_length = 0;
         tok->flags = 0;
+        tok->trim = 0;
         return;
     }
 
@@ -834,6 +848,7 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
         tok->lexeme = string - conf->string;
         tok->lexeme_length = 0;
         tok->flags = 0;
+        tok->trim = 0;
         return;
     }
     
@@ -939,17 +954,9 @@ static size_t copy_literal(conf_document *conf, char *dest, const token *tok)
     const char *offset = &conf->string[tok->lexeme];
     size_t nbytes = 0;
 
-    if (tok->flags & CONF_QUOTED)
-    {
-        offset += 1; // skip opening quote
-        stop_offset -= 1; // discard closing quote
-    }
-
-    if (tok->flags & CONF_TRIPLE_QUOTED)
-    {
-        offset += 3; // skip opening quotes
-        stop_offset -= 3; // discard closing quotes
-    }
+    // Discard the N surrounding characters (e.g. quotes in a quoted literal).
+    offset += tok->trim;
+    stop_offset -= tok->trim;
 
     while (offset < stop_offset)
     {
@@ -1066,6 +1073,7 @@ static void parse_directive(conf_document *conf, conf_directive *parent, int dep
             arg->lexeme_offset = tok.lexeme;
             arg->lexeme_length = tok.lexeme_length;
             arg->value = buffer;
+            arg->is_expression = (tok.flags & CONF_EXPRESSION) ? true : false;
             buffer += copy_literal(conf, buffer, &tok) + 1; // +1 for null byte
             eat(conf, &tok);
         }
@@ -1198,6 +1206,7 @@ static void walk_directive(conf_document *conf, int depth)
             arg->lexeme_offset = tok.lexeme;
             arg->lexeme_length = tok.lexeme_length;
             arg->value = buffer;
+            arg->is_expression = (tok.flags & CONF_EXPRESSION) ? true : false;
             buffer += copy_literal(conf, buffer, &tok) + 1; // +1 for null byte
             eat(conf, &tok);
         }

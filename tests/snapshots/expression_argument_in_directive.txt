@@ -18,6 +18,7 @@ command {
         offset 8
         length 11
         value "1 + 2 + 3"
+        expression
     }
 }
 command {
@@ -40,5 +41,6 @@ command {
         offset 28
         length 7
         value "x * x"
+        expression
     }
 }

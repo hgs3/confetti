@@ -190,6 +190,12 @@ static void print_tokens(struct StringBuf *sb, conf_directive *dir, int depth)
             }
             strbuf_printf(sb, "\"\n");
 
+            if (arg->is_expression)
+            {
+                whitespace(sb, depth+2);
+                strbuf_printf(sb, "expression\n", arg->is_expression);
+            }
+
             whitespace(sb, depth+1);
             strbuf_puts(sb, "}");
         }

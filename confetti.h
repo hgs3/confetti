@@ -51,9 +51,10 @@ typedef struct conf_error
 
 typedef struct conf_argument
 {
+    const char *value;
     size_t lexeme_offset;
     size_t lexeme_length;
-    const char *value;
+    bool is_expression;
 } conf_argument;
 
 typedef struct conf_comment
