@@ -116,6 +116,7 @@ struct conf_document
     size_t comment_processed;
 
     conf_options options;
+    conf_extensions extensions;
     token peek;
 
     jmp_buf err_buf;
@@ -717,7 +718,7 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
         return;
     }
 
-    if (conf->options.extensions.c_style_comments)
+    if (conf->extensions.c_style_comments)
     {
         // Check for a C style single line comment, e.g. "// this is a commment"
         if (string[0] == '/' && string[1] == '/')
@@ -757,7 +758,7 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
         }
     }
 
-    if (conf->options.extensions.expression_arguments)
+    if (conf->extensions.expression_arguments)
     {
         if (string[0] == '(')
         {
@@ -1723,6 +1724,10 @@ static conf_errno initialize_document(conf_document *doc, const char *string, co
 
     if (options != NULL)
     {
+        if (options->extensions != NULL)
+        {
+            doc->extensions = *options->extensions;
+        }
         doc->options = *options;
     }
 
@@ -1746,7 +1751,7 @@ static conf_errno initialize_document(conf_document *doc, const char *string, co
         return CONF_INVALID_OPERATION;
     }
 
-    if (doc->options.extensions.punctuator_arguments)
+    if (doc->extensions.punctuator_arguments)
     {
         if (setjmp(doc->err_buf) != 0)
         {
@@ -1757,7 +1762,7 @@ static conf_errno initialize_document(conf_document *doc, const char *string, co
             conf_free(doc);
             return doc->err.code;
         }
-        init_punctuator_arguments_tables(doc, doc->options.extensions.punctuator_arguments);
+        init_punctuator_arguments_tables(doc, doc->extensions.punctuator_arguments);
     }
 
     return CONF_NO_ERROR;

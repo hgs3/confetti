@@ -19,7 +19,6 @@ void strbuf_printf(StringBuf *sb, const char *format, ...);
 char *strbuf_drop(StringBuf *sb);
 void strbuf_clear(StringBuf *sb);
 
-char *parse(const char *input);
 void compare_snapshots(const char *name, const char *input);
 
 char *readfile(const char *filename);
