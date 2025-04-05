@@ -1969,6 +1969,15 @@ events {
         [CommentExtension()]
     ),
     TestCase(
+        "c_multi_line_comment_missing_astrisk",
+        # input
+        "/",
+        # output
+        Success("</>\n"),
+        # extensions
+        [CommentExtension()]
+    ),
+    TestCase(
         "c_multi_line_comment_with_illegal_character",
         # input
         "/* This comment contains a forbidden character \x01. */",
