@@ -7,10 +7,10 @@ if ! command -v lcov &> /dev/null; then
 fi
 
 # Capture code coverage data.
-lcov --capture --directory . --output-file coverage.info --rc lcov_branch_coverage=1
+lcov --capture --directory . --output-file coverage.info --rc branch_coverage=1
 
 # Remove third-party libraries.
-lcov --remove coverage.info '/usr/*' -o coverage.info --rc lcov_branch_coverage=1
+lcov --remove coverage.info '/usr/*' -o coverage.info --rc branch_coverage=1
 
 # Generate an HTML code coverage report.
-genhtml coverage.info --output-directory coverage --rc lcov_branch_coverage=1
+genhtml coverage.info --output-directory coverage --rc branch_coverage=1

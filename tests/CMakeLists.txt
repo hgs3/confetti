@@ -43,6 +43,7 @@ add_executable(tests_confetti
     test_walk.c
     test_custom_allocator.c
     test_out_of_memory.c
+    test_extensions.c
     test_parse_api.c
     test_walk_api.c
     test_abort.c

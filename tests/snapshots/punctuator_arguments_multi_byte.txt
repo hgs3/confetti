@@ -1,0 +1,22 @@
+command {
+    argument {
+        offset 0
+        length 1
+        value "$"
+    }
+    argument {
+        offset 1
+        length 2
+        value "Ǆ"
+    }
+    argument {
+        offset 3
+        length 3
+        value "舘"
+    }
+    argument {
+        offset 6
+        length 4
+        value "😀"
+    }
+}

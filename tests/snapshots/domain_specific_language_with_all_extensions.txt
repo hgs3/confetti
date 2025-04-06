@@ -1,0 +1,65 @@
+command {
+    argument {
+        offset 37
+        length 3
+        value "msg"
+    }
+    argument {
+        offset 40
+        length 2
+        value ":="
+    }
+    argument {
+        offset 42
+        length 15
+        value "Hello, World!"
+    }
+}
+command {
+    argument {
+        offset 58
+        length 2
+        value "if"
+    }
+    argument {
+        offset 60
+        length 14
+        value "isEmpty(msg)"
+        expression
+    }
+    subcommands {
+        command {
+            argument {
+                offset 80
+                length 3
+                value "msg"
+            }
+            argument {
+                offset 83
+                length 1
+                value "="
+            }
+            argument {
+                offset 84
+                length 15
+                value "(nil message)"
+            }
+        }
+    }
+}
+command {
+    argument {
+        offset 102
+        length 4
+        value "echo"
+    }
+    argument {
+        offset 107
+        length 3
+        value "msg"
+    }
+}
+comment {
+    offset 0
+    length 36
+}

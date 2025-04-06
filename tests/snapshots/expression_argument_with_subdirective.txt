@@ -1,0 +1,33 @@
+command {
+    argument {
+        offset 0
+        length 2
+        value "if"
+    }
+    argument {
+        offset 3
+        length 14
+        value "(x + y) == z"
+        expression
+    }
+    subcommands {
+        command {
+            argument {
+                offset 24
+                length 5
+                value "print"
+            }
+            argument {
+                offset 30
+                length 10
+                value "x + y = "
+            }
+            argument {
+                offset 41
+                length 3
+                value "z"
+                expression
+            }
+        }
+    }
+}

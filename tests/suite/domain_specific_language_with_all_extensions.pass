@@ -1,0 +1,5 @@
+<msg> <:=> <Hello, World!>
+<if> <isEmpty(msg)> [
+    <msg> <=> <(nil message)>
+]
+<echo> <msg>

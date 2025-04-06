@@ -69,6 +69,7 @@ TEST(memory, custom_allocator, .iterations=COUNT_OF(tests_utf8))
     conf_options options = {
         .user_data = &allocations_length,
         .allocator = custom_allocator,
+        .extensions = &td->extensions,
     };
     conf_error error = {0};
     conf_document *dir = conf_parse((const char *)td->input, &options, &error);

@@ -153,7 +153,7 @@ static void print_directive(struct StringBuf *sb, struct Directive *dir, int dep
     strbuf_puts(sb, "]");
 }
 
-static char *walk(const char *input)
+static char *walk(const char *input, const conf_extensions *extensions)
 {
     conf_error error = {0};
 
@@ -166,6 +166,7 @@ static char *walk(const char *input)
     };
     struct conf_options options = {
         .user_data = &ud,
+        .extensions = extensions,
     };
 
     conf_errno code = conf_walk(input, &options, &error, walk_callback);
@@ -316,7 +317,7 @@ TEST(walker, pretty_print, .iterations=COUNT_OF(tests_utf8))
     const struct TestData *td = &tests_utf8[TEST_ITERATION];
     const char *input = (const char *)td->input;
     const char *output = (const char *)td->output;
-    char *actual = walk(input);
+    char *actual = walk(input, &td->extensions);
     EXPECT_STR_EQ(output, actual, "snapshots do not match: %s", td->name);
     free(actual);
 }
@@ -324,5 +325,5 @@ TEST(walker, pretty_print, .iterations=COUNT_OF(tests_utf8))
 TEST(walker, extract_directives, .iterations=COUNT_OF(tests_utf8))
 {
     const struct TestData *td = &tests_utf8[TEST_ITERATION];
-    compare_snapshots(td->name, (const char *)td->input);
+    compare_snapshots(td->name, (const char *)td->input, &td->extensions);
 }

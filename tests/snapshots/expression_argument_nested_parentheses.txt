@@ -1,0 +1,8 @@
+command {
+    argument {
+        offset 0
+        length 28
+        value "x && (y + (1 * z) / 5) - 2"
+        expression
+    }
+}

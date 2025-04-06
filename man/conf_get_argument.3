@@ -32,14 +32,20 @@ The \fBconf_argument\fR structure includes the following fields:
 .PP
 .in +4n
 .EX
+const char *value;
 size_t lexeme_offset;
 size_t lexeme_length;
-const char *value;
+bool is_expression;
 .EE
 .in
 .PP
-The \fIvalue\fR field is the argument as a null-terminated UTF-8 encoded string.
+The \fIvalue\fR field is the evaluated argument as a null-terminated UTF-8 encoded string.
+.PP
 The \fIlexeme_offset\fR and \fIlexeme_length\fR fields describe the span of UTF-8 code units of the argument in the Confetti source text.
+.PP
+The \fIis_expression\fR field, if true, indicates the argument is an expression argument.
+Expression arguments are arguments enclosed in parentheses.
+Expression arguments are a language extension enabled via the \fIconf_extensions\fR structure.
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
 The argument or argument count for the Confetti directive \fIdir\fR.

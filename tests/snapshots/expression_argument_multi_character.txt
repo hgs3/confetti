@@ -1,0 +1,8 @@
+command {
+    argument {
+        offset 0
+        length 7
+        value "x ^ y"
+        expression
+    }
+}

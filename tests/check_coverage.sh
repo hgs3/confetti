@@ -7,13 +7,13 @@ if ! command -v lcov &> /dev/null; then
 fi
 
 # Capture code coverage data.
-lcov --capture --directory . --output-file coverage.info --rc lcov_branch_coverage=1
+lcov --capture --directory . --output-file coverage.info --rc branch_coverage=1
 
 # Remove third-party libraries.
-lcov --remove coverage.info '/usr/*' -o coverage.info --rc lcov_branch_coverage=1
+lcov --remove coverage.info '/usr/*' -o coverage.info --rc branch_coverage=1
 
 # Get coverage percentage.
-COVERAGE=$(lcov --summary coverage.info --rc lcov_branch_coverage=1 | grep 'branches' | awk '{print $2}' | sed 's/%//')
+COVERAGE=$(lcov --summary coverage.info --rc branch_coverage=1 | grep 'branches' | awk '{print $2}' | sed 's/%//')
 
 # Bash does not support comparing floating-point numbers;
 # remove the fractional part from the percentage.

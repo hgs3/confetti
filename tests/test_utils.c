@@ -190,6 +190,12 @@ static void print_tokens(struct StringBuf *sb, conf_directive *dir, int depth)
             }
             strbuf_printf(sb, "\"\n");
 
+            if (arg->is_expression)
+            {
+                whitespace(sb, depth+2);
+                strbuf_printf(sb, "expression\n", arg->is_expression);
+            }
+
             whitespace(sb, depth+1);
             strbuf_puts(sb, "}");
         }
@@ -214,68 +220,16 @@ static void print_tokens(struct StringBuf *sb, conf_directive *dir, int depth)
     strbuf_puts(sb, "}");
 }
 
-static void print_directive(struct StringBuf *sb, conf_directive *dir, int depth)
-{
-    whitespace(sb, depth);
-
-    const long arg_count = conf_get_argument_count(dir);
-    for (long i = 0; i < arg_count; i++)
-    {
-        conf_argument *arg = conf_get_argument(dir, i);
-        strbuf_printf(sb, "<%s>", arg->value);
-        if (i < (arg_count - 1))
-        {
-            strbuf_printf(sb, " ");
-        }
-    }
-
-    const long subdir_count = conf_get_directive_count(dir);
-    if (subdir_count == 0)
-    {
-        strbuf_puts(sb, "");
-        return;
-    }
-
-    strbuf_puts(sb, " [");
-    for (long i = 0; i < subdir_count; i++)
-    {
-        print_directive(sb, conf_get_directive(dir, i), depth + 1);
-    }
-
-    whitespace(sb, depth);
-    strbuf_puts(sb, "]");
-}
-
-char *parse(const char *input)
+static char *tokenize(const char *input, const conf_extensions *extensions)
 {
     StringBuf *sb = strbuf_new();
-    conf_error error = {0};
-    conf_document *doc = conf_parse(input, NULL, &error);
-    if (error.code != CONF_NO_ERROR)
-    {
-        assert(doc == NULL);
-        strbuf_printf(sb, "error: %s\n", error.description);
-    }
-    else
-    {
-        assert(doc != NULL);
 
-        conf_directive *root = conf_get_root(doc);
-        for (long i = 0; i < conf_get_directive_count(root); i++)
-        {
-            conf_directive *subdir = conf_get_directive(root, i);
-            print_directive(sb, subdir, 0);
-        }
-        conf_free(doc);
-    }
-    return strbuf_drop(sb);
-}
+    const conf_options options = {
+        .extensions = extensions,
+    };
 
-static char *tokenize(const char *input)
-{
-    StringBuf *sb = strbuf_new();
     conf_error error = {0};
-    conf_document *doc = conf_parse(input, NULL, &error);
+    conf_document *doc = conf_parse(input, &options, &error);
     if (error.code != CONF_NO_ERROR)
     {
         strbuf_printf(sb, "error: %s\n", error.description);
@@ -302,9 +256,9 @@ static char *tokenize(const char *input)
     return strbuf_drop(sb);
 }
 
-void compare_snapshots(const char *name, const char *input)
+void compare_snapshots(const char *name, const char *input, const conf_extensions *extensions)
 {
-    char *actual = tokenize(input);
+    char *actual = tokenize(input, extensions);
 
     if (!audit_isdir(PATH_TO_SNAPSHOTS))
     {

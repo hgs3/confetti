@@ -53,6 +53,7 @@ TEST(memory, parser_out_of_memory, .iterations=COUNT_OF(tests_utf8))
         conf_options options = {
             .user_data = &counter,
             .allocator = fallible_allocator,
+            .extensions = &td->extensions,
         };
         conf_error error = {0};
         conf_document *dir = conf_parse((const char *)td->input, &options, &error);
@@ -95,6 +96,7 @@ TEST(memory, walker_out_of_memory, .iterations=COUNT_OF(tests_utf8))
         conf_options options = {
             .user_data = &counter,
             .allocator = fallible_allocator,
+            .extensions = &td->extensions,
         };
         conf_error error = {0};
         const conf_errno code = conf_walk((const char *)td->input, &options, &error, visit);

@@ -6,9 +6,19 @@
  * For full terms see the included LICENSE file.
  */
 
-// The implementation of Confetti in C is a tad more complex than it needs to be
-// because the API supports both a callback-based "tree" walking API as well as
-// an API for building an in-memory "tree" structure.
+// This implementation of Confetti is a more complex than it ought to be because:
+//
+//   (1) It supports two API's - a callback-based tree-walking API as well as an
+//       API for building an in-memory tree structure.
+//
+//   (2) It supports all optional extensions specified in the annex of the Confetti 
+//       language specification. These extensions are opt-in via the public API.
+//
+//   (3) Lastly, it is designed for efficiency, rather than optimal clarity.
+//
+// Purpose-built implementations can omit unused extensions and simplify the API.
+// Ideally, a more straightforward implementation could, potentially, only be a
+// few hundered lines of C, at most.
 
 #include "confetti.h"
 #include <stdio.h>
@@ -23,19 +33,22 @@
 #include <stdalign.h>
 #include <stddef.h>
 
-// This is a workaround for MSVC's lack of max_align_t.
+// This is a workaround for Visual Studio's lack of support for max_align_t.
 #if defined(_MSC_VER)
 #define max_align_t 16
 #endif
 
-#define IS_SPACE_CHARACTER 0x1 // includes all new line characters
-#define IS_COMMENT_CHARACTER 0x2 // includes white space and new line characters
-#define IS_ARGUMENT_CHARACTER 0x4
-#define IS_ESCAPABLE_CHARACTER 0x8 // union of argument and reserved punctuator characters
-
-typedef uint32_t uchar;
+typedef uint32_t uchar; // Unicode scalar value.
 
 uint8_t conf_uniflags(uint32_t cp);
+
+#define IS_FORBIDDEN_CHARACTER 0x1 // set of forbidden characters
+#define IS_SPACE_CHARACTER 0x2 // set of white space and new line characters
+#define IS_PUNCTUATOR_CHARACTER 0x4 // set of reserved punctuator characters
+#define IS_ARGUMENT_CHARACTER 0x8 // set of characters that are valid in an unquoted argument
+#define IS_ESCAPABLE_CHARACTER (IS_ARGUMENT_CHARACTER | IS_PUNCTUATOR_CHARACTER)
+
+#define BAD_ENCODING 0x110000
 
 typedef enum token_type
 {
@@ -44,25 +57,32 @@ typedef enum token_type
     TOK_COMMENT,
     TOK_WHITESPACE,
     TOK_NEWLINE,
-    TOK_LITERAL,
+    TOK_ARGUMENT,
     TOK_CONTINUATION,
     TOK_SEMICOLON = ';',
     TOK_LCURLYB = '{',
     TOK_RCURLYB = '}',
 } token_type;
 
-typedef enum conf_argflag
+typedef enum token_flags
 {
     CONF_QUOTED = 0x1,
     CONF_TRIPLE_QUOTED = 0x2,
-} conf_argflag;
+    CONF_EXPRESSION = 0x4,
+} token_flags;
 
 typedef struct token
 {
     size_t lexeme;
     size_t lexeme_length;
+
+    // Number of bytes to trim from the beginning and end of the lexeme when it's converted
+    // to a value. For example, when a quoted argument is processed, the enclsoing quotes
+    // are trimmed.
+    size_t trim;
+
     token_type type;
-    conf_argflag flags;
+    token_flags flags;
 } token;
 
 struct comment
@@ -87,22 +107,47 @@ struct conf_directive
     char buffer[];
 };
 
+// Represents a set of punctuator arguments beginning with the same Unicode scalar value.
+struct punctset
+{
+    size_t size; // The size, in bytes, of this structure in memory.
+    long length; // The total number of punctuators sharing the same starting character.
+    char punctuators[]; // List of punctuator strings delimited by a zero byte.
+};
+
 struct conf_document
 {
-    const char *string;
-    const char *needle;
+    const char *string; // Points to the beginning of the string being parsed.
+    const char *needle; // Points to the current location being parsed.
     
     conf_walkfn walk;
-    conf_directive *root;
+    token peek; // Current, but processed token.
 
+    // The punctuator starters array is an array of Unicode scalar values where each scalar
+    // is a unique starting character amongst the set of punctuators. For example, if we
+    // have the punctuator set {'+', '+=', '-', '-='}, then this arrays length is two
+    // because we have two unique starting characters: '+' and '-'.
+    uchar *punctuator_starters;
+    size_t punctuator_starters_size;
+
+    // The punctuators array is an array of arrays, where each subarray contains punctuators
+    // that begin with the same Unicode scalar value (i.e. the same starter character).
+    struct punctset **punctuators;
+    long punctuators_count;
+
+    // Comments are tracked in a linked list when the source text is parsed, but then
+    // they are moved to an array for O(1) access time after parsing completes.
     long comments_count;
     struct comment **comments;
     struct comment *comment_head;
     struct comment *comment_tail;
     size_t comment_processed;
 
+    // These are user-provided structures.
     conf_options options;
-    token peek;
+    conf_extensions extensions;
+
+    conf_directive *root;
 
     jmp_buf err_buf;
     conf_error err;
@@ -158,6 +203,16 @@ static void *new(conf_document *conf, size_t size)
     return conf->options.allocator(conf->options.user_data, NULL, size);
 }
 
+static void *zero_new(conf_document *conf, size_t size)
+{
+    void *ptr = new(conf, size);
+    if (ptr != NULL)
+    {
+        (void)memset(ptr, 0, size);
+    }
+    return ptr;
+}
+
 static void delete(conf_document *conf, void *ptr, size_t size)
 {
     // LCOV_EXCL_START
@@ -168,10 +223,9 @@ static void delete(conf_document *conf, void *ptr, size_t size)
     conf->options.allocator(conf->options.user_data, ptr, size);
 }
 
-static uchar utf8decode(conf_document *conf, const char *utf8, size_t *utf8_length)
+static uchar utf8decode2(const char *utf8, size_t *utf8_length)
 {
     // LCOV_EXCL_START
-    assert(conf != NULL);
     assert(utf8 != NULL);
     // LCOV_EXCL_STOP
 
@@ -250,7 +304,7 @@ static uchar utf8decode(conf_document *conf, const char *utf8, size_t *utf8_leng
     const int seqlen = bytes_needed_for_UTF8_sequence[bytes[0]];
     if (seqlen == 0)
     {
-        goto bad_encoding;
+        return BAD_ENCODING;
     }
 
     // Check if the character ends prematurely due to a null terminator.
@@ -258,7 +312,7 @@ static uchar utf8decode(conf_document *conf, const char *utf8, size_t *utf8_leng
     {
         if (bytes[i] == '\0')
         {
-            goto bad_encoding;
+            return BAD_ENCODING;
         }
     }
 
@@ -289,8 +343,17 @@ static uchar utf8decode(conf_document *conf, const char *utf8, size_t *utf8_leng
         return value;
     }
     
-bad_encoding:
-    die(conf, CONF_ILLEGAL_BYTE_SEQUENCE, utf8, "malformed UTF-8");
+    return BAD_ENCODING;
+}
+
+static uchar utf8decode(conf_document *conf, const char *utf8, size_t *utf8_length)
+{
+    const uchar scalar = utf8decode2(utf8, utf8_length);
+    if (scalar == BAD_ENCODING)
+    {
+        die(conf, CONF_ILLEGAL_BYTE_SEQUENCE, utf8, "malformed UTF-8");
+    }
+    return scalar;
 }
 
 static bool is_newline(conf_document *conf, const char *string, size_t *length)
@@ -322,7 +385,64 @@ static bool is_newline(conf_document *conf, const char *string, size_t *length)
     return false;
 }
 
-static void scan_triple_quoted_literal(conf_document *conf, const char *string, token *tok)
+// Scan expression arguments is implemented using a "virtual" stack data structure.
+// When '(' is encountered, it's pushed, when ')' is encountered, it's popped.
+// When the stack is empty, the expression has been fully processed.
+static void scan_expression_argument(conf_document *conf, const char *string, token *tok)
+{
+    // LCOV_EXCL_START
+    assert(conf != NULL);
+    assert(string != NULL);
+    assert(string[0] == '(');
+    assert(tok != NULL);
+    // LCOV_EXCL_STOP
+
+    const char *at = string + 1; // +1 to skip the opening '(' character
+    size_t stack = 1; // "push" an opening '(' character onto the "stack"
+
+    for (;;)
+    {
+        if (at[0] == '\0')
+        {
+            die(conf, CONF_BAD_SYNTAX, string, "incomplete expression");
+        }
+        
+        if (at[0] == '(')
+        {
+            stack += 1; // "push" a '(' character onto the stack
+            at += 1;
+        }
+        else if (at[0] == ')')
+        {
+            stack -= 1; // "pop" a ')' character from the stack
+            at += 1;
+
+            // If the "stack" is empty, then the complete expression has been processed.
+            if (stack == 0)
+            {
+                break;
+            }
+        }
+        else
+        {
+            size_t length = 0;
+            const uchar cp = utf8decode(conf, at, &length);
+            if (conf_uniflags(cp) & IS_FORBIDDEN_CHARACTER)
+            {
+                die(conf, CONF_BAD_SYNTAX, at, "illegal character");
+            }
+            at += length;
+        }
+    }
+
+    tok->lexeme = string - conf->string;
+    tok->lexeme_length = at - string;
+    tok->type = TOK_ARGUMENT;
+    tok->flags = CONF_EXPRESSION;
+    tok->trim = 1;
+}
+
+static void scan_triple_quoted_argument(conf_document *conf, const char *string, token *tok)
 {
     const char *at = string;
     size_t length;
@@ -382,11 +502,12 @@ static void scan_triple_quoted_literal(conf_document *conf, const char *string, 
 
     tok->lexeme = string - conf->string;
     tok->lexeme_length = at - string;
-    tok->type = TOK_LITERAL;
+    tok->type = TOK_ARGUMENT;
     tok->flags = CONF_TRIPLE_QUOTED;
+    tok->trim = 3;
 }
 
-static void scan_single_quoted_literal(conf_document *conf, const char *string, token *tok)
+static void scan_single_quoted_argument(conf_document *conf, const char *string, token *tok)
 {
     const char *at = string;
     size_t length;
@@ -450,11 +571,60 @@ static void scan_single_quoted_literal(conf_document *conf, const char *string, 
 
     tok->lexeme = string - conf->string;
     tok->lexeme_length = at - string;
-    tok->type = TOK_LITERAL;
+    tok->type = TOK_ARGUMENT;
     tok->flags = CONF_QUOTED;
+    tok->trim = 1;
 }
 
-static void scan_literal(conf_document *conf, const char *string, token *tok)
+static bool scan_punctuator_argument(conf_document *conf, const char *string, token *tok, uchar starter)
+{
+    // LCOV_EXCL_START
+    assert(conf != NULL);
+    assert(conf->punctuators_count > 0);
+    assert(string != NULL);
+    assert(tok != NULL);
+    // LCOV_EXCL_STOP
+
+    size_t longest_match = 0;
+    for (long i = 0; i < conf->punctuators_count; i++)
+    {
+        if (conf->punctuator_starters[i] != starter)
+        {
+            continue;
+        }
+
+        size_t buffer_offset = 0;
+        const struct punctset *set = conf->punctuators[i];
+        for (long i = 0; i < set->length; i++)
+        {
+            const char *punctuator = &set->punctuators[buffer_offset];
+            const size_t punctuator_length = strlen(punctuator);
+            if (punctuator_length < longest_match)
+            {
+                continue;
+            }
+
+            if (strncmp(string, punctuator, punctuator_length) == 0)
+            {
+                tok->lexeme = string - conf->string;
+                tok->lexeme_length =  punctuator_length;
+                tok->type = TOK_ARGUMENT;
+                tok->flags = 0;
+                tok->trim = 0;
+                longest_match = punctuator_length;    
+            }
+            buffer_offset += punctuator_length + 1;
+        }
+    }
+
+    if (longest_match > 0)
+    {
+        return true;
+    }
+    return false;
+}
+
+static void scan_argument(conf_document *conf, const char *string, token *tok)
 {
     const char *at = string;
     size_t length;
@@ -481,14 +651,31 @@ static void scan_literal(conf_document *conf, const char *string, token *tok)
         {
             break;
         }
+        // If the expression arguments extension is enabled, then do
+        // not consider it part of this argument.
+        else if (conf->extensions.expression_arguments && cp == '(')
+        {
+            break;
+        }
+        // If the punctuator arguments extension is enabled, then check if
+        // the current character is the start of one. If so, then do not
+        // interpret it as part of this extension argument.
+        else if (conf->punctuators_count > 0)
+        {
+            if (scan_punctuator_argument(conf, at, tok, cp))
+            {
+                break;
+            }
+        }
         
         at += length;
     }
 
     tok->lexeme = string - conf->string;
     tok->lexeme_length = at - string;
-    tok->type = TOK_LITERAL;
+    tok->type = TOK_ARGUMENT;
     tok->flags = 0;
+    tok->trim = 0;
 }
 
 static void scan_whitespace(conf_document *conf, const char *string, token *tok)
@@ -516,13 +703,15 @@ static void scan_whitespace(conf_document *conf, const char *string, token *tok)
     tok->lexeme_length = at - string;
     tok->type = TOK_WHITESPACE;
     tok->flags = 0;
+    tok->trim = 0;
 }
 
-static void scan_comment(conf_document *conf, const char *string, token *tok)
+static void scan_single_line_comment(conf_document *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
     assert(string != NULL);
+    assert(string[0] == '#' || (string[0] == '/' && string[1] == '/'));
     assert(tok != NULL);
     // LCOV_EXCL_STOP
 
@@ -542,7 +731,7 @@ static void scan_comment(conf_document *conf, const char *string, token *tok)
 
         length = 0;
         const uchar cp = utf8decode(conf, at, &length);
-        if ((conf_uniflags(cp) & IS_COMMENT_CHARACTER) == 0)
+        if (conf_uniflags(cp) & IS_FORBIDDEN_CHARACTER)
         {
             die(conf, CONF_BAD_SYNTAX, at, "illegal character");
         }
@@ -554,6 +743,47 @@ static void scan_comment(conf_document *conf, const char *string, token *tok)
     tok->lexeme_length = at - string;
     tok->type = TOK_COMMENT;
     tok->flags = 0;
+    tok->trim = 0;
+}
+
+static void scan_multi_line_comment(conf_document *conf, const char *string, token *tok)
+{
+    // LCOV_EXCL_START
+    assert(conf != NULL);
+    assert(string != NULL);
+    assert(string[0] == '/' && string[1] == '*');
+    assert(tok != NULL);
+    // LCOV_EXCL_STOP
+
+    const char *at = string;
+    for (;;)
+    {
+        if (*at == '\0')
+        {
+            die(conf, CONF_BAD_SYNTAX, string, "unterminated multi-line comment");
+        }
+
+        if (at[0] == '*' && at[1] == '/')
+        {
+            at += 2;
+            break;
+        }
+
+        size_t length = 0;
+        const uchar cp = utf8decode(conf, at, &length);
+        if (conf_uniflags(cp) & IS_FORBIDDEN_CHARACTER)
+        {
+            die(conf, CONF_BAD_SYNTAX, at, "illegal character");
+        }
+
+        at += length;
+    }
+
+    tok->lexeme = string - conf->string;
+    tok->lexeme_length = at - string;
+    tok->type = TOK_COMMENT;
+    tok->flags = 0;
+    tok->trim = 0;
 }
 
 static void scan_token(conf_document *conf, const char *string, token *tok)
@@ -566,8 +796,58 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
 
     if (string[0] == '#')
     {
-        scan_comment(conf, string, tok);
+        scan_single_line_comment(conf, string, tok);
         return;
+    }
+
+    if (conf->extensions.c_style_comments)
+    {
+        // Check for a C style single line comment, e.g. "// this is a commment"
+        if (string[0] == '/' && string[1] == '/')
+        {
+            scan_single_line_comment(conf, string, tok);
+            return;
+        }
+
+        // Check for a C style multi-line comment, e.g. "/* this is a commment */"
+        if (string[0] == '/' && string[1] == '*')
+        {
+            scan_multi_line_comment(conf, string, tok);
+            return;
+        }
+    }
+
+    if (is_newline(conf, string, &tok->lexeme_length))
+    {
+        tok->type = TOK_NEWLINE;
+        tok->lexeme = string - conf->string;
+        tok->flags = 0;
+        tok->trim = 0;
+        return;
+    }
+
+    const uchar cp = utf8decode(conf, string, NULL);
+    if (conf_uniflags(cp) & IS_SPACE_CHARACTER)
+    {
+        scan_whitespace(conf, string, tok);
+        return;
+    }
+
+    if (conf->punctuators_count > 0)
+    {
+        if (scan_punctuator_argument(conf, string, tok, cp))
+        {
+            return;
+        }
+    }
+
+    if (conf->extensions.expression_arguments)
+    {
+        if (string[0] == '(')
+        {
+            scan_expression_argument(conf, string, tok);
+            return;
+        }
     }
 
     if ((string[0] == '{') || (string[0] == '}'))
@@ -576,6 +856,7 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
         tok->lexeme = string - conf->string;
         tok->lexeme_length = 1;
         tok->flags = 0;
+        tok->trim = 0;
         return;
     }
     
@@ -583,11 +864,11 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
     {
         if ((string[1] == '"') && (string[2] == '"'))
         {
-            scan_triple_quoted_literal(conf, string, tok);
+            scan_triple_quoted_argument(conf, string, tok);
         }
         else
         {
-            scan_single_quoted_literal(conf, string, tok);
+            scan_single_quoted_argument(conf, string, tok);
         }
         return;
     }
@@ -598,6 +879,7 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
         tok->lexeme = string - conf->string;
         tok->lexeme_length = 1;
         tok->flags = 0;
+        tok->trim = 0;
         return;
     }
 
@@ -610,28 +892,14 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
             tok->lexeme = string - conf->string;
             tok->lexeme_length = length + 1;
             tok->flags = 0;
+            tok->trim = 0;
             return;
         }
     }
 
-    if (is_newline(conf, string, &tok->lexeme_length))
-    {
-        tok->type = TOK_NEWLINE;
-        tok->lexeme = string - conf->string;
-        tok->flags = 0;
-        return;
-    }
-
-    const uchar cp = utf8decode(conf, string, NULL);
-    if (conf_uniflags(cp) & IS_SPACE_CHARACTER)
-    {
-        scan_whitespace(conf, string, tok);
-        return;
-    }
-
     if (conf_uniflags(cp) & IS_ARGUMENT_CHARACTER)
     {
-        scan_literal(conf, string, tok);
+        scan_argument(conf, string, tok);
         return;
     }
 
@@ -643,6 +911,7 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
         tok->lexeme = string - conf->string;
         tok->lexeme_length = 0;
         tok->flags = 0;
+        tok->trim = 0;
         return;
     }
 
@@ -652,6 +921,7 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
         tok->lexeme = string - conf->string;
         tok->lexeme_length = 0;
         tok->flags = 0;
+        tok->trim = 0;
         return;
     }
     
@@ -746,7 +1016,7 @@ static token_type eat(conf_document *conf, token *tok)
     return tok->type;
 }
 
-static size_t copy_literal(conf_document *conf, char *dest, const token *tok)
+static size_t copy_token_to_buffer(conf_document *conf, char *dest, const token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -757,17 +1027,9 @@ static size_t copy_literal(conf_document *conf, char *dest, const token *tok)
     const char *offset = &conf->string[tok->lexeme];
     size_t nbytes = 0;
 
-    if (tok->flags & CONF_QUOTED)
-    {
-        offset += 1; // skip opening quote
-        stop_offset -= 1; // discard closing quote
-    }
-
-    if (tok->flags & CONF_TRIPLE_QUOTED)
-    {
-        offset += 3; // skip opening quotes
-        stop_offset -= 3; // discard closing quotes
-    }
+    // Discard the N surrounding characters (e.g. quotes in a quoted literal).
+    offset += tok->trim;
+    stop_offset -= tok->trim;
 
     while (offset < stop_offset)
     {
@@ -834,10 +1096,10 @@ static void parse_directive(conf_document *conf, conf_directive *parent, int dep
     for (;;)
     {
         peek(conf, &tok);
-        if (tok.type == TOK_LITERAL)
+        if (tok.type == TOK_ARGUMENT)
         {
             argument_count += 1;
-            buffer_length += copy_literal(conf, NULL, &tok) + 1; // +1 for null byte
+            buffer_length += copy_token_to_buffer(conf, NULL, &tok) + 1; // +1 for null byte
             eat(conf, &tok);
         }
         else if (tok.type == TOK_CONTINUATION)
@@ -855,12 +1117,11 @@ static void parse_directive(conf_document *conf, conf_directive *parent, int dep
     // (2) allocate storage for the arguments and copy the data to it
 
     const size_t size = sizeof(conf_directive) + (size_t)buffer_length;
-    conf_directive *dir = new(conf, size);
+    conf_directive *dir = zero_new(conf, size);
     if (dir == NULL)
     {
         die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
     }
-    memset(dir, 0, size);
     dir->buffer_length = buffer_length;
 
     const long argc = argument_count;
@@ -878,13 +1139,14 @@ static void parse_directive(conf_document *conf, conf_directive *parent, int dep
     for (;;)
     {
         peek(conf, &tok);
-        if (tok.type == TOK_LITERAL)
+        if (tok.type == TOK_ARGUMENT)
         {
             conf_argument *arg = &argv[argument_count++];
             arg->lexeme_offset = tok.lexeme;
             arg->lexeme_length = tok.lexeme_length;
             arg->value = buffer;
-            buffer += copy_literal(conf, buffer, &tok) + 1; // +1 for null byte
+            arg->is_expression = (tok.flags & CONF_EXPRESSION) ? true : false;
+            buffer += copy_token_to_buffer(conf, buffer, &tok) + 1; // +1 for null byte
             eat(conf, &tok);
         }
         else if (tok.type == TOK_CONTINUATION)
@@ -969,10 +1231,10 @@ static void walk_directive(conf_document *conf, int depth)
     for (;;)
     {
         peek(conf, &tok);
-        if (tok.type == TOK_LITERAL)
+        if (tok.type == TOK_ARGUMENT)
         {
             args_count += 1;
-            buffer_length += copy_literal(conf, NULL, &tok) + 1; // +1 for null byte
+            buffer_length += copy_token_to_buffer(conf, NULL, &tok) + 1; // +1 for null byte
             eat(conf, &tok);
         }
         else if (tok.type == TOK_CONTINUATION)
@@ -989,7 +1251,7 @@ static void walk_directive(conf_document *conf, int depth)
 
     // (2) allocate storage for the arguments and copy the data to it
 
-    char *args_buffer = new(conf, buffer_length);
+    char *args_buffer = zero_new(conf, buffer_length);
     if (args_buffer == NULL)
     {
         die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
@@ -1003,20 +1265,19 @@ static void walk_directive(conf_document *conf, int depth)
         die(conf, CONF_OUT_OF_MEMORY, conf->needle, "memory allocation failed");
     }
 
-    memset(args_buffer, 0, buffer_length);
-
     char *buffer = args_buffer;
     args_count = 0;
     for (;;)
     {
         peek(conf, &tok);
-        if (tok.type == TOK_LITERAL)
+        if (tok.type == TOK_ARGUMENT)
         {
             conf_argument *arg = &argv[args_count++];
             arg->lexeme_offset = tok.lexeme;
             arg->lexeme_length = tok.lexeme_length;
             arg->value = buffer;
-            buffer += copy_literal(conf, buffer, &tok) + 1; // +1 for null byte
+            arg->is_expression = (tok.flags & CONF_EXPRESSION) ? true : false;
+            buffer += copy_token_to_buffer(conf, buffer, &tok) + 1; // +1 for null byte
             eat(conf, &tok);
         }
         else if (tok.type == TOK_CONTINUATION)
@@ -1115,7 +1376,7 @@ static void parse_body(conf_document *conf, conf_directive *parent, int depth)
             break;
         }
 
-        if (tok.type == TOK_LITERAL)
+        if (tok.type == TOK_ARGUMENT)
         {
             if (parent == NULL)
             {
@@ -1269,48 +1530,72 @@ static void free_directive(conf_document *conf, conf_directive *dir)
     delete(conf, dir, sizeof(dir[0]) + dir->buffer_length);
 }
 
-void conf_free(conf_document *conf)
+void deinit_document(conf_document *doc)
 {
-    if (conf == NULL)
-    {
-        return;
-    }
-    assert(conf->root != NULL); // LCOV_EXCL_BR_LINE
+    assert(doc != NULL); // LCOV_EXCL_BR_LINE
 
-    conf_directive *root = conf->root;
-    conf_directive *dir = root->subdir_head;
-    while (dir != NULL)
+    if (doc->root != NULL)
     {
-        conf_directive *next = dir->next;
-        free_directive(conf, dir);
-        dir = next;
+        conf_directive *root = doc->root;
+        conf_directive *dir = root->subdir_head;
+        while (dir != NULL)
+        {
+            conf_directive *next = dir->next;
+            free_directive(doc, dir);
+            dir = next;
+        }
+
+        if (root->subdir_count > 0)
+        {
+            delete(doc, root->subdir, sizeof(root->subdir[0]) * root->subdir_count);
+        }
     }
 
-    if (root->subdir_count > 0)
+    if (doc->comments_count > 0)
     {
-        delete(conf, root->subdir, sizeof(root->subdir[0]) * root->subdir_count);
-    }
-
-    if (conf->comments_count > 0)
-    {
-        struct comment *comment = conf->comment_head;
+        struct comment *comment = doc->comment_head;
         while (comment != NULL)
         {
             struct comment *next = comment->next;
-            delete(conf, comment, sizeof(comment[0]));
+            delete(doc, comment, sizeof(comment[0]));
             comment = next;
         }
 
-        if (conf->comments != NULL)
+        if (doc->comments != NULL)
         {
-            delete(conf, conf->comments, sizeof(conf->comments[0]) * conf->comments_count);
+            delete(doc, doc->comments, sizeof(doc->comments[0]) * doc->comments_count);
         }
     }
 
-    delete(conf, conf, sizeof(conf[0]));
+    if (doc->punctuator_starters != NULL)
+    {
+        delete(doc, doc->punctuator_starters, doc->punctuator_starters_size);
+    }
+
+    if (doc->punctuators != NULL)
+    {
+        for (long i = 0; i < doc->punctuators_count; i++)
+        {
+            struct punctset *punct = doc->punctuators[i];
+            if (punct != NULL)
+            {
+                delete(doc, punct, punct->size);
+            }
+        }
+        delete(doc, doc->punctuators, sizeof(doc->punctuators[0]) * doc->punctuators_count);
+    }
 }
 
-static void parse_doc(conf_document *doc)
+void conf_free(conf_document *doc)
+{
+    if (doc != NULL)
+    {
+        deinit_document(doc);
+        delete(doc, doc, sizeof(doc[0]));
+    }
+}
+
+static void parse_document(conf_document *doc)
 {
     // Skip past the a BOM (byte order mark) character if present.
     if (memchr(doc->needle, '\0', 3) == NULL)
@@ -1334,28 +1619,257 @@ static void parse_doc(conf_document *doc)
     }
 }
 
-conf_document *conf_parse(const char *string, const conf_options *options, conf_error *error)
+static conf_errno init_punctuator_arguments(conf_document *doc, const char **punctuator_arguments)
 {
-    conf_document *doc, tmp = {
-        .string = string,
-        .needle = string,
-        .err.where = -1,
-        .err.code = CONF_NO_ERROR,
+    struct counters
+    {
+        long unique_strings;
+        long buffer_length;
+        long buffer_offset;
     };
+
+    uchar *starters = NULL;
+    struct counters *counters = NULL;
+
+    // Count how many punctuator arguments there are.
+    long count = 0;
+    size_t index = 0;
+    for (;;)
+    {
+        const char *string = punctuator_arguments[index];
+        if (string == NULL)
+        {
+            break;
+        }
+        index += 1;
+
+        if (string[0] == '\0')
+        {
+            continue;
+        }
+        count += 1;
+
+        // Verify the string only contains valid argument characters; it
+        // cannot contain white space, reserved, or forbidden characters.
+        for (;;)
+        {
+            size_t byte_count = 0;
+            const uchar cp = utf8decode2(string, &byte_count);
+            if (cp == '\0')
+            {
+                break;
+            }
+            
+            if (cp == BAD_ENCODING)
+            {
+                doc->err.code = CONF_ILLEGAL_BYTE_SEQUENCE;
+                strcpy(doc->err.description, "punctuator argument with malformed UTF-8");
+                goto cleanup;
+            }
+
+            // If the expression arguments extension is enabled, then disallow parentheses
+            // as they reserved characters with the extension.
+            if (doc->extensions.expression_arguments)
+            {
+                if (cp == '(' || cp == ')')
+                {
+                    doc->err.code = CONF_INVALID_OPERATION;
+                    strcpy(doc->err.description, "illegal punctuator argument character");
+                    goto cleanup;
+                }
+            }
+
+            if ((conf_uniflags(cp) & IS_ARGUMENT_CHARACTER) == 0)
+            {
+                doc->err.code = CONF_INVALID_OPERATION;
+                strcpy(doc->err.description, "illegal punctuator argument character");
+                goto cleanup;
+            }
+
+            string += byte_count;
+        }
+    }
+
+    // If the array is empty, then there are no punctuators to add.
+    if (count == 0)
+    {
+        return CONF_NO_ERROR;
+    }
+
+    // Create an array large enough to accommodate the unique starting character of each punctuator.
+    // The array might not be fully used if multiple punctuators begin with the same character.
+    starters = zero_new(doc, sizeof(starters[0]) * count);
+    if (starters == NULL)
+    {
+        doc->err.code = CONF_OUT_OF_MEMORY;
+        strcpy(doc->err.description, "memory allocation failed");
+        goto cleanup;
+    }
+    doc->punctuator_starters = starters;
+    doc->punctuator_starters_size = sizeof(starters[0]) * count;
+
+    // Create a temporary array for counters.
+    counters = zero_new(doc, sizeof(counters[0]) * count);
+    if (counters == NULL)
+    {
+        doc->err.code = CONF_OUT_OF_MEMORY;
+        strcpy(doc->err.description, "memory allocation failed");
+        goto cleanup;
+    }
+
+    // Count all unique starter characters.
+    size_t unique_starters = 0;
+    index = 0;
+    for (;;)
+    {
+        const char *string = punctuator_arguments[index];
+        if (string == NULL)
+        {
+            break;
+        }
+        index += 1;
+
+        const size_t length = strlen(string);
+        if (length == 0)
+        {
+            continue;
+        }
+
+        const uchar cp = utf8decode2(string, NULL);
+        struct counters *counter = counters;
+        uchar *starter = starters;
+        bool added = false;
+
+        // Check if this starting character is already in the starter set.
+        // This is an O(1) operation, but the assumption is (1) there won't be too many custom punctuators
+        // in real world applications and (2) the memory layout of this structure is fairly compact in memory.
+        for (size_t i = 0; i < unique_starters; i++, starter++, counter++)
+        {
+            if ((*starter) == cp)
+            {
+                counter->buffer_length += length + 1;
+                counter->unique_strings += 1;
+                added = true;
+                break;
+            }
+        }
+
+        // If this starter hasn't been registered yet, then register it.
+        if (!added)
+        {
+            (*starter) = cp;
+            counter->buffer_length = length + 1;
+            counter->unique_strings = 1;
+            unique_starters += 1;
+        }
+    }
+    assert(unique_starters > 0); // LCOV_EXCL_BR_LINE
+
+    // Allocate an array large enough to accomidate pointers to each string for each unique starter.
+    struct punctset **punctuators = zero_new(doc, sizeof(punctuators[0]) * unique_starters);
+    if (punctuators == NULL)
+    {
+        doc->err.code = CONF_OUT_OF_MEMORY;
+        strcpy(doc->err.description, "memory allocation failed");
+        goto cleanup;
+    }
+    doc->punctuators = punctuators;
+    doc->punctuators_count = unique_starters;
+
+    // Begin copying the punctuator data to a cache-friendly buffer.
+    index = 0;
+    for (;;)
+    {
+        const char *string = punctuator_arguments[index];
+        if (string == NULL)
+        {
+            break;
+        }
+        index += 1;
+
+        const size_t length = strlen(string);
+        if (length == 0)
+        {
+            continue;
+        }
+
+        const uchar cp = utf8decode2(string, NULL);
+        struct punctset *punct = NULL;
+        struct counters *counter = NULL;
+
+        // Check if this starting character is already in the starter set.
+        // This is an O(1) operation, but the assumption is (1) there won't be too many custom punctuators
+        // in real world applications and (2) the memory layout of this structure is fairly compact in memory.
+        for (size_t i = 0; i < unique_starters; i++) // LCOV_EXCL_BR_LINE: The number of starters is always non-zero.
+        {
+            if (starters[i] == cp)
+            {
+                if (punctuators[i] == NULL)
+                {
+                    counter = &counters[i];
+                    const size_t size = sizeof(punct[0]) + sizeof(punct[0].punctuators[0]) * counter->buffer_length;
+                    punct = zero_new(doc, size);
+                    if (punct == NULL)
+                    {
+                        doc->err.code = CONF_OUT_OF_MEMORY;
+                        strcpy(doc->err.description, "memory allocation failed");
+                        goto cleanup;
+                    }
+                    punct->length = counter->unique_strings;
+                    punct->size = size;
+                    punctuators[i] = punct;
+                }
+                else
+                {
+                    counter = &counters[i];
+                    punct = punctuators[i];
+                }
+                break;
+            }
+        }
+        assert(punct != NULL); // LCOV_EXCL_BR_LINE
+        assert(counter != NULL); // LCOV_EXCL_BR_LINE
+
+        // Copy the punctuator to the cache-friendly buffer.
+        memcpy(&punct->punctuators[counter->buffer_offset], string, length + 1);
+        counter->buffer_offset += length + 1;
+    }
+
+cleanup:
+    if (counters != NULL)
+    {
+        delete(doc, counters, sizeof(counters[0]) * count);
+    }
+    return doc->err.code;
+}
+
+// Initializes a Confetti document structure. This initilaization is common to both the walk() and parse() interfaces.
+static conf_errno init_document(conf_document *doc, const char *string, const conf_options *options, conf_error *error, conf_walkfn walk)
+{
+    memset(doc, 0, sizeof(doc[0]));
+    doc->string = string;
+    doc->needle = string;
+    doc->err.where = 0;
+    doc->err.code = CONF_NO_ERROR;
+    doc->walk = walk;
 
     if (options != NULL)
     {
-        tmp.options = *options;
+        if (options->extensions != NULL)
+        {
+            doc->extensions = *options->extensions;
+        }
+        doc->options = *options;
     }
 
-    if (tmp.options.max_depth < 1)
+    if (doc->options.max_depth < 1)
     {
-        tmp.options.max_depth = INT16_MAX; // Default maximum nesting depth.
+        doc->options.max_depth = INT16_MAX; // Default maximum nesting depth.
     }
 
-    if (tmp.options.allocator == NULL)
+    if (doc->options.allocator == NULL)
     {
-        tmp.options.allocator = &default_alloc;
+        doc->options.allocator = &default_alloc;
     }
 
     if (string == NULL)
@@ -1365,6 +1879,31 @@ conf_document *conf_parse(const char *string, const conf_options *options, conf_
             error->code = CONF_INVALID_OPERATION;
             strcpy(error->description, "missing string argument");
         }
+        return CONF_INVALID_OPERATION;
+    }
+
+    if (doc->extensions.punctuator_arguments)
+    {
+        if (init_punctuator_arguments(doc, doc->extensions.punctuator_arguments) != CONF_NO_ERROR)
+        {
+            if (error != NULL)
+            {
+                memcpy(error, &doc->err, sizeof(doc->err));
+            }
+            return doc->err.code;
+        }
+    }
+
+    return CONF_NO_ERROR;
+}
+
+conf_document *conf_parse(const char *string, const conf_options *options, conf_error *error)
+{
+    conf_document *doc, tmp;
+    const conf_errno eno = init_document(&tmp, string, options, error, NULL);
+    if (eno != CONF_NO_ERROR)
+    {
+        deinit_document(&tmp);
         return NULL;
     }
 
@@ -1388,11 +1927,12 @@ conf_document *conf_parse(const char *string, const conf_options *options, conf_
             error->code = CONF_OUT_OF_MEMORY;
             strcpy(error->description, "memory allocation failed");
         }
+        deinit_document(&tmp);
         return NULL;
     }
     memcpy(doc, &tmp, sizeof(doc[0]));
     doc->root = (conf_directive *)doc->padding;
-    parse_doc(doc);
+    parse_document(doc);
 
     // Convert the comments linked list to an array for O(1) access.
     if (doc->comments_count > 0)
@@ -1424,39 +1964,8 @@ conf_document *conf_parse(const char *string, const conf_options *options, conf_
 
 conf_errno conf_walk(const char *string, const conf_options *options, conf_error *error, conf_walkfn walk)
 {
-    conf_document doc = {
-        .string = string,
-        .needle = string,
-        .walk = walk,
-        .err.where = -1,
-        .err.code = CONF_NO_ERROR,
-    };
-
-    if (options != NULL)
-    {
-        doc.options = *options;
-    }
-
-    if (doc.options.max_depth < 1)
-    {
-        doc.options.max_depth = INT16_MAX; // Default maximum nesting depth.
-    }
-
-    if (doc.options.allocator == NULL)
-    {
-        doc.options.allocator = &default_alloc;
-    }
-
-    if (string == NULL)
-    {
-        if (error != NULL)
-        {
-            error->code = CONF_INVALID_OPERATION;
-            strcpy(error->description, "missing string argument");
-        }
-        return CONF_INVALID_OPERATION;
-    }
-
+    // The document walker interface requires a callback function to invoke
+    // when an "interesting" document element is found, e.g. a directive.
     if (walk == NULL)
     {
         if (error != NULL)
@@ -1467,16 +1976,18 @@ conf_errno conf_walk(const char *string, const conf_options *options, conf_error
         return CONF_INVALID_OPERATION;
     }
 
-    if (setjmp(doc.err_buf) != 0)
+    conf_document doc;
+    const conf_errno eno = init_document(&doc, string, options, error, walk);
+    if (eno != CONF_NO_ERROR)
     {
-        if (error != NULL)
-        {
-            memcpy(error, &doc.err, sizeof(error[0]));
-        }
+        deinit_document(&doc);
+        return eno;
     }
-    else
+
+    // Setup exception-like handling for unrecoverable errors.
+    if (setjmp(doc.err_buf) == 0)
     {
-        parse_doc(&doc);
+        parse_document(&doc);
         if (error != NULL)
         {
             error->where = doc.needle - doc.string;
@@ -1484,6 +1995,11 @@ conf_errno conf_walk(const char *string, const conf_options *options, conf_error
             strcpy(error->description, "no error");
         }
     }
-    
+    else if (error != NULL)
+    {
+        memcpy(error, &doc.err, sizeof(error[0]));
+    }
+
+    deinit_document(&doc);
     return doc.err.code;
 }

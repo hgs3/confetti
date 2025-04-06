@@ -1,0 +1,46 @@
+command {
+    argument {
+        offset 0
+        length 3
+        value "set"
+    }
+    argument {
+        offset 4
+        length 1
+        value "x"
+    }
+    argument {
+        offset 6
+        length 1
+        value "="
+    }
+    argument {
+        offset 8
+        length 11
+        value "1 + 2 + 3"
+        expression
+    }
+}
+command {
+    argument {
+        offset 20
+        length 3
+        value "set"
+    }
+    argument {
+        offset 24
+        length 1
+        value "y"
+    }
+    argument {
+        offset 26
+        length 1
+        value "="
+    }
+    argument {
+        offset 28
+        length 7
+        value "x * x"
+        expression
+    }
+}

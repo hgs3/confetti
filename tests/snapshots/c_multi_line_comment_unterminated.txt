@@ -1,0 +1,1 @@
+error: unterminated multi-line comment

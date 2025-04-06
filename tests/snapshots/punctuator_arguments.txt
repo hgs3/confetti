@@ -1,0 +1,17 @@
+command {
+    argument {
+        offset 0
+        length 1
+        value "x"
+    }
+    argument {
+        offset 1
+        length 1
+        value "="
+    }
+    argument {
+        offset 2
+        length 1
+        value "y"
+    }
+}
