@@ -1,8 +1,8 @@
 name: Build Status
 on: [push, pull_request]
 jobs:
-  confetti:
-    name: "Build ${{ matrix.platform.NAME }}"
+  linux:
+    name: "Linux ${{ matrix.platform.NAME }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -42,3 +42,22 @@ jobs:
         ./configure --verbose
         make
         make distcheck
+  windows:
+    name: "Windows"
+    runs-on: windows-latest
+    env:
+      AUDITION_USER: ${{ secrets.AUDITION_USER }}
+      AUDITION_KEY: ${{ secrets.AUDITION_KEY }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        Invoke-WebRequest -OutFile audition.msi -Uri https://github.com/RailgunLabs/audition/releases/download/v1.0.3/Audition-1.0.3-x64.msi
+        msiexec /i audition.msi /quiet /norestart
+        echo "PATH=$env:PATH;$env:LOCALAPPDATA\Programs\Audition" | Out-File -FilePath $env:GITHUB_ENV -Append
+    - name: Build and Test
+      run: |
+        cmake -B build -DCONFETTI_BUILD_TESTS=ON
+        cmake --build build --config Debug
+        ctest --output-on-failure --test-dir build -C Debug
