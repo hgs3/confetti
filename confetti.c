@@ -6,7 +6,7 @@
  * For full terms see the included LICENSE file.
  */
 
-// This implementation of Confetti is a more complex than it ought to be because:
+// This implementation of Confetti is more complex than it ought to be because:
 //
 //   (1) It supports two API's - a callback-based tree-walking API as well as an
 //       API for building an in-memory tree structure.
@@ -14,11 +14,15 @@
 //   (2) It supports all optional extensions specified in the annex of the Confetti 
 //       language specification. These extensions are opt-in via the public API.
 //
-//   (3) Lastly, it is designed for efficiency, rather than optimal clarity.
+//   (3) It tracks meta-data about the source text, like code comments, as well as
+//       additional toggles in the public API, like for rejecting source text with
+//       bidirectional formatting characters.
 //
-// Purpose-built implementations can omit unused extensions and simplify the API.
-// Ideally, a more straightforward implementation could, potentially, only be a
-// few hundered lines of C, at most.
+//   (4) Lastly, it is designed for efficiency, rather than optimal clarity.
+//
+// Purpose-built implementations can omit unused extensions, ignore comments, and
+// simplify the API. Ideally, a more straightforward implementation could,
+// potentially, be only a few hundred lines of C, at most.
 
 #include "confetti.h"
 #include <stdio.h>
