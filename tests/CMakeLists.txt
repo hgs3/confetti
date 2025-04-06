@@ -41,6 +41,7 @@ endif ()
 add_executable(tests_confetti
     test_parse.c
     test_walk.c
+    test_bidi.c
     test_custom_allocator.c
     test_out_of_memory.c
     test_extensions.c

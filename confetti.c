@@ -46,6 +46,7 @@ uint8_t conf_uniflags(uint32_t cp);
 #define IS_SPACE_CHARACTER 0x2 // set of white space and new line characters
 #define IS_PUNCTUATOR_CHARACTER 0x4 // set of reserved punctuator characters
 #define IS_ARGUMENT_CHARACTER 0x8 // set of characters that are valid in an unquoted argument
+#define IS_BIDI_CHARACTER 0x10 // set of bidirectional formatting characters
 #define IS_ESCAPABLE_CHARACTER (IS_ARGUMENT_CHARACTER | IS_PUNCTUATOR_CHARACTER)
 
 #define BAD_ENCODING 0x110000
@@ -427,10 +428,17 @@ static void scan_expression_argument(conf_document *conf, const char *string, to
         {
             size_t length = 0;
             const uchar cp = utf8decode(conf, at, &length);
+
             if (conf_uniflags(cp) & IS_FORBIDDEN_CHARACTER)
             {
                 die(conf, CONF_BAD_SYNTAX, at, "illegal character");
             }
+
+            if ((conf_uniflags(cp) & IS_BIDI_CHARACTER) && !conf->options.allow_bidi)
+            {
+                die(conf, CONF_BAD_SYNTAX, at, "illegal bidirectional character");
+            }
+
             at += length;
         }
     }
@@ -471,10 +479,16 @@ static void scan_triple_quoted_argument(conf_document *conf, const char *string,
             die(conf, CONF_BAD_SYNTAX, at, "unclosed quoted");
         }
 
+        if ((conf_uniflags(cp) & IS_BIDI_CHARACTER) && !conf->options.allow_bidi)
+        {
+            die(conf, CONF_BAD_SYNTAX, at, "illegal bidirectional character");
+        }
+
         if (cp == '\\')
         {
             at += 1;
             cp = utf8decode(conf, at, &length);
+            
             if ((conf_uniflags(cp) & IS_ESCAPABLE_CHARACTER) == 0)
             {
                 if (cp == 0 || is_newline(conf, at, &length))
@@ -482,6 +496,11 @@ static void scan_triple_quoted_argument(conf_document *conf, const char *string,
                     die(conf, CONF_BAD_SYNTAX, at, "incomplete escape sequence");
                 }
                 die(conf, CONF_BAD_SYNTAX, at, "illegal escape character");
+            }
+
+            if ((conf_uniflags(cp) & IS_BIDI_CHARACTER) && !conf->options.allow_bidi)
+            {
+                die(conf, CONF_BAD_SYNTAX, at, "illegal bidirectional character");
             }
         }
         else
@@ -551,12 +570,22 @@ static void scan_single_quoted_argument(conf_document *conf, const char *string,
                 }
                 die(conf, CONF_BAD_SYNTAX, at, "illegal escape character");
             }
+
+            if ((conf_uniflags(cp) & IS_BIDI_CHARACTER) && !conf->options.allow_bidi)
+            {
+                die(conf, CONF_BAD_SYNTAX, at, "illegal bidirectional character");
+            }
         }
         else
         {
             if ((conf_uniflags(cp) & (IS_ESCAPABLE_CHARACTER | IS_SPACE_CHARACTER)) == 0)
             {
                 die(conf, CONF_BAD_SYNTAX, at, "illegal character");
+            }
+
+            if ((conf_uniflags(cp) & IS_BIDI_CHARACTER) && !conf->options.allow_bidi)
+            {
+                die(conf, CONF_BAD_SYNTAX, at, "illegal bidirectional character");
             }
 
             if (cp == '"')
@@ -642,32 +671,49 @@ static void scan_argument(conf_document *conf, const char *string, token *tok)
         {
             at += 1;
             cp = utf8decode(conf, at, &length);
+
             if ((conf_uniflags(cp) & IS_ESCAPABLE_CHARACTER) == 0)
             {
                 die(conf, CONF_BAD_SYNTAX, at, "illegal escape character");
             }
+
+            if ((conf_uniflags(cp) & IS_BIDI_CHARACTER) && !conf->options.allow_bidi)
+            {
+                die(conf, CONF_BAD_SYNTAX, at, "illegal bidirectional character");
+            }
+
+            at += length;
+            continue;
         }
-        else if ((conf_uniflags(cp) & IS_ARGUMENT_CHARACTER) == 0)
+
+        if ((conf_uniflags(cp) & IS_ARGUMENT_CHARACTER) == 0)
         {
             break;
         }
+
+        if ((conf_uniflags(cp) & IS_BIDI_CHARACTER) && !conf->options.allow_bidi)
+        {
+            die(conf, CONF_BAD_SYNTAX, at, "illegal bidirectional character");
+        }
+
         // If the expression arguments extension is enabled, then do
         // not consider it part of this argument.
-        else if (conf->extensions.expression_arguments && cp == '(')
+        if (conf->extensions.expression_arguments && cp == '(')
         {
             break;
         }
+
         // If the punctuator arguments extension is enabled, then check if
         // the current character is the start of one. If so, then do not
         // interpret it as part of this extension argument.
-        else if (conf->punctuators_count > 0)
+        if (conf->punctuators_count > 0)
         {
             if (scan_punctuator_argument(conf, at, tok, cp))
             {
                 break;
             }
         }
-        
+
         at += length;
     }
 
@@ -736,6 +782,11 @@ static void scan_single_line_comment(conf_document *conf, const char *string, to
             die(conf, CONF_BAD_SYNTAX, at, "illegal character");
         }
 
+        if ((conf_uniflags(cp) & IS_BIDI_CHARACTER) && !conf->options.allow_bidi)
+        {
+            die(conf, CONF_BAD_SYNTAX, at, "illegal bidirectional character");
+        }
+
         at += length;
     }
 
@@ -774,6 +825,11 @@ static void scan_multi_line_comment(conf_document *conf, const char *string, tok
         if (conf_uniflags(cp) & IS_FORBIDDEN_CHARACTER)
         {
             die(conf, CONF_BAD_SYNTAX, at, "illegal character");
+        }
+
+        if ((conf_uniflags(cp) & IS_BIDI_CHARACTER) && !conf->options.allow_bidi)
+        {
+            die(conf, CONF_BAD_SYNTAX, at, "illegal bidirectional character");
         }
 
         at += length;
@@ -831,6 +887,11 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
     {
         scan_whitespace(conf, string, tok);
         return;
+    }
+
+    if ((conf_uniflags(cp) & IS_BIDI_CHARACTER) && !conf->options.allow_bidi)
+    {
+        die(conf, CONF_BAD_SYNTAX, string, "illegal bidirectional character");
     }
 
     if (conf->punctuators_count > 0)

@@ -49,6 +49,7 @@ The \fBconf_options\fR structure includes the following fields:
 .in +4n
 .EX
 int max_depth;
+bool allow_bidi;
 conf_allocfn allocator;
 void *user_data;
 conf_extensions *extensions;
@@ -56,8 +57,17 @@ conf_extensions *extensions;
 .in
 .PP
 The \fImax_depth\fR field, if non-zero, specifies the maximum nesting depth of Confetti subdirectives.
+.PP
+The \fIallow_bidi\fR field, if true, allows bidirectional formatting characters in \fIstr\fR.
+It is recommended to disable these characters, unless an implementation is prepared to properly process them.
+Mishandling these characters can result in unexpected behaviors, such as the Trojan Source vulnerability.
+.PP
 The \fIallocator\fR field, if non-NULL, must point to a user implemented custom memory allocator, the behavior of which is described in the following subsection.
+.PP
 The \fIuser_data\fR field is a user pointer passed to the \fIallocator\fR function as-is.
+It is also passed to the callback associated with the \fBconf_walk\fR(3) function.
+.PP
+The \fIextensions\fR field, if non-NULL, refers to the extensions structure as documented in the subsequent subsection.
 .\" --------------------------------------------------------------------------
 .SS Extensions structure
 The \fBconf_extensions\fR structure includes the following fields:
@@ -71,7 +81,9 @@ bool expression_arguments;
 .in
 .PP
 The \fIpunctuator_arguments\fR field is an array of strings where each string is to be interpreted as a punctuator argument. The last element must be NULL to terminate the array.
+.PP
 The \fIc_style_comments\fR field, if true, enables C style single and multi-line comments.
+.PP
 The \fIexpression_arguments\fR field, if true, interprets arguments enclosed in parentheses as expressions.
 .\" --------------------------------------------------------------------------
 .SS Allocator function

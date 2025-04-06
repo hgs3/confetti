@@ -30,6 +30,7 @@ typedef struct conf_options
     conf_allocfn allocator;
     void *user_data;
     int max_depth;
+    bool allow_bidi;
 } conf_options;
 
 typedef enum conf_errno

@@ -24,6 +24,7 @@ IS_FORBIDDEN = 0x1
 IS_SPACE = 0x2
 IS_PUNCTUATOR = 0x4
 IS_ARGUMENT = 0x8
+IS_BIDI = 0x10
 
 UNICODE_VERSION = "16.0.0"
 MAX_CODEPOINTS = 0x110000  # Defined by the Unicode Consortium.
@@ -92,6 +93,18 @@ def compile_table() -> None:
     codepoints[ord(';')] = IS_PUNCTUATOR
     codepoints[ord('{')] = IS_PUNCTUATOR
     codepoints[ord('}')] = IS_PUNCTUATOR
+
+    codepoints[ord('\u200E')] |= IS_BIDI
+    codepoints[ord('\u200F')] |= IS_BIDI
+    codepoints[ord('\u202A')] |= IS_BIDI
+    codepoints[ord('\u202B')] |= IS_BIDI
+    codepoints[ord('\u202D')] |= IS_BIDI
+    codepoints[ord('\u202E')] |= IS_BIDI
+    codepoints[ord('\u2066')] |= IS_BIDI
+    codepoints[ord('\u2067')] |= IS_BIDI
+    codepoints[ord('\u2068')] |= IS_BIDI
+    codepoints[ord('\u202C')] |= IS_BIDI
+    codepoints[ord('\u2069')] |= IS_BIDI
 
     # This dictionary is used to keep an ordered set of all unique code points.
     # Many of the code points within the Unicode code space have overlapping properties so
