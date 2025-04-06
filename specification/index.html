@@ -96,12 +96,10 @@
 <li><a href="#_argument">Argument</a></li>
 <li><a href="#_escaped_characters">Escaped Characters</a></li>
 <li><a href="#_line_continuation">Line Continuation</a></li>
-<li><a href="#_bidirectional_control_characters">Bidirectional Control Characters</a></li>
 </ul>
 </li>
 <li><a href="#_grammar">Grammar</a></li>
-<li><a href="#_language_extensions">Language Extensions</a></li>
-<li><a href="#_parsers">Parsers</a></li>
+<li><a href="#_implementation_scope">Implementation Scope</a></li>
 <li><a href="#_normative_references">Normative References</a></li>
 <li><a href="#_annex_a_comment_syntax_extension">Annex A: Comment Syntax Extension</a></li>
 <li><a href="#_annex_b_expression_arguments_extension">Annex B: Expression Arguments Extension</a></li>
@@ -111,7 +109,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This specification defines <strong>version 0.7</strong> of Confetti.</p>
+<p>This specification defines <strong>version 0.8</strong> of Confetti.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -207,7 +205,7 @@ Forbidden characters must not appear in the source text.</p>
 <p>All Unicode characters should be allowed in comments excluding <a href="#_forbidden_characters">forbidden characters</a>.</p>
 </div>
 <div class="listingblock">
-<div class="title">Example: A simple comment.</div>
+<div class="title">Example: Comment.</div>
 <div class="content">
 <pre class="highlight"><code class="language-conf" data-lang="conf"># This is a comment.</code></pre>
 </div>
@@ -313,11 +311,32 @@ Forbidden characters must not appear in the source text.</p>
 <p>A simple directive must be a sequence of one or more <a href="#_argument">arguments</a>.
 A simple directive must be terminated by a character from the <a href="#_line_terminators">line terminator</a> character set or a Semicolon (U+003B) character.</p>
 </div>
+<div class="listingblock">
+<div class="title">Example: Simple directive with two arguments.</div>
+<div class="content">
+<pre class="highlight"><code class="language-conf" data-lang="conf">username jsmith</code></pre>
+</div>
+</div>
 <div class="paragraph">
 <p>A compound directive must be a sequence of one or more <a href="#_argument">arguments</a>, zero or more <a href="#_line_terminators">line terminators</a>, and subdirectives.
 Subdirectives shall be a sequence of zero or more directives enclosed by curly braces.
 Subdirectives begin with a Left Curly Bracket (U+007B) and terminate with a Right Curly Bracket (U+007D).
 A compound directive may be succeeded by a Semicolon (U+003B) character.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example: Compound directive with one subdirective.</div>
+<div class="content">
+<pre class="highlight"><code class="language-conf" data-lang="conf">application {
+    version 1.2.3 <b class="conum">(1)</b>
+}</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Subdirective.</p>
+</li>
+</ol>
 </div>
 </div>
 <div class="sect2">
@@ -338,9 +357,23 @@ The argument character set shall consist of any Unicode scalar value excluding c
 <p>Single quoted arguments must begin with a leading punctuator Quotation Mark (U+0022), followed by zero or more single quoted argument characters, and terminated by the trailing punctuator Quotation Mark (U+0022).
 The single quoted argument character set is the union of the argument character set and <a href="#_white_space">white space</a> character set.</p>
 </div>
+<div class="listingblock">
+<div class="title">Example: Directive with a quoted argument.</div>
+<div class="content">
+<pre class="highlight"><code class="language-conf" data-lang="conf">name "John Smith, Jr."</code></pre>
+</div>
+</div>
 <div class="paragraph">
 <p>Triple quoted arguments must begin with three consecutive leading punctuator Quotation Mark (U+0022), followed by zero or more triple quoted argument characters, and terminated by the trailing punctuator Quotation Mark (U+0022).
 The triple quoted argument character set is the union of the argument character set, the <a href="#_white_space">white space</a> character set, and the <a href="#_line_terminators">line terminator</a> character set.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example: Directive with a triple-quoted argument.</div>
+<div class="content">
+<pre class="highlight"><code class="language-conf" data-lang="conf">execute """function() {
+  console.log("Hello, World!")
+}"""</code></pre>
+</div>
 </div>
 <div class="paragraph">
 <p>The value of a quoted argument shall be the argument’s lexeme with <a href="#_escaped_characters">escaped characters</a> processed, leading and trailing Quotation Mark (U+0022) characters removed, and <a href="#_line_continuation">line continuations</a> processed.</p>
@@ -398,12 +431,6 @@ eth1</code></pre>
 </ol>
 </div>
 </div>
-<div class="sect2">
-<h3 id="_bidirectional_control_characters"><span>Bidirectional Control Characters</span><a href="#_bidirectional_control_characters">#</a></h3>
-<div class="paragraph">
-<p>Implementations may reject Confetti source text with Unicode bidirectional formatting characters.</p>
-</div>
-</div>
 </div>
 </div>
 <div class="sect1">
@@ -439,22 +466,28 @@ compound-directive = &lt;arguments&gt; { &lt;newline-char&gt; } &lt;subdirective
 </div>
 </div>
 <div class="sect1">
-<h2 id="_language_extensions"><span>Language Extensions</span><a href="#_language_extensions">#</a></h2>
+<h2 id="_implementation_scope"><span>Implementation Scope</span><a href="#_implementation_scope">#</a></h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>Implementations may set limits on the size of the source text.</p>
+</div>
+<div class="paragraph">
+<p>Implementations may set limits on the number of Unicode scalar values each <a href="#_argument">argument</a> can have.</p>
+</div>
+<div class="paragraph">
+<p>Implementations may set limits on the number of arguments each directive can have.</p>
+</div>
+<div class="paragraph">
+<p>Implementations may set limits on the number of subdirectives each directive can have.</p>
+</div>
+<div class="paragraph">
+<p>Implementations may set limits on the maximum nesting depth of subdirectives.</p>
+</div>
+<div class="paragraph">
+<p>Implementations may reject source text with Unicode bidirectional formatting characters.</p>
+</div>
 <div class="paragraph">
 <p>Implementations may extend this specification, provided that any additions are clearly documented.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_parsers"><span>Parsers</span><a href="#_parsers">#</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>An implementation may set limits on the size of the Confetti source text that it accepts.
-An implementation may set limits on the maximum nesting depth of subdirectives.
-An implementation may set limits on the number of Unicode scalar values an <a href="#_argument">argument</a> can have.
-An implementation may set limits on the number of arguments a directive can have.
-An implementation may set limits on the number of subdirectives a directive can have.</p>
 </div>
 </div>
 </div>
