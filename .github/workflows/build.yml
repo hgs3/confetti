@@ -2,7 +2,7 @@ name: Build Status
 on: [push, pull_request]
 jobs:
   linux:
-    name: "Linux ${{ matrix.platform.NAME }}"
+    name: "Linux - ${{ matrix.platform.NAME }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -43,7 +43,7 @@ jobs:
         make
         make distcheck
   windows:
-    name: "Windows"
+    name: "Windows - Visual Studio"
     runs-on: windows-latest
     env:
       AUDITION_USER: ${{ secrets.AUDITION_USER }}
