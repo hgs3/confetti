@@ -1,10 +1,10 @@
 import pyconfetti
 
-def print_indent(depth):
+def print_indent(depth: int) -> None:
     for i in range(depth):
         print("    ", end="")
 
-def print_dir(dir, depth):
+def print_dir(dir: pyconfetti.Directive, depth: int) -> None:
     print_indent(depth)
     if len(dir.args) > 0:
         for arg in dir.args:
