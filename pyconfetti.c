@@ -112,12 +112,11 @@ PyMODINIT_FUNC PyInit_pyconfetti(void)
 {
     PyObject *m;
     
-    if (PyType_Ready(&ConfettiType) < 0)
-    {
-        return NULL;
-    }
-
-    if (PyType_Ready(&DirectiveType) < 0)
+    if ((PyType_Ready(&ConfettiType) < 0) ||
+        (PyType_Ready(&DirectiveType) < 0) ||
+        (PyType_Ready(&DirectiveIteratorType) < 0) ||
+        (PyType_Ready(&ArgumentType) < 0) ||
+        (PyType_Ready(&ArgumentIteratorType) < 0))
     {
         return NULL;
     }
@@ -128,16 +127,19 @@ PyMODINIT_FUNC PyInit_pyconfetti(void)
         return NULL;
     }
 
-    Py_INCREF(&DirectiveType);
     Py_INCREF(&ConfettiType);
-
     if (PyModule_AddObject(m, "Confetti", (PyObject *)&ConfettiType) < 0)
     {
         Py_DECREF(&ConfettiType);
-        Py_DECREF(&DirectiveType);
         Py_DECREF(m);
         return NULL;
     }
+
+    Py_INCREF(&DirectiveType);
+    Py_INCREF(&DirectiveIteratorType);
+
+    Py_INCREF(&ArgumentType);
+    Py_INCREF(&ArgumentIteratorType);
 
     return m;
 }

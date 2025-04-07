@@ -24,8 +24,12 @@
 #endif
 
 extern PyTypeObject ConfettiType;
+
 extern PyTypeObject DirectiveType;
 extern PyTypeObject DirectiveIteratorType;
+
+extern PyTypeObject ArgumentType;
+extern PyTypeObject ArgumentIteratorType;
 
 typedef struct
 {
@@ -44,8 +48,22 @@ typedef struct
 typedef struct
 {
     PyObject_HEAD
-        long index;
-    PyDirective *py_directive;
-} PyDirectiveIterator;
+    PyObject *py_confetti;
+    conf_argument *data;
+} PyArgument;
+
+typedef struct
+{
+    PyObject_HEAD
+    long index;
+    PyDirective *py_directive; // The directive whose subdirectives are being iterated.
+} PySubdirectiveIterator;
+
+typedef struct
+{
+    PyObject_HEAD
+    long index;
+    PyDirective *py_directive; // The directive whose arguments are being iterated.
+} PyArgumentIterator;
 
 PyMODINIT_FUNC PyInit_pyconfetti(void);

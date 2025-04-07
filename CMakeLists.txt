@@ -36,7 +36,7 @@ add_library(confetti STATIC confetti.c confetti_unidata.c confetti.h)
 set_target_properties(confetti PROPERTIES PUBLIC_HEADER confetti.h)
 
 # Register the Python module.
-set(PY_SOURCE pyconfetti.c pydirective.c pyconfetti.h)
+set(PY_SOURCE pyconfetti.c pydirective.c pyargument.c pyconfetti.h)
 python_add_library(pyconfetti MODULE ${PY_SOURCE} confetti.c confetti_unidata.c confetti.h)
 if (NOT SKBUILD)
     # Compile an executable that behaves like the Python interpreter
