@@ -7,7 +7,19 @@
  */
 
 #include "confetti.h"
-#include <Python.h>
+
+// The Python header uses a #pramga directive on Windows to automatically
+// link with the debug version of Python. The problem is the standard Python
+// distribution only includes release libraries so, as a workaround, we'll
+// trick Python into thinking we're running in release even if we're building
+// in debug mode.
+#if defined(WIN32) && defined(_DEBUG)
+  #undef _DEBUG
+  #include <python.h>
+  #define _DEBUG
+#else
+  #include <Python.h>
+#endif
 
 typedef struct
 {

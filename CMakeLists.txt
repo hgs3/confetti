@@ -22,11 +22,29 @@ write_basic_package_version_file(${CMAKE_BINARY_DIR}/ConfettiConfigVersion.cmake
 # Generate configuration for CMake's find package tools.
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/ConfettiConfig.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/ConfettiConfig.cmake" @ONLY)
 
+# If Python development libraries are available, then add a program for running
+# Python scripts in the context of the Python extension. Its main use is for
+# testing and debugging the C extension code.
+find_package(Python REQUIRED COMPONENTS Interpreter Development)
+
+# C11 is required to build Confetti.
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED TRUE)
+
 # Register the library.
 add_library(confetti STATIC confetti.c confetti_unidata.c confetti.h)
 set_target_properties(confetti PROPERTIES PUBLIC_HEADER confetti.h)
-set_property(TARGET confetti PROPERTY C_STANDARD 11)
-set_property(TARGET confetti PROPERTY C_STANDARD_REQUIRED TRUE)
+
+# Register the Python module.
+python_add_library(pyconfetti MODULE pyconfetti.c confetti.c confetti_unidata.c confetti.h)
+if (NOT SKBUILD)
+    # Compile an executable that behaves like the Python interpreter
+    # except with the C extension pre-registered.
+    add_executable(pymain pymain.c pyconfetti.c)
+    target_link_libraries(pymain confetti)
+    target_link_libraries(pymain ${Python_LIBRARIES})
+    target_include_directories(pymain PRIVATE ${Python_INCLUDE_DIRS})
+endif()
 
 # Enable compiler flags to detect common issues.
 if (CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_C_COMPILER_ID MATCHES "GNU")
