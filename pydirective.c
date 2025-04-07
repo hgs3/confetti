@@ -32,11 +32,6 @@ static PyObject *Directive_iter(PyObject *self)
 
 static PyObject *Directive_get_arguments(PyObject *self, void *closure)
 {
-    if (!PyObject_TypeCheck(self, &DirectiveType))
-    {
-        return NULL;
-    }
-
     PyArgumentIterator *iter = PyObject_New(PyArgumentIterator, &ArgumentIteratorType);
     if (iter == NULL)
     {
@@ -44,7 +39,6 @@ static PyObject *Directive_get_arguments(PyObject *self, void *closure)
     }
     iter->py_directive = (PyDirective *)self;
     iter->index = 0;
-    iter->length = conf_get_argument_count(iter->py_directive->data);
     Py_INCREF(iter->py_directive); // Keep the original object around that the iterator references.
     return (PyObject *)iter;
 }
@@ -76,7 +70,7 @@ PyTypeObject DirectiveType = {
     .tp_new = PyType_GenericNew,
     .tp_dealloc = Directive_dealloc,
     .tp_iter = Directive_iter,
-    .tp_as_sequence = &Directive_as_sequence, // Set the sequence methods
+    .tp_as_sequence = &Directive_as_sequence,
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -119,15 +113,26 @@ static void DirectiveIterator_dealloc(PyObject *self)
     PyObject_Free(iter);
 }
 
+static Py_ssize_t DirectiveIterator_length(PyObject *self)
+{
+    PyDirectiveIterator *dir = (PyDirectiveIterator *)self;
+    return (Py_ssize_t)conf_get_directive_count(dir->py_directive->data);
+}
+
+static PySequenceMethods DirectiveIterator_as_sequence = {
+    .sq_length = DirectiveIterator_length, // Set the __len__ method.
+};
+
+
 // Define the iterator type (class)
 PyTypeObject DirectiveIteratorType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = "pyconfetti.DirectiveIterator",
     .tp_basicsize = sizeof(PyDirectiveIterator),
-    .tp_itemsize = 0,
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_doc = "Directive iterator",
     .tp_new = PyType_GenericNew,
     .tp_iternext = DirectiveIterator_next,
     .tp_dealloc = DirectiveIterator_dealloc,
+    .tp_as_sequence = &DirectiveIterator_as_sequence,
 };

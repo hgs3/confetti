@@ -19,6 +19,7 @@ def print_dir(dir: pyconfetti.Directive, depth: int) -> None:
         print("")
 
 conf = pyconfetti.Confetti("""
+# This is a code comment!
 foo bar {
     baz {
         123 456
@@ -28,6 +29,9 @@ abc xyz {
     qux
 }
 """)
-root = conf.get_root()
-for dir in root:
+
+for dir in conf.root:
     print_dir(dir, 0)
+
+for comment in conf.comments:
+    print(comment.value)

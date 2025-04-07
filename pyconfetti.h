@@ -25,6 +25,9 @@
 
 extern PyTypeObject ConfettiType;
 
+extern PyTypeObject CommentType;
+extern PyTypeObject CommentIteratorType;
+
 extern PyTypeObject DirectiveType;
 extern PyTypeObject DirectiveIteratorType;
 
@@ -34,8 +37,17 @@ extern PyTypeObject ArgumentIteratorType;
 typedef struct
 {
     PyObject_HEAD
-    conf_document *py_confetti;
+    char *source;
+    conf_document *data;
 } PyConfetti;
+
+typedef struct
+{
+    PyObject_HEAD
+    PyObject *py_value;
+    Py_ssize_t offset;
+    Py_ssize_t length;
+} PyComment;
 
 typedef struct
 {
@@ -55,6 +67,13 @@ typedef struct
 typedef struct
 {
     PyObject_HEAD
+    PyConfetti *py_confetti;
+    Py_ssize_t index;
+} PyCommentIterator;
+
+typedef struct
+{
+    PyObject_HEAD
     Py_ssize_t index;
     PyDirective *py_directive; // The directive whose subdirectives are being iterated.
 } PyDirectiveIterator;
@@ -63,7 +82,6 @@ typedef struct
 {
     PyObject_HEAD
     Py_ssize_t index;
-    Py_ssize_t length;
     PyDirective *py_directive; // The directive whose arguments are being iterated.
 } PyArgumentIterator;
 

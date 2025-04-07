@@ -28,7 +28,8 @@ static int Confetti_init(PyConfetti *self, PyObject *args, PyObject *kwds)
     };
 
     conf_error error = {0};
-    self->py_confetti = conf_parse(source, &options, &error);
+    self->data = conf_parse(source, &options, &error);
+    self->source = strdup(source);
     if (error.code != CONF_NO_ERROR)
     {
         if (error.code == CONF_BAD_SYNTAX)
@@ -55,17 +56,13 @@ static int Confetti_init(PyConfetti *self, PyObject *args, PyObject *kwds)
 // Destructor.
 static void Confetti_dealloc(PyConfetti *self)
 {
-    conf_free(self->py_confetti);
+    free(self->source);
+    conf_free(self->data);
     PyObject_Free(self);
 }
 
-static PyObject *Confetti_get_root(PyObject *self, PyObject *args)
+static PyObject *Confetti_get_root(PyObject *self, void *closure)
 {
-    if (!PyObject_TypeCheck(self, &ConfettiType))
-    {
-        return NULL;
-    }
-
     PyDirective *instance = PyObject_New(PyDirective, &DirectiveType);
     if (instance == NULL)
     {
@@ -74,15 +71,28 @@ static PyObject *Confetti_get_root(PyObject *self, PyObject *args)
     }
     PyDirective *dir = instance;
     dir->py_confetti = self;
-    dir->data = conf_get_root(((PyConfetti *)self)->py_confetti);
+    dir->data = conf_get_root(((PyConfetti *)self)->data);
     Py_INCREF(self);
     return (PyObject *)instance;
 }
 
-// Define the methods of the class
-static PyMethodDef Confetti_methods[] = {
-    {"get_root", Confetti_get_root, METH_NOARGS, "Pseudo directive representing the root of the Confetti source text"},
-    {NULL}  // Sentinel value
+static PyObject *Confetti_get_comments(PyObject *self, void *closure)
+{
+    PyCommentIterator *iter = PyObject_New(PyCommentIterator, &CommentIteratorType);
+    if (iter == NULL)
+    {
+        return NULL;
+    }
+    iter->py_confetti = (PyConfetti *)self;
+    iter->index = 0;
+    Py_INCREF(iter->py_confetti);
+    return (PyObject *)iter;
+}
+
+static PyGetSetDef Confetti_getseters[] = {
+    {"root", Confetti_get_root, NULL, "Pseudo root directive", NULL},
+    {"comments", Confetti_get_comments, NULL, "Source comments", NULL},
+    {NULL},
 };
 
 // Define the type (class) itself
@@ -94,7 +104,7 @@ PyTypeObject ConfettiType = {
     .tp_dealloc = (destructor)Confetti_dealloc,
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_doc = "Confetti",
-    .tp_methods = Confetti_methods,
+    .tp_getset = Confetti_getseters,
     .tp_init = (initproc)Confetti_init,
     .tp_new = PyType_GenericNew,
 };
@@ -113,6 +123,8 @@ PyMODINIT_FUNC PyInit_pyconfetti(void)
     PyObject *m;
     
     if ((PyType_Ready(&ConfettiType) < 0) ||
+        (PyType_Ready(&CommentType) < 0) ||
+        (PyType_Ready(&CommentIteratorType) < 0) ||
         (PyType_Ready(&DirectiveType) < 0) ||
         (PyType_Ready(&DirectiveIteratorType) < 0) ||
         (PyType_Ready(&ArgumentType) < 0) ||
@@ -136,12 +148,16 @@ PyMODINIT_FUNC PyInit_pyconfetti(void)
     Py_INCREF(&ArgumentIteratorType);
 
     if ((PyModule_AddObject(m, "Confetti", (PyObject *)&ConfettiType) < 0) ||
+        (PyModule_AddObject(m, "Comment", (PyObject *)&CommentType) < 0) ||
+        (PyModule_AddObject(m, "CommentIterator", (PyObject *)&CommentIteratorType) < 0) ||
         (PyModule_AddObject(m, "Directive", (PyObject *)&DirectiveType) < 0) ||
         (PyModule_AddObject(m, "DirectiveIterator", (PyObject *)&DirectiveIteratorType) < 0) ||
         (PyModule_AddObject(m, "Argument", (PyObject *)&ArgumentType) < 0) ||
         (PyModule_AddObject(m, "ArgumentIterator", (PyObject *)&ArgumentIteratorType) < 0))
     {
         Py_DECREF(&ConfettiType);
+        Py_DECREF(&CommentType);
+        Py_DECREF(&CommentIteratorType);
         Py_DECREF(&DirectiveType);
         Py_DECREF(&DirectiveIteratorType);
         Py_DECREF(&ArgumentType);

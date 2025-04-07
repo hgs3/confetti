@@ -18,17 +18,24 @@ static void Argument_dealloc(PyObject *self)
 
 static PyObject *Argument_get_value(PyObject *self, void *closure)
 {
-    if (!PyObject_TypeCheck(self, &ArgumentType))
-    {
-        return NULL;
-    }
     PyArgument *arg = (PyArgument *)self;
     return PyUnicode_FromString(arg->data->value);
+}
+
+static PyObject *Argument_is_expression(PyObject *self, void *closure)
+{
+    PyArgument *arg = (PyArgument *)self;
+    if (arg->data->is_expression)
+    {
+        return Py_True;
+    }
+    return Py_False;
 }
 
 // Property definition using PyGetSetDef
 static PyGetSetDef Argument_getseters[] = {
     {"value", Argument_get_value, NULL, "Value", NULL},
+    {"expression", Argument_is_expression, NULL, "Checks if this argument is an expression argument (requires the expressiona argument extension)", NULL},
     {NULL},
 };
 
@@ -92,7 +99,7 @@ static void ArgumentIterator_dealloc(PyObject *self)
 static Py_ssize_t Argument_length(PyObject *self)
 {
     PyArgumentIterator *iter = (PyArgumentIterator *)self;
-    return iter->length;
+    return conf_get_argument_count(iter->py_directive->data);
 }
 
 static PySequenceMethods ArgumentIterator_as_sequence = {
