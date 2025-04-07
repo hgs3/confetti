@@ -8,7 +8,12 @@
 
 #include "pyconfetti.h"
 
- // Destructor.
+static int Comment_init(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    PyErr_SetString(PyExc_NotImplementedError, "cannot instantiate abstract class");
+    return 0;
+}
+
 static void Comment_dealloc(PyObject *self)
 {
     PyComment *comment = (PyComment * )self;
@@ -51,11 +56,18 @@ PyTypeObject CommentType = {
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_doc = "Comment",
     .tp_getset = Comment_getseters,
+    .tp_init = Comment_init,
     .tp_new = PyType_GenericNew,
     .tp_dealloc = Comment_dealloc,
 };
 
 //////////////////////////////////////////////////////////////////////////
+
+static int CommentIterator_init(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    PyErr_SetString(PyExc_NotImplementedError, "cannot instantiate abstract class");
+    return 0;
+}
 
 static PyObject *CommentIterator_iter(PyObject *self)
 {
@@ -124,6 +136,7 @@ PyTypeObject CommentIteratorType = {
     .tp_basicsize = sizeof(PyCommentIterator),
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_doc = "Comment iterator",
+    .tp_init = CommentIterator_init,
     .tp_new = PyType_GenericNew,
     .tp_iter = CommentIterator_iter,
     .tp_iternext = CommentIterator_next,

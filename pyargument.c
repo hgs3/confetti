@@ -8,7 +8,12 @@
 
 #include "pyconfetti.h"
 
- // Destructor.
+static int Arguments_init(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    PyErr_SetString(PyExc_NotImplementedError, "cannot instantiate abstract class");
+    return 0;
+}
+
 static void Argument_dealloc(PyObject *self)
 {
     PyArgument *arg = (PyArgument * )self;
@@ -47,11 +52,18 @@ PyTypeObject ArgumentType = {
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_doc = "Argument",
     .tp_getset = Argument_getseters,
+    .tp_init = Arguments_init,
     .tp_new = PyType_GenericNew,
     .tp_dealloc = Argument_dealloc,
 };
 
 //////////////////////////////////////////////////////////////////////////
+
+static int ArgumentsIterator_init(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    PyErr_SetString(PyExc_NotImplementedError, "cannot instantiate abstract class");
+    return 0;
+}
 
 static PyObject *ArgumentIterator_iter(PyObject *self)
 {
@@ -113,6 +125,7 @@ PyTypeObject ArgumentIteratorType = {
     .tp_basicsize = sizeof(PyArgumentIterator),
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_doc = "Argument iterator",
+    .tp_init = ArgumentsIterator_init,
     .tp_new = PyType_GenericNew,
     .tp_iter = ArgumentIterator_iter,
     .tp_iternext = ArgumentIterator_next,

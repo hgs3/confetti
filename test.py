@@ -30,7 +30,7 @@ abc xyz {
 }
 """)
 
-for dir in conf.root:
+for dir in conf:
     print_dir(dir, 0)
 
 for comment in conf.comments:

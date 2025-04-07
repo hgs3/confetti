@@ -61,19 +61,31 @@ static void Confetti_dealloc(PyConfetti *self)
     PyObject_Free(self);
 }
 
-static PyObject *Confetti_get_root(PyObject *self, void *closure)
+static PyObject *Confetti_iter(PyObject *self)
 {
-    PyDirective *instance = PyObject_New(PyDirective, &DirectiveType);
-    if (instance == NULL)
+    // Allocate an object to represent the root directive.
+    PyDirective *root = PyObject_New(PyDirective, &DirectiveType);
+    if (root == NULL)
     {
-        // Handle error
+        PyErr_SetString(PyExc_MemoryError, "failed to allocate root directive");
         return NULL;
     }
-    PyDirective *dir = instance;
-    dir->py_confetti = self;
-    dir->data = conf_get_root(((PyConfetti *)self)->data);
-    Py_INCREF(self);
-    return (PyObject *)instance;
+    root->data = conf_get_root(((PyConfetti *)self)->data);
+    root->py_confetti = self;
+    Py_INCREF(root->py_confetti);
+
+    // Allocate an iterator to iterate the root directive.
+    PyDirectiveIterator *iter = PyObject_New(PyDirectiveIterator, &DirectiveIteratorType);
+    if (iter == NULL)
+    {
+        Py_DECREF(root);
+        PyErr_SetString(PyExc_MemoryError, "failed to allocate directive iterator");
+        return NULL;
+    }
+    iter->index = 0;
+    iter->py_directive = root;
+    Py_INCREF(iter->py_directive); // Keep the original object around that the iterator references.
+    return (PyObject *)iter;
 }
 
 static PyObject *Confetti_get_comments(PyObject *self, void *closure)
@@ -89,8 +101,17 @@ static PyObject *Confetti_get_comments(PyObject *self, void *closure)
     return (PyObject *)iter;
 }
 
+static Py_ssize_t Confetti_length(PyObject *self)
+{
+    PyConfetti *iter = (PyConfetti *)self;
+    return conf_get_directive_count(conf_get_root(iter->data));
+}
+
+static PySequenceMethods Confetti_as_sequence = {
+    .sq_length = Confetti_length, // Set the __len__ method.
+};
+
 static PyGetSetDef Confetti_getseters[] = {
-    {"root", Confetti_get_root, NULL, "Pseudo root directive", NULL},
     {"comments", Confetti_get_comments, NULL, "Source comments", NULL},
     {NULL},
 };
@@ -106,7 +127,9 @@ PyTypeObject ConfettiType = {
     .tp_doc = "Confetti",
     .tp_getset = Confetti_getseters,
     .tp_init = (initproc)Confetti_init,
+    .tp_iter = Confetti_iter,
     .tp_new = PyType_GenericNew,
+    .tp_as_sequence = &Confetti_as_sequence, // Set the sequence methods
 };
 
 // Module definition

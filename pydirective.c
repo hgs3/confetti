@@ -8,6 +8,13 @@
 
 #include "pyconfetti.h"
 
+// Constructor.
+static int Directive_init(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    PyErr_SetString(PyExc_NotImplementedError, "cannot instantiate abstract class");
+    return 0;
+}
+
  // Destructor.
 static void Directive_dealloc(PyObject *self)
 {
@@ -67,6 +74,7 @@ PyTypeObject DirectiveType = {
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_doc = "Directive",
     .tp_getset = Directive_getseters,
+    .tp_init = Directive_init,
     .tp_new = PyType_GenericNew,
     .tp_dealloc = Directive_dealloc,
     .tp_iter = Directive_iter,
@@ -74,6 +82,12 @@ PyTypeObject DirectiveType = {
 };
 
 //////////////////////////////////////////////////////////////////////////
+
+static int DirectiveIterator_init(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    PyErr_SetString(PyExc_NotImplementedError, "cannot instantiate abstract class");
+    return 0;
+}
 
 static PyObject *DirectiveIterator_next(PyObject *self)
 {
@@ -131,6 +145,7 @@ PyTypeObject DirectiveIteratorType = {
     .tp_basicsize = sizeof(PyDirectiveIterator),
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_doc = "Directive iterator",
+    .tp_init = DirectiveIterator_init,
     .tp_new = PyType_GenericNew,
     .tp_iternext = DirectiveIterator_next,
     .tp_dealloc = DirectiveIterator_dealloc,
