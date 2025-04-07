@@ -55,14 +55,15 @@ typedef struct
 typedef struct
 {
     PyObject_HEAD
-    long index;
+    Py_ssize_t index;
     PyDirective *py_directive; // The directive whose subdirectives are being iterated.
-} PySubdirectiveIterator;
+} PyDirectiveIterator;
 
 typedef struct
 {
     PyObject_HEAD
-    long index;
+    Py_ssize_t index;
+    Py_ssize_t length;
     PyDirective *py_directive; // The directive whose arguments are being iterated.
 } PyArgumentIterator;
 

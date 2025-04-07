@@ -89,6 +89,16 @@ static void ArgumentIterator_dealloc(PyObject *self)
     PyObject_Free(iter);
 }
 
+static Py_ssize_t Argument_length(PyObject *self)
+{
+    PyArgumentIterator *iter = (PyArgumentIterator *)self;
+    return iter->length;
+}
+
+static PySequenceMethods ArgumentIterator_as_sequence = {
+    .sq_length = Argument_length, // Set the __len__ method.
+};
+
 // Define the iterator type (class)
 PyTypeObject ArgumentIteratorType = {
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -100,5 +110,6 @@ PyTypeObject ArgumentIteratorType = {
     .tp_iter = ArgumentIterator_iter,
     .tp_iternext = ArgumentIterator_next,
     .tp_dealloc = ArgumentIterator_dealloc,
+    .tp_as_sequence = &ArgumentIterator_as_sequence, // Set the sequence methods
 };
 

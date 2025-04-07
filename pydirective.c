@@ -17,14 +17,9 @@ static void Directive_dealloc(PyObject *self)
     PyObject_Free(dir);
 }
 
-static PyObject *Directive_get_subdirectives(PyObject *self, void *closure)
+static PyObject *Directive_iter(PyObject *self)
 {
-    if (!PyObject_TypeCheck(self, &DirectiveType))
-    {
-        return NULL;
-    }
-
-    PySubdirectiveIterator *iter = PyObject_New(PySubdirectiveIterator, &DirectiveIteratorType);
+    PyDirectiveIterator *iter = PyObject_New(PyDirectiveIterator, &DirectiveIteratorType);
     if (iter == NULL)
     {
         return NULL;
@@ -49,15 +44,25 @@ static PyObject *Directive_get_arguments(PyObject *self, void *closure)
     }
     iter->py_directive = (PyDirective *)self;
     iter->index = 0;
+    iter->length = conf_get_argument_count(iter->py_directive->data);
     Py_INCREF(iter->py_directive); // Keep the original object around that the iterator references.
     return (PyObject *)iter;
 }
 
+static Py_ssize_t Directive_length(PyObject *self)
+{
+    PyDirective *dir = (PyDirective *)self;
+    return (Py_ssize_t)conf_get_directive_count(dir->data);
+}
+
 // Property definition using PyGetSetDef
 static PyGetSetDef Directive_getseters[] = {
-    {"subdirs", Directive_get_subdirectives, NULL, "Subdirectives", NULL},
     {"args", Directive_get_arguments, NULL, "Arguments", NULL},
     {NULL},
+};
+
+static PySequenceMethods Directive_as_sequence = {
+    .sq_length = Directive_length, // Set the __len__ method.
 };
 
 // Define the type (class) itself
@@ -70,16 +75,11 @@ PyTypeObject DirectiveType = {
     .tp_getset = Directive_getseters,
     .tp_new = PyType_GenericNew,
     .tp_dealloc = Directive_dealloc,
+    .tp_iter = Directive_iter,
+    .tp_as_sequence = &Directive_as_sequence, // Set the sequence methods
 };
 
 //////////////////////////////////////////////////////////////////////////
-
-static PyObject *DirectiveIterator_iter(PyObject *self)
-{
-    // Return self as the iterator.
-    Py_INCREF(self);
-    return self;
-}
 
 static PyObject *DirectiveIterator_next(PyObject *self)
 {
@@ -88,7 +88,7 @@ static PyObject *DirectiveIterator_next(PyObject *self)
         return NULL;
     }
 
-    PySubdirectiveIterator *iter = (PySubdirectiveIterator *)self;
+    PyDirectiveIterator *iter = (PyDirectiveIterator *)self;
     PyDirective *dir = iter->py_directive;
     if (iter->index >= conf_get_directive_count(dir->data))
     {
@@ -114,7 +114,7 @@ static PyObject *DirectiveIterator_next(PyObject *self)
 
 static void DirectiveIterator_dealloc(PyObject *self)
 {
-    PySubdirectiveIterator *iter = (PySubdirectiveIterator *)self;
+    PyDirectiveIterator *iter = (PyDirectiveIterator *)self;
     Py_XDECREF(iter->py_directive);
     PyObject_Free(iter);
 }
@@ -123,12 +123,11 @@ static void DirectiveIterator_dealloc(PyObject *self)
 PyTypeObject DirectiveIteratorType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = "pyconfetti.DirectiveIterator",
-    .tp_basicsize = sizeof(PySubdirectiveIterator),
+    .tp_basicsize = sizeof(PyDirectiveIterator),
     .tp_itemsize = 0,
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_doc = "Directive iterator",
     .tp_new = PyType_GenericNew,
-    .tp_iter = DirectiveIterator_iter,
     .tp_iternext = DirectiveIterator_next,
     .tp_dealloc = DirectiveIterator_dealloc,
 };
