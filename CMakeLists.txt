@@ -36,11 +36,12 @@ add_library(confetti STATIC confetti.c confetti_unidata.c confetti.h)
 set_target_properties(confetti PROPERTIES PUBLIC_HEADER confetti.h)
 
 # Register the Python module.
-python_add_library(pyconfetti MODULE pyconfetti.c confetti.c confetti_unidata.c confetti.h)
+set(PY_SOURCE pyconfetti.c pydirective.c pyconfetti.h)
+python_add_library(pyconfetti MODULE ${PY_SOURCE} confetti.c confetti_unidata.c confetti.h)
 if (NOT SKBUILD)
     # Compile an executable that behaves like the Python interpreter
     # except with the C extension pre-registered.
-    add_executable(pymain pymain.c pyconfetti.c)
+    add_executable(pymain pymain.c ${PY_SOURCE})
     target_link_libraries(pymain confetti)
     target_link_libraries(pymain ${Python_LIBRARIES})
     target_include_directories(pymain PRIVATE ${Python_INCLUDE_DIRS})

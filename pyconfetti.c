@@ -6,46 +6,10 @@
  * For full terms see the included LICENSE file.
  */
 
-#include "confetti.h"
-
-// The Python header uses a #pramga directive on Windows to automatically
-// link with the debug version of Python. The problem is the standard Python
-// distribution only includes release libraries so, as a workaround, we'll
-// trick Python into thinking we're running in release even if we're building
-// in debug mode.
-#if defined(WIN32) && defined(_DEBUG)
-  #undef _DEBUG
-  #include <python.h>
-  #define _DEBUG
-#else
-  #include <Python.h>
-#endif
-
-typedef struct
-{
-    PyObject_HEAD
-    conf_directive *directive;
-} Directive;
-
-// Define the type (class) itself
-static PyTypeObject DirectiveType = {
-    PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "pyconfetti.Directive",
-    .tp_basicsize = sizeof(Directive),
-    .tp_itemsize = 0,
-    .tp_flags = Py_TPFLAGS_DEFAULT,
-    .tp_doc = "Directive",
-    .tp_new = PyType_GenericNew,
-};
-
-typedef struct
-{
-    PyObject_HEAD
-    conf_document *document;
-} Confetti;
+#include "pyconfetti.h"
 
 // Constructor.
-static int Confetti_init(Confetti *self, PyObject *args, PyObject *kwds)
+static int Confetti_init(PyConfetti *self, PyObject *args, PyObject *kwds)
 {
     char *source;
     if (!PyArg_ParseTuple(args, "s", &source))
@@ -64,7 +28,7 @@ static int Confetti_init(Confetti *self, PyObject *args, PyObject *kwds)
     };
 
     conf_error error = {0};
-    self->document = conf_parse(source, &options, &error);
+    self->py_confetti = conf_parse(source, &options, &error);
     if (error.code != CONF_NO_ERROR)
     {
         if (error.code == CONF_BAD_SYNTAX)
@@ -89,46 +53,43 @@ static int Confetti_init(Confetti *self, PyObject *args, PyObject *kwds)
 }
 
 // Destructor.
-static void Confetti_dealloc(Confetti *self)
+static void Confetti_dealloc(PyConfetti *self)
 {
-    conf_free(self->document);
-    Py_TYPE(self)->tp_free((PyObject *)self);
+    conf_free(self->py_confetti);
+    PyObject_Free(self);
 }
 
-static PyObject *Confetti_get_root(Confetti *self, PyObject *args)
+static PyObject *Confetti_get_root(PyObject *self, PyObject *args)
 {
-    PyObject *ctor_args = Py_BuildValue("()");
-    PyObject *instance = PyObject_CallObject((PyObject *)&DirectiveType, ctor_args);
-    Py_DECREF(ctor_args); // Release arguments reference
+    if (!PyObject_TypeCheck(self, &ConfettiType))
+    {
+        return NULL;
+    }
 
+    PyDirective *instance = PyObject_New(PyDirective, &DirectiveType);
     if (instance == NULL)
     {
         // Handle error
         return NULL;
     }
-
-    if (!PyObject_TypeCheck(instance, &DirectiveType))
-    {
-        Py_DECREF(instance);  // Clean up if it's not the correct type
-        return NULL;
-    }
-
-    Directive *dir = (Directive *)instance;
-    dir->directive = conf_get_root(self->document);
-    return instance;
+    PyDirective *dir = instance;
+    dir->py_confetti = self;
+    dir->data = conf_get_root(((PyConfetti *)self)->py_confetti);
+    Py_INCREF(self);
+    return (PyObject *)instance;
 }
 
 // Define the methods of the class
 static PyMethodDef Confetti_methods[] = {
-    {"get_root", (PyCFunction)Confetti_get_root, METH_NOARGS, "Pseudo directive representing the root of the Confetti source text"},
+    {"get_root", Confetti_get_root, METH_NOARGS, "Pseudo directive representing the root of the Confetti source text"},
     {NULL}  // Sentinel value
 };
 
 // Define the type (class) itself
-static PyTypeObject ConfettiType = {
+PyTypeObject ConfettiType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = "pyconfetti.Confetti",
-    .tp_basicsize = sizeof(Confetti),
+    .tp_basicsize = sizeof(PyConfetti),
     .tp_itemsize = 0,
     .tp_dealloc = (destructor)Confetti_dealloc,
     .tp_flags = Py_TPFLAGS_DEFAULT,
