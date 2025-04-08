@@ -28,23 +28,9 @@ static PyObject *Comment_get_value(PyObject *self, void *closure)
     return comment->py_value;
 }
 
-static PyObject *Comment_get_offset(PyObject *self, void *closure)
-{
-    PyComment *comment = (PyComment *)self;
-    return PyLong_FromSsize_t(comment->offset);
-}
-
-static PyObject *Comment_get_length(PyObject *self, void *closure)
-{
-    PyComment *comment = (PyComment *)self;
-    return PyLong_FromSsize_t(comment->length);
-}
-
 // Property definition using PyGetSetDef
 static PyGetSetDef Comment_getseters[] = {
-    {"value", Comment_get_value, NULL, "Value", NULL},
-    {"offset", Comment_get_offset, NULL, "Offset where the comment appeared", NULL},
-    {"length", Comment_get_length, NULL, "Length of the comment", NULL},
+    {"text", Comment_get_value, NULL, "Content of the comment", NULL},
     {NULL},
 };
 
@@ -87,28 +73,17 @@ static PyObject *CommentIterator_next(PyObject *self)
     const conf_comment *data = conf_get_comment(conf->data, iter->index);
     iter->index += 1;
 
-    // Compute the offset where the comment begins (used for getting the comments length).
-    PyObject *offset = PyUnicode_DecodeUTF8(conf->source, data->offset, "strict");
-    if (offset == NULL)
-    {
-        return NULL;
-    }
-
     // Copy the comment into a null-terminated string.
     PyObject *string = PyUnicode_DecodeUTF8(&conf->source[data->offset], data->length, "strict");
     if (string == NULL)
     {
-        Py_DECREF(offset);
         return NULL;
     }
 
     // Create a new Comment.
     PyComment *comment = PyObject_New(PyComment, &CommentType);
     comment->py_value = string;
-    comment->offset = PyUnicode_GET_LENGTH(offset);
-    comment->length = PyUnicode_GET_LENGTH(string);
     Py_INCREF(comment->py_value);
-    Py_DECREF(offset); // Was just needed to compute the length.
     return (PyObject *)comment;
 }
 

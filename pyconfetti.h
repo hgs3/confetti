@@ -46,8 +46,6 @@ typedef struct
 {
     PyObject_HEAD
     PyObject *py_value;
-    Py_ssize_t offset;
-    Py_ssize_t length;
 } PyComment;
 
 typedef struct

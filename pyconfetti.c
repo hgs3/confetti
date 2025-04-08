@@ -8,19 +8,28 @@
 
 #include "pyconfetti.h"
 
+static PyObject *PyConfettSyntaxError;
+
 typedef struct
 {
     Py_ssize_t line;
     Py_ssize_t column;
-    Py_ssize_t ucs4_offset;
+    bool ok;
 } Location;
 
-Location utf8_to_ucs4(PyObject *ucs4_string, Py_ssize_t utf8_index)
+static Location utf8_to_ucs4(const char *source, Py_ssize_t utf8_index)
 {
     Location location = {
         .line = 1,
         .column = 1,
     };
+
+    PyObject *ucs4_string = PyUnicode_FromString(source);
+    if (ucs4_string == NULL)
+    {
+        PyErr_SetString(PyExc_UnicodeDecodeError, "failed to create a Python string from UTF-8 source code");
+        return location;
+    }
 
     // Get the length of the Unicode string (in code points).
     Py_ssize_t utf8_offset = 0;
@@ -82,50 +91,93 @@ Location utf8_to_ucs4(PyObject *ucs4_string, Py_ssize_t utf8_index)
         {
             break;
         }
-        location.ucs4_offset = ucs4_index;
         utf8_offset += utf8_bytes;
     }
+
+    Py_DECREF(ucs4_string);
+    location.ok = true;
     return location;
 }
 
 // Constructor.
-static int Confetti_init(PyConfetti *self, PyObject *args, PyObject *kwds)
+static int Confetti_init(PyConfetti *self, PyObject *args, PyObject *kwargs)
 {
+    static char *kwlist[] = {"source", "c_style_comments", "expression_arguments", "punctuator_arguments", NULL};
     char *source;
-    if (!PyArg_ParseTuple(args, "s", &source))
+    int c_style_comments;
+    int expression_arguments;
+    PyObject *punctuator_arguments;
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|ppO", kwlist, &source, &c_style_comments, &expression_arguments, &punctuator_arguments))
     {
         return -1;
     }
 
     conf_extensions extensions = {
         .punctuator_arguments = NULL,
-        .c_style_comments = false,
-        .expression_arguments = false,
+        .c_style_comments = c_style_comments ? true : false,
+        .expression_arguments = expression_arguments ? true : false,
     };
 
     conf_options options = {
         .extensions = &extensions,
+        // Pick a "big enough" value to avoid overflowing the C call stack.
+        // If Confetti were implemented in native Python we could rely on the Python call stack.
+        .max_depth = 100,
     };
-
-    // Decode the UTF-8 string, ensuring that it is valid
-    PyObject *ucs4_string = PyUnicode_FromString(source);
-    if (ucs4_string == NULL)
+#if 0
+    // Ensure the object is a list
+    if (!PySet_Check(punctuator_arguments))
     {
-        PyErr_SetString(PyExc_UnicodeDecodeError, "failed to create a Python string from UTF-8 source code");
-        return -1;
+        PyErr_SetString(PyExc_TypeError, "Expected a set of strings");
+        return NULL;
     }
 
+    // Create an iterator for the set
+    PyObject *iterator = PyObject_GetIter(punctuator_arguments);
+    if (iterator == NULL) {
+        return NULL;  // Error creating iterator
+    }
+
+    PyObject *item;
+    while ((item = PyIter_Next(iterator)) != NULL)
+    {
+        if (!PyUnicode_Check(item))
+        {
+            PyErr_SetString(PyExc_TypeError, "Expected a set of strings");
+            Py_DECREF(item);  // Don't forget to DECREF to avoid memory leaks
+            Py_DECREF(iterator);
+            return NULL;
+        }
+
+        // Convert the item to a C string (using PyUnicode_AsUTF8)
+        const char *str = PyUnicode_AsUTF8(item);
+        if (str == NULL)
+        {
+            Py_DECREF(item);
+            Py_DECREF(iterator);
+            return NULL;  // Error occurred while converting string
+        }
+
+        // Do something with the string (printing here for demonstration)
+        printf("Set item: %s\n", str);
+
+        Py_DECREF(item);  // Don't forget to DECREF to avoid memory leaks
+    }
+#endif
     conf_error error = {0};
     self->data = conf_parse(source, &options, &error);
     self->source = strdup(source);
-    self->source_ucs4 = ucs4_string;
     if (error.code != CONF_NO_ERROR)
     {
         if (error.code == CONF_BAD_SYNTAX)
         {
-            const Location loc = utf8_to_ucs4(ucs4_string, error.where);
-            PyErr_SetString(PyExc_SyntaxError, error.description);
-            PyErr_SyntaxLocationEx("<confetti>", loc.line, loc.column);
+            const Location loc = utf8_to_ucs4(source, error.where);
+            if (loc.ok)
+            {
+                PyErr_SetString(PyConfettSyntaxError, error.description);
+                PyErr_SyntaxLocationEx("<confetti>", loc.line, loc.column);
+            }
         }
         else if (error.code == CONF_ILLEGAL_BYTE_SEQUENCE)
         {
@@ -134,6 +186,10 @@ static int Confetti_init(PyConfetti *self, PyObject *args, PyObject *kwds)
         else if (error.code == CONF_OUT_OF_MEMORY)
         {
             PyErr_SetString(PyExc_MemoryError, error.description);
+        }
+        else if (error.code == CONF_MAX_DEPTH_EXCEEDED)
+        {
+            PyErr_SetString(PyExc_OverflowError, error.description);
         }
         else
         {
@@ -253,6 +309,8 @@ PyMODINIT_FUNC PyInit_pyconfetti(void)
         return NULL;
     }
 
+    PyConfettSyntaxError = PyErr_NewException("pyconfetti.IllegalSyntaxError", PyExc_SyntaxError, NULL);
+
     Py_INCREF(&ConfettiType);
 
     Py_INCREF(&DirectiveType);
@@ -262,6 +320,7 @@ PyMODINIT_FUNC PyInit_pyconfetti(void)
     Py_INCREF(&ArgumentIteratorType);
 
     if ((PyModule_AddObject(m, "Confetti", (PyObject *)&ConfettiType) < 0) ||
+        (PyModule_AddObject(m, "IllegalSyntaxError", (PyObject *)PyConfettSyntaxError) < 0) ||
         (PyModule_AddObject(m, "Comment", (PyObject *)&CommentType) < 0) ||
         (PyModule_AddObject(m, "CommentIterator", (PyObject *)&CommentIteratorType) < 0) ||
         (PyModule_AddObject(m, "Directive", (PyObject *)&DirectiveType) < 0) ||

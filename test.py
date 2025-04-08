@@ -18,20 +18,23 @@ def print_dir(dir: pyconfetti.Directive, depth: int) -> None:
     else:
         print("")
 
-conf = pyconfetti.Confetti("""
-# This is a code comment!
+conf = pyconfetti.Confetti("""// This is a code comment!
 foo bar {
     baz {
-        123 456
+        if (1 > 2) {
+            print "Hello, World!"
+            x:=y
+            x=z
+        }
     }
 }
 abc xyz {
     qux
 }
-""")
+""", c_style_comments=True, expression_arguments=True, punctuator_arguments=set([":=", "="]))
 
 for dir in conf:
     print_dir(dir, 0)
 
 for comment in conf.comments:
-    print(comment.value)
+    print(comment.text)
