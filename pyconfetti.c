@@ -8,6 +8,86 @@
 
 #include "pyconfetti.h"
 
+typedef struct
+{
+    Py_ssize_t line;
+    Py_ssize_t column;
+    Py_ssize_t ucs4_offset;
+} Location;
+
+Location utf8_to_ucs4(PyObject *ucs4_string, Py_ssize_t utf8_index)
+{
+    Location location = {
+        .line = 1,
+        .column = 1,
+    };
+
+    // Get the length of the Unicode string (in code points).
+    Py_ssize_t utf8_offset = 0;
+    const Py_ssize_t ucs4_string_length = PyUnicode_GET_LENGTH(ucs4_string);
+    for (Py_ssize_t ucs4_index = 0; ucs4_index < ucs4_string_length; ucs4_index++)
+    {
+        // Calculate the number of UTF-8 bytes used by the current code point.
+        const Py_UCS4 codepoint = PyUnicode_READ_CHAR(ucs4_string, ucs4_index);
+        Py_ssize_t utf8_bytes;
+        if (codepoint <= 0x7F)
+        {
+            utf8_bytes = 1;
+        }
+        else if (codepoint <= 0x7FF)
+        {
+            utf8_bytes = 2;
+        }
+        else if (codepoint <= 0xFFFF)
+        {
+            utf8_bytes = 3;
+        }
+        else
+        {
+            utf8_bytes = 4;
+        }
+
+        // Update line/column numbers.
+        if (codepoint == '\r')
+        {
+            const Py_UCS4 next_codepoint = PyUnicode_READ_CHAR(ucs4_string, ucs4_index + 1);
+            if (next_codepoint == '\n')
+            {
+                ucs4_index += 1; // Consume the '\r' here, the for-loop will consume the '\n'.
+            }
+            location.line += 1;
+            location.column = 1;
+        }
+        else
+        {
+            switch (codepoint)
+            {
+            case 0x000A: // Line feed
+            case 0x000B: // Vertical tab
+            case 0x000C: // Form feed
+            case 0x0085: // Next line
+            case 0x2028: // Line separator
+            case 0x2029: // Paragraph separator
+                location.line += 1;
+                location.column = 1;
+                break;
+            default:
+                location.column += 1;
+                break;
+            }
+        }
+
+        // Check if we've reached or went pass the desired UTF-8 index.
+        if (utf8_offset >= utf8_index)
+        {
+            break;
+        }
+        location.ucs4_offset = ucs4_index;
+        utf8_offset += utf8_bytes;
+    }
+    return location;
+}
+
 // Constructor.
 static int Confetti_init(PyConfetti *self, PyObject *args, PyObject *kwds)
 {
@@ -27,14 +107,25 @@ static int Confetti_init(PyConfetti *self, PyObject *args, PyObject *kwds)
         .extensions = &extensions,
     };
 
+    // Decode the UTF-8 string, ensuring that it is valid
+    PyObject *ucs4_string = PyUnicode_FromString(source);
+    if (ucs4_string == NULL)
+    {
+        PyErr_SetString(PyExc_UnicodeDecodeError, "failed to create a Python string from UTF-8 source code");
+        return -1;
+    }
+
     conf_error error = {0};
     self->data = conf_parse(source, &options, &error);
     self->source = strdup(source);
+    self->source_ucs4 = ucs4_string;
     if (error.code != CONF_NO_ERROR)
     {
         if (error.code == CONF_BAD_SYNTAX)
         {
-            PyErr_SetString(PyExc_ValueError, error.description);
+            const Location loc = utf8_to_ucs4(ucs4_string, error.where);
+            PyErr_SetString(PyExc_SyntaxError, error.description);
+            PyErr_SyntaxLocationEx("<confetti>", loc.line, loc.column);
         }
         else if (error.code == CONF_ILLEGAL_BYTE_SEQUENCE)
         {

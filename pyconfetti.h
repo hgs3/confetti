@@ -38,6 +38,7 @@ typedef struct
 {
     PyObject_HEAD
     char *source;
+    PyObject *source_ucs4;
     conf_document *data;
 } PyConfetti;
 
@@ -74,15 +75,15 @@ typedef struct
 typedef struct
 {
     PyObject_HEAD
-    Py_ssize_t index;
     PyDirective *py_directive; // The directive whose subdirectives are being iterated.
+    Py_ssize_t index;
 } PyDirectiveIterator;
 
 typedef struct
 {
     PyObject_HEAD
-    Py_ssize_t index;
     PyDirective *py_directive; // The directive whose arguments are being iterated.
+    Py_ssize_t index;
 } PyArgumentIterator;
 
 PyMODINIT_FUNC PyInit_pyconfetti(void);
