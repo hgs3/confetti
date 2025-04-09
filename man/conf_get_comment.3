@@ -18,12 +18,13 @@ Configuration parser (libconfetti, -lconfetti)
 .nf
 .B #include <confetti.h>
 .PP
-.BI "conf_comment *conf_get_comment(conf_unit *" unit ", long " index ");"
-.BI "long conf_get_comment_count(conf_unit *" unit ");"
+.BI "const conf_comment *conf_get_comment(const conf_unit *" unit ", long " index ");"
+.BI "long conf_get_comment_count(const conf_unit *" unit ");"
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
 The \fBconf_get_comment\fR() function returns the comment at \fIindex\fR for the Confetti configuration \fIunit\fR.
+The pseudo directive returned is associated with \fIunit\fR and is freed when it's released with \fBconf_free\fR(3).
 .PP
 The \fBconf_get_comment_count\fR() function returns the number of comments discovered in the Confetti configuration \fIunit\fR.
 .\" --------------------------------------------------------------------------

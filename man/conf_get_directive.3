@@ -18,12 +18,13 @@ Configuration parser (libconfetti, -lconfetti)
 .nf
 .B #include <confetti.h>
 .PP
-.BI "conf_directive *conf_get_directive(conf_unit *" dir ", long " index ");"
-.BI "long conf_get_directive_count(conf_unit *" dir ");"
+.BI "const conf_directive *conf_get_directive(const conf_directive *" dir ", long " index ");"
+.BI "long conf_get_directive_count(const conf_directive *" dir ");"
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
 The \fBconf_get_directive\fR() function returns the subdirective at \fIindex\fR for the Confetti directive \fIdir\fR.
+The subdirective returned is associated with its configuration unit and is freed when the unit is released with \fBconf_free\fR(3).
 .PP
 The \fBconf_get_directive_count\fR() function returns the number of subdirectives in the Confetti directive \fIdir\fR.
 .PP

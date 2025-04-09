@@ -81,15 +81,15 @@ conf_errno conf_walk(const char *string, const conf_options *options, conf_error
 conf_unit *conf_parse(const char *string, const conf_options *options, conf_error *error);
 void conf_free(conf_unit *unit);
 
-conf_comment *conf_get_comment(conf_unit *unit, long index);
-long conf_get_comment_count(conf_unit *unit);
+const conf_comment *conf_get_comment(const conf_unit *unit, long index);
+long conf_get_comment_count(const conf_unit *unit);
 
-conf_directive *conf_get_root(conf_unit *unit);
+const conf_directive *conf_get_root(const conf_unit *unit);
 
-conf_directive *conf_get_directive(conf_directive *dir, long index);
-long conf_get_directive_count(conf_directive *dir);
+const conf_directive *conf_get_directive(const conf_directive *dir, long index);
+long conf_get_directive_count(const conf_directive *dir);
 
-conf_argument *conf_get_argument(conf_directive *dir, long index);
-long conf_get_argument_count(conf_directive *dir);
+const conf_argument *conf_get_argument(const conf_directive *dir, long index);
+long conf_get_argument_count(const conf_directive *dir);
 
 #endif

@@ -160,7 +160,7 @@ static void whitespace(StringBuf *sb, int depth)
     }
 }
 
-static void print_tokens(struct StringBuf *sb, conf_directive *dir, int depth)
+static void print_tokens(struct StringBuf *sb, const conf_directive *dir, int depth)
 {
     whitespace(sb, depth);
     strbuf_puts(sb, "directive {");
@@ -170,7 +170,7 @@ static void print_tokens(struct StringBuf *sb, conf_directive *dir, int depth)
     {
         for (long i = 0; i < arg_count; i++)
         {
-            conf_argument *arg = conf_get_argument(dir, i);
+            const conf_argument *arg = conf_get_argument(dir, i);
 
             whitespace(sb, depth+1);
             strbuf_printf(sb, "argument {\n");
@@ -250,16 +250,16 @@ static char *tokenize(const char *input, const conf_extensions *extensions)
     }
     else
     {
-        conf_directive *root = conf_get_root(unit);
+        const conf_directive *root = conf_get_root(unit);
         for (long i = 0; i < conf_get_directive_count(root); i++)
         {
-            conf_directive *subdir = conf_get_directive(root, i);
+            const conf_directive *subdir = conf_get_directive(root, i);
             print_tokens(sb, subdir, 0);
         }
 
         for (long i = 0; i < conf_get_comment_count(unit); i++)
         {
-            conf_comment *comment = conf_get_comment(unit, i);
+            const conf_comment *comment = conf_get_comment(unit, i);
             strbuf_printf(sb, "comment {\n");
             strbuf_printf(sb, "    offset %zu\n", comment->offset);
             strbuf_printf(sb, "    length %zu\n", comment->length);

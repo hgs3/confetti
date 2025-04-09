@@ -142,7 +142,7 @@ if (unit == NULL) {
 .in
 .PP
 The following snippet demonstrates how to set options and extensions with the \fBconf_options\fR and \fBconf_extensions\fR structures.
-This particular example enables the punctuator argumentes extension to treat ":=", "+", and "-" as distinct arguments.
+This particular example enables the punctuator arguments extension to treat ":=", "+", and "-" as distinct arguments.
 It also limits the maximum subdirective nesting depth to ten.
 .PP
 .in +4n
@@ -161,7 +161,7 @@ conf_unit *unit = conf_parse("...", &options, NULL);
 .EE
 .in
 .PP
-The \fBconf_options\fR stucture accepts a custom memory allocator that must behave like \fBmalloc\fR(3) or \fBfree\fR(3) depending on how it's called.
+The \fBconf_options\fR structure accepts a custom memory allocator that must behave like \fBmalloc\fR(3) or \fBfree\fR(3) depending on how it's called.
 The following snippet shows a simple implementation of a custom memory allocator.
 .PP
 .PP

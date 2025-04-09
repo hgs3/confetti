@@ -25,7 +25,7 @@ static void indent(int depth)
     }
 }
 
-static void print_directive(conf_directive *dir, int depth)
+static void print_directive(const conf_directive *dir, int depth)
 {
     //
     // Print this directives arguments, separated by a space character.
@@ -37,7 +37,7 @@ static void print_directive(conf_directive *dir, int depth)
         indent(depth);
         for (long i = 0; i < argument_count; i++)
         {
-            conf_argument *arg = conf_get_argument(dir, i);
+            const conf_argument *arg = conf_get_argument(dir, i);
             printf("%s", arg->value);
             if (i < (argument_count - 1))
             {
@@ -56,7 +56,7 @@ static void print_directive(conf_directive *dir, int depth)
         puts(" {");
         for (long i = 0; i < subdirective_count; i++)
         {
-            conf_directive *subdirective = conf_get_directive(dir, i);
+            const conf_directive *subdirective = conf_get_directive(dir, i);
             print_directive(subdirective, depth + 1);
         }
 
@@ -91,10 +91,10 @@ int main(int argc, char *argv[])
     // (3) Pretty print the Confetti.
     //
 
-    conf_directive *root = conf_get_root(unit);
+    const conf_directive *root = conf_get_root(unit);
     for (long i = 0; i < conf_get_directive_count(root); i++)
     {
-        conf_directive *directive = conf_get_directive(root, i);
+        const conf_directive *directive = conf_get_directive(root, i);
         print_directive(directive, 0);
     }
 

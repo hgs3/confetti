@@ -21,14 +21,14 @@ static void whitespace(StringBuf *sb, int depth)
     }
 }
 
-static void print_directive(struct StringBuf *sb, conf_directive *dir, int depth)
+static void print_directive(struct StringBuf *sb, const conf_directive *dir, int depth)
 {
     whitespace(sb, depth);
 
     const long arg_count = conf_get_argument_count(dir);
     for (long i = 0; i < arg_count; i++)
     {
-        conf_argument *arg = conf_get_argument(dir, i);
+        const conf_argument *arg = conf_get_argument(dir, i);
         strbuf_printf(sb, "<%s>", arg->value);
         if (i < (arg_count - 1))
         {
@@ -71,10 +71,10 @@ static char *parse(const char *input, const conf_extensions *extensions)
     {
         assert(unit != NULL);
 
-        conf_directive *root = conf_get_root(unit);
+        const conf_directive *root = conf_get_root(unit);
         for (long i = 0; i < conf_get_directive_count(root); i++)
         {
-            conf_directive *subdir = conf_get_directive(root, i);
+            const conf_directive *subdir = conf_get_directive(root, i);
             print_directive(sb, subdir, 0);
         }
         conf_free(unit);

@@ -1500,7 +1500,7 @@ static void parse_body(conf_unit *conf, conf_directive *parent, int depth)
     }
 }
 
-conf_directive *conf_get_directive(conf_directive *dir, long index)
+const conf_directive *conf_get_directive(const conf_directive *dir, long index)
 {
     if (dir == NULL)
     {
@@ -1513,7 +1513,7 @@ conf_directive *conf_get_directive(conf_directive *dir, long index)
     return dir->subdir[index];
 }
 
-long conf_get_directive_count(conf_directive *dir)
+long conf_get_directive_count(const conf_directive *dir)
 {
     if (dir == NULL)
     {
@@ -1522,7 +1522,7 @@ long conf_get_directive_count(conf_directive *dir)
     return dir->subdir_count;
 }
 
-conf_directive *conf_get_root(conf_unit *unit)
+const conf_directive *conf_get_root(const conf_unit *unit)
 {
     if (unit == NULL)
     {
@@ -1531,7 +1531,7 @@ conf_directive *conf_get_root(conf_unit *unit)
     return unit->root;
 }
 
-conf_argument *conf_get_argument(conf_directive *dir, long index)
+const conf_argument *conf_get_argument(const conf_directive *dir, long index)
 {
     if (dir == NULL)
     {
@@ -1544,7 +1544,7 @@ conf_argument *conf_get_argument(conf_directive *dir, long index)
     return &dir->arguments[index];
 }
 
-long conf_get_argument_count(conf_directive *dir)
+long conf_get_argument_count(const conf_directive *dir)
 {
     if (dir == NULL)
     {
@@ -1553,7 +1553,7 @@ long conf_get_argument_count(conf_directive *dir)
     return dir->arguments_count;
 }
 
-conf_comment *conf_get_comment(conf_unit *unit, long index)
+const conf_comment *conf_get_comment(const conf_unit *unit, long index)
 {
     if (unit == NULL)
     {
@@ -1566,7 +1566,7 @@ conf_comment *conf_get_comment(conf_unit *unit, long index)
     return &unit->comments[index]->data;
 }
 
-long conf_get_comment_count(conf_unit *unit)
+long conf_get_comment_count(const conf_unit *unit)
 {
     if (unit == NULL)
     {

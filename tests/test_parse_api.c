@@ -85,7 +85,7 @@ TEST(conf_get_directive, null_document)
 TEST(conf_get_directive, out_of_bounds)
 {
     conf_unit *unit = conf_parse("foo", NULL, NULL);
-    conf_directive *dir = conf_get_root(unit);
+    const conf_directive *dir = conf_get_root(unit);
     ASSERT_NONNULL(dir);
     ASSERT_NULL(conf_get_directive(dir, -1));
     ASSERT_NULL(conf_get_directive(dir, 1));
@@ -110,7 +110,7 @@ TEST(conf_get_comment_count, null_document)
 TEST(conf_get_argument, out_of_bounds)
 {
     conf_unit *unit = conf_parse("foo", NULL, NULL);
-    conf_directive *dir = conf_get_root(unit);
+    const conf_directive *dir = conf_get_root(unit);
     ASSERT_NONNULL(dir);
     ASSERT_NULL(conf_get_argument(dir, -1));
     ASSERT_NULL(conf_get_argument(dir, 1));
