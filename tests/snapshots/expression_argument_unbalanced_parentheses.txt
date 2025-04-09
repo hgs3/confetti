@@ -1,1 +1,3 @@
-error: incomplete expression
+description: incomplete expression
+code: BAD_SYNTAX
+where: 0

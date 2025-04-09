@@ -1,1 +1,3 @@
-error: malformed UTF-8
+description: malformed UTF-8
+code: ILLEGAL_BYTE_SEQUENCE
+where: 0

@@ -1,1 +1,3 @@
-error: unterminated multi-line comment
+description: unterminated multi-line comment
+code: BAD_SYNTAX
+where: 0

@@ -1,1 +1,3 @@
-error: unclosed quoted
+description: unclosed quoted
+code: BAD_SYNTAX
+where: 15

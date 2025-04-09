@@ -225,8 +225,17 @@ static void print_tokens(struct StringBuf *sb, conf_directive *dir, int depth)
 
 static char *tokenize(const char *input, const conf_extensions *extensions)
 {
+    static const char *const error_code_to_string[] = {
+        [CONF_NO_ERROR] = "NO_ERROR",
+        [CONF_OUT_OF_MEMORY] = "OUT_OF_MEMORY",
+        [CONF_BAD_SYNTAX] = "BAD_SYNTAX",
+        [CONF_ILLEGAL_BYTE_SEQUENCE] = "ILLEGAL_BYTE_SEQUENCE",
+        [CONF_INVALID_OPERATION] = "INVALID_OPERATION",
+        [CONF_MAX_DEPTH_EXCEEDED] = "MAX_DEPTH_EXCEEDED",
+        [CONF_USER_ABORTED] = "USER_ABORTED",
+    };
+    
     StringBuf *sb = strbuf_new();
-
     const conf_options options = {
         .extensions = extensions,
     };
@@ -235,7 +244,9 @@ static char *tokenize(const char *input, const conf_extensions *extensions)
     conf_unit *unit = conf_parse(input, &options, &error);
     if (error.code != CONF_NO_ERROR)
     {
-        strbuf_printf(sb, "error: %s\n", error.description);
+        strbuf_printf(sb, "description: %s\n", error.description);
+        strbuf_printf(sb, "code: %s\n", error_code_to_string[error.code]);
+        strbuf_printf(sb, "where: %d\n", error.where);
     }
     else
     {

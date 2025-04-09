@@ -1,1 +1,3 @@
-error: unexpected line continuation
+description: unexpected line continuation
+code: BAD_SYNTAX
+where: 0

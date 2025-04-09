@@ -469,7 +469,7 @@ baz""",
         []
     ),
     TestCase(
-        "extraneous_term_after_subdirectives",
+        "extraneous_term_after_subdirectives_multi_line",
         # input
         """foo { bar }
 ; baz""",
