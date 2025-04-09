@@ -1,4 +1,4 @@
-command {
+directive {
     argument {
         offset 0
         length 3
@@ -20,7 +20,7 @@ command {
         value "3"
     }
 }
-command {
+directive {
     argument {
         offset 22
         length 3
@@ -41,8 +41,8 @@ command {
         length 12
         value "$retry-count"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 51
                 length 2
@@ -53,8 +53,8 @@ command {
                 length 9
                 value "$is_admin"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 74
                         length 5
@@ -66,7 +66,7 @@ command {
                         value "Access granted"
                     }
                 }
-                command {
+                directive {
                     argument {
                         offset 105
                         length 10
@@ -78,7 +78,7 @@ command {
                         value "admin@example.com"
                     }
                 }
-                command {
+                directive {
                     argument {
                         offset 144
                         length 4
@@ -92,14 +92,14 @@ command {
                 }
             }
         }
-        command {
+        directive {
             argument {
                 offset 168
                 length 4
                 value "else"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 183
                         length 5
@@ -115,7 +115,7 @@ command {
         }
     }
 }
-command {
+directive {
     argument {
         offset 233
         length 4

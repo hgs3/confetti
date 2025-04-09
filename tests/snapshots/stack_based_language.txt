@@ -1,4 +1,4 @@
-command {
+directive {
     argument {
         offset 0
         length 4
@@ -10,7 +10,7 @@ command {
         value "1"
     }
 }
-command {
+directive {
     argument {
         offset 7
         length 4
@@ -22,14 +22,14 @@ command {
         value "2"
     }
 }
-command {
+directive {
     argument {
         offset 14
         length 3
         value "add"
     }
 }
-command {
+directive {
     argument {
         offset 68
         length 3
@@ -41,7 +41,7 @@ command {
         value "$x"
     }
 }
-command {
+directive {
     argument {
         offset 110
         length 5
@@ -53,7 +53,7 @@ command {
         value "1 + 2 ="
     }
 }
-command {
+directive {
     argument {
         offset 126
         length 5
@@ -65,7 +65,7 @@ command {
         value "$x"
     }
 }
-command {
+directive {
     argument {
         offset 136
         length 4
@@ -86,15 +86,15 @@ command {
         length 1
         value "y"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 155
                 length 3
                 value "add"
             }
         }
-        command {
+        directive {
             argument {
                 offset 218
                 length 6

@@ -1,4 +1,4 @@
-command {
+directive {
     argument {
         offset 0
         length 7
@@ -10,7 +10,7 @@ command {
         value "The Raven"
     }
 }
-command {
+directive {
     argument {
         offset 20
         length 6
@@ -22,7 +22,7 @@ command {
         value "Edgar Allan Poe"
     }
 }
-command {
+directive {
     argument {
         offset 45
         length 7
@@ -33,22 +33,22 @@ command {
         length 11
         value "First Act"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 69
                 length 9
                 value "paragraph"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 85
                         length 64
                         value "Once upon a midnight dreary, while I pondered, weak and weary,"
                     }
                 }
-                command {
+                directive {
                     argument {
                         offset 154
                         length 25
@@ -59,8 +59,8 @@ command {
                         length 4
                         value "bold"
                     }
-                    subcommands {
-                        command {
+                    subdirectives {
+                        directive {
                             argument {
                                 offset 185
                                 length 9
@@ -69,7 +69,7 @@ command {
                         }
                     }
                 }
-                command {
+                directive {
                     argument {
                         offset 196
                         length 28
@@ -78,21 +78,21 @@ command {
                 }
             }
         }
-        command {
+        directive {
             argument {
                 offset 231
                 length 9
                 value "paragraph"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 247
                         length 64
                         value "While I nodded, nearly napping, suddenly there came a tapping,"
                     }
                 }
-                command {
+                directive {
                     argument {
                         offset 316
                         length 17
@@ -103,8 +103,8 @@ command {
                         length 6
                         value "italic"
                     }
-                    subcommands {
-                        command {
+                    subdirectives {
+                        directive {
                             argument {
                                 offset 341
                                 length 8
@@ -113,7 +113,7 @@ command {
                         }
                     }
                 }
-                command {
+                directive {
                     argument {
                         offset 351
                         length 38

@@ -1,4 +1,4 @@
-command {
+directive {
     argument {
         offset 0
         length 2
@@ -10,8 +10,8 @@ command {
         value "(x + y) == z"
         expression
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 24
                 length 5

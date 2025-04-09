@@ -1,18 +1,18 @@
-command {
+directive {
     argument {
         offset 3
         length 3
         value "foo"
     }
 }
-command {
+directive {
     argument {
         offset 7
         length 3
         value "bar"
     }
 }
-command {
+directive {
     argument {
         offset 11
         length 3

@@ -1,25 +1,25 @@
-command {
+directive {
     argument {
         offset 0
         length 11
         value "Application"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 18
                 length 14
                 value "VerticalLayout"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 43
                         length 5
                         value "Label"
                     }
-                    subcommands {
-                        command {
+                    subdirectives {
+                        directive {
                             argument {
                                 offset 63
                                 length 4
@@ -33,14 +33,14 @@ command {
                         }
                     }
                 }
-                command {
+                directive {
                     argument {
                         offset 127
                         length 6
                         value "Button"
                     }
-                    subcommands {
-                        command {
+                    subdirectives {
+                        directive {
                             argument {
                                 offset 148
                                 length 4
@@ -52,7 +52,7 @@ command {
                                 value "Click Me"
                             }
                         }
-                        command {
+                        directive {
                             argument {
                                 offset 176
                                 length 8

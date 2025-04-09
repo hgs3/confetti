@@ -160,7 +160,7 @@ static void whitespace(StringBuf *sb, int depth)
 static void print_tokens(struct StringBuf *sb, conf_directive *dir, int depth)
 {
     whitespace(sb, depth);
-    strbuf_puts(sb, "command {");
+    strbuf_puts(sb, "directive {");
 
     const long arg_count = conf_get_argument_count(dir);
     if (arg_count > 0)
@@ -205,7 +205,7 @@ static void print_tokens(struct StringBuf *sb, conf_directive *dir, int depth)
     if (subdir_count > 0)
     {
         whitespace(sb, depth+1);
-        strbuf_puts(sb, "subcommands {");
+        strbuf_puts(sb, "subdirectives {");
 
         for (long i = 0; i < subdir_count; i++)
         {

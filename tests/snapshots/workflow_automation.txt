@@ -1,11 +1,11 @@
-command {
+directive {
     argument {
         offset 0
         length 5
         value "build"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 12
                 length 11
@@ -17,7 +17,7 @@ command {
                 value "Compile the source code"
             }
         }
-        command {
+        directive {
             argument {
                 offset 54
                 length 7
@@ -31,14 +31,14 @@ command {
         }
     }
 }
-command {
+directive {
     argument {
         offset 91
         length 5
         value "clean"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 103
                 length 11
@@ -50,7 +50,7 @@ command {
                 value "Clean the build directory"
             }
         }
-        command {
+        directive {
             argument {
                 offset 147
                 length 7
@@ -64,14 +64,14 @@ command {
         }
     }
 }
-command {
+directive {
     argument {
         offset 174
         length 4
         value "test"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 185
                 length 11
@@ -83,7 +83,7 @@ command {
                 value "Run unit tests"
             }
         }
-        command {
+        directive {
             argument {
                 offset 218
                 length 7
@@ -95,14 +95,14 @@ command {
                 value "./tests/run.sh"
             }
         }
-        command {
+        directive {
             argument {
                 offset 247
                 length 10
                 value "depends_on"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 260
                         length 5

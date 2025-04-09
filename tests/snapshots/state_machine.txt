@@ -1,18 +1,18 @@
-command {
+directive {
     argument {
         offset 0
         length 6
         value "states"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 13
                 length 12
                 value "greet_player"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 36
                         length 7
@@ -24,7 +24,7 @@ command {
                         value "$player"
                     }
                 }
-                command {
+                directive {
                     argument {
                         offset 60
                         length 4
@@ -36,7 +36,7 @@ command {
                         value "1s"
                     }
                 }
-                command {
+                directive {
                     argument {
                         offset 130
                         length 7
@@ -48,7 +48,7 @@ command {
                         value "$player"
                     }
                 }
-                command {
+                directive {
                     argument {
                         offset 154
                         length 3
@@ -62,14 +62,14 @@ command {
                 }
             }
         }
-        command {
+        directive {
             argument {
                 offset 194
                 length 10
                 value "last_words"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 215
                         length 3
@@ -85,21 +85,21 @@ command {
         }
     }
 }
-command {
+directive {
     argument {
         offset 249
         length 6
         value "events"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 262
                 length 14
                 value "player_spotted"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 287
                         length 10
@@ -113,14 +113,14 @@ command {
                 }
             }
         }
-        command {
+        directive {
             argument {
                 offset 322
                 length 4
                 value "died"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 337
                         length 10

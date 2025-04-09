@@ -1,11 +1,11 @@
-command {
+directive {
     argument {
         offset 0
         length 11
         value "application"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 18
                 length 7
@@ -17,7 +17,7 @@ command {
                 value "1.2.3"
             }
         }
-        command {
+        directive {
             argument {
                 offset 36
                 length 11
@@ -29,7 +29,7 @@ command {
                 value "true"
             }
         }
-        command {
+        directive {
             argument {
                 offset 57
                 length 9
@@ -43,14 +43,14 @@ command {
         }
     }
 }
-command {
+directive {
     argument {
         offset 76
         length 7
         value "display"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 90
                 length 10
@@ -62,7 +62,7 @@ command {
                 value "1920x1080"
             }
         }
-        command {
+        directive {
             argument {
                 offset 115
                 length 11

@@ -1,4 +1,4 @@
-command {
+directive {
     argument {
         offset 22
         length 12
@@ -15,7 +15,7 @@ command {
         value "eth1"
     }
 }
-command {
+directive {
     argument {
         offset 46
         length 4
@@ -26,8 +26,8 @@ command {
         length 1
         value "*"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 59
                 length 5
@@ -39,7 +39,7 @@ command {
                 value "anonymous"
             }
         }
-        command {
+        directive {
             argument {
                 offset 79
                 length 8
@@ -51,7 +51,7 @@ command {
                 value "${ENV:ANONPASS}"
             }
         }
-        command {
+        directive {
             argument {
                 offset 110
                 length 7
@@ -63,14 +63,14 @@ command {
                 value "167.89.14.1"
             }
         }
-        command {
+        directive {
             argument {
                 offset 134
                 length 5
                 value "proxy"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 150
                         length 9
@@ -96,7 +96,7 @@ command {
         }
     }
 }
-command {
+directive {
     argument {
         offset 181
         length 4
@@ -107,8 +107,8 @@ command {
         length 14
         value "Joe Williams"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 207
                 length 5
@@ -120,7 +120,7 @@ command {
                 value "joe"
             }
         }
-        command {
+        directive {
             argument {
                 offset 221
                 length 7

@@ -1,4 +1,4 @@
-command {
+directive {
     argument {
         offset 0
         length 8
@@ -10,7 +10,7 @@ command {
         value "water"
     }
 }
-command {
+directive {
     argument {
         offset 19
         length 7
@@ -22,14 +22,14 @@ command {
         value "0.5"
     }
 }
-command {
+directive {
     argument {
         offset 35
         length 4
         value "pass"
     }
 }
-command {
+directive {
     argument {
         offset 48
         length 7
@@ -41,14 +41,14 @@ command {
         value "materials/liquids/water.png"
     }
 }
-command {
+directive {
     argument {
         offset 88
         length 4
         value "pass"
     }
 }
-command {
+directive {
     argument {
         offset 101
         length 7
@@ -60,7 +60,7 @@ command {
         value "materials/liquids/water2.png"
     }
 }
-command {
+directive {
     argument {
         offset 146
         length 10

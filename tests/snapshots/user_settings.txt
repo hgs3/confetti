@@ -1,4 +1,4 @@
-command {
+directive {
     argument {
         offset 0
         length 8
@@ -10,7 +10,7 @@ command {
         value "JohnDoe"
     }
 }
-command {
+directive {
     argument {
         offset 17
         length 8
@@ -22,7 +22,7 @@ command {
         value "en-US"
     }
 }
-command {
+directive {
     argument {
         offset 32
         length 5
@@ -34,7 +34,7 @@ command {
         value "dark"
     }
 }
-command {
+directive {
     argument {
         offset 43
         length 13

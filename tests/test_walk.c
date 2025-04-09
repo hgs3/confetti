@@ -204,7 +204,7 @@ static int print_tokens(void *user_data, conf_element elem, int argc, const conf
         }
 
         whitespace(ud->sb, ud->depth);
-        strbuf_printf(ud->sb, "command {\n");
+        strbuf_printf(ud->sb, "directive {\n");
 
         for (int i = 0; i < argc; i++)
         {
@@ -242,7 +242,7 @@ static int print_tokens(void *user_data, conf_element elem, int argc, const conf
     {
         ud->depth += 1;
         whitespace(ud->sb, ud->depth);
-        strbuf_puts(ud->sb, "subcommands {");
+        strbuf_puts(ud->sb, "subdirectives {");
         ud->depth += 1;
     }
 

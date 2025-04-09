@@ -1,4 +1,4 @@
-command {
+directive {
     argument {
         offset 0
         length 3
@@ -21,7 +21,7 @@ command {
         expression
     }
 }
-command {
+directive {
     argument {
         offset 20
         length 3

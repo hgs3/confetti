@@ -1,4 +1,4 @@
-command {
+directive {
     argument {
         offset 0
         length 7
@@ -10,7 +10,7 @@ command {
         value "The Raven"
     }
 }
-command {
+directive {
     argument {
         offset 20
         length 6
@@ -22,21 +22,21 @@ command {
         value "Edgar Allan Poe"
     }
 }
-command {
+directive {
     argument {
         offset 45
         length 9
         value "paragraph"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 59
                 length 64
                 value "Once upon a midnight dreary, while I pondered, weak and weary,"
             }
         }
-        command {
+        directive {
             argument {
                 offset 126
                 length 25
@@ -47,8 +47,8 @@ command {
                 length 4
                 value "bold"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 157
                         length 16
@@ -57,7 +57,7 @@ command {
                 }
             }
         }
-        command {
+        directive {
             argument {
                 offset 175
                 length 21
@@ -66,14 +66,14 @@ command {
         }
     }
 }
-command {
+directive {
     argument {
         offset 199
         length 9
         value "paragraph"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 213
                 length 18
@@ -84,8 +84,8 @@ command {
                 length 6
                 value "italic"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 239
                         length 6
@@ -94,14 +94,14 @@ command {
                 }
             }
         }
-        command {
+        directive {
             argument {
                 offset 247
                 length 4
                 value "bold"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 252
                         length 7
@@ -110,14 +110,14 @@ command {
                 }
             }
         }
-        command {
+        directive {
             argument {
                 offset 261
                 length 34
                 value ", suddenly there came a tapping,"
             }
         }
-        command {
+        directive {
             argument {
                 offset 298
                 length 59

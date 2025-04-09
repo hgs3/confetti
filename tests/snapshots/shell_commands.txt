@@ -1,4 +1,4 @@
-command {
+directive {
     argument {
         offset 0
         length 3
@@ -10,14 +10,14 @@ command {
         value "myfile.txt"
     }
 }
-command {
+directive {
     argument {
         offset 16
         length 2
         value "do"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 23
                 length 11
@@ -34,7 +34,7 @@ command {
                 value "8080"
             }
         }
-        command {
+        directive {
             argument {
                 offset 45
                 length 10
@@ -63,7 +63,7 @@ command {
         }
     }
 }
-command {
+directive {
     argument {
         offset 96
         length 1

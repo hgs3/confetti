@@ -1,4 +1,4 @@
-command {
+directive {
     argument {
         offset 3
         length 3

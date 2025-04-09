@@ -1,11 +1,11 @@
-command {
+directive {
     argument {
         offset 0
         length 5
         value "model"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 12
                 length 4
@@ -17,28 +17,28 @@ command {
                 value "neural_network"
             }
         }
-        command {
+        directive {
             argument {
                 offset 38
                 length 12
                 value "architecture"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 59
                         length 6
                         value "layers"
                     }
-                    subcommands {
-                        command {
+                    subdirectives {
+                        directive {
                             argument {
                                 offset 76
                                 length 5
                                 value "layer"
                             }
-                            subcommands {
-                                command {
+                            subdirectives {
+                                directive {
                                     argument {
                                         offset 84
                                         length 4
@@ -50,7 +50,7 @@ command {
                                         value "input"
                                     }
                                 }
-                                command {
+                                directive {
                                     argument {
                                         offset 96
                                         length 4
@@ -64,14 +64,14 @@ command {
                                 }
                             }
                         }
-                        command {
+                        directive {
                             argument {
                                 offset 115
                                 length 5
                                 value "layer"
                             }
-                            subcommands {
-                                command {
+                            subdirectives {
+                                directive {
                                     argument {
                                         offset 123
                                         length 4
@@ -83,7 +83,7 @@ command {
                                         value "dense"
                                     }
                                 }
-                                command {
+                                directive {
                                     argument {
                                         offset 135
                                         length 5
@@ -95,7 +95,7 @@ command {
                                         value "128"
                                     }
                                 }
-                                command {
+                                directive {
                                     argument {
                                         offset 146
                                         length 10
@@ -109,14 +109,14 @@ command {
                                 }
                             }
                         }
-                        command {
+                        directive {
                             argument {
                                 offset 174
                                 length 5
                                 value "layer"
                             }
-                            subcommands {
-                                command {
+                            subdirectives {
+                                directive {
                                     argument {
                                         offset 182
                                         length 4
@@ -128,7 +128,7 @@ command {
                                         value "output"
                                     }
                                 }
-                                command {
+                                directive {
                                     argument {
                                         offset 195
                                         length 5
@@ -140,7 +140,7 @@ command {
                                         value "10"
                                     }
                                 }
-                                command {
+                                directive {
                                     argument {
                                         offset 205
                                         length 10
@@ -158,14 +158,14 @@ command {
                 }
             }
         }
-        command {
+        directive {
             argument {
                 offset 243
                 length 8
                 value "training"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 258
                         length 4
@@ -177,7 +177,7 @@ command {
                         value "/path/to/training/data"
                     }
                 }
-                command {
+                directive {
                     argument {
                         offset 292
                         length 6
@@ -189,7 +189,7 @@ command {
                         value "20"
                     }
                 }
-                command {
+                directive {
                     argument {
                         offset 306
                         length 14

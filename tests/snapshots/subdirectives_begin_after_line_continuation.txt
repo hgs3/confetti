@@ -1,11 +1,11 @@
-command {
+directive {
     argument {
         offset 0
         length 3
         value "foo"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 8
                 length 3

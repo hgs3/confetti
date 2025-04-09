@@ -1,4 +1,4 @@
-command {
+directive {
     argument {
         offset 0
         length 3
@@ -15,14 +15,14 @@ command {
         value "baz"
     }
 }
-command {
+directive {
     argument {
         offset 12
         length 3
         value "qux"
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 23
                 length 5
@@ -34,14 +34,14 @@ command {
                 value "club"
             }
         }
-        command {
+        directive {
             argument {
                 offset 38
                 length 6
                 value "movies"
             }
-            subcommands {
-                command {
+            subdirectives {
+                directive {
                     argument {
                         offset 54
                         length 5
@@ -53,7 +53,7 @@ command {
                         value "pretender"
                     }
                 }
-                command {
+                directive {
                     argument {
                         offset 78
                         length 5
@@ -62,7 +62,7 @@ command {
                 }
             }
         }
-        command {
+        directive {
             argument {
                 offset 94
                 length 3
@@ -81,7 +81,7 @@ command {
         }
     }
 }
-command {
+directive {
     argument {
         offset 110
         length 9

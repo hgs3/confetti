@@ -1,4 +1,4 @@
-command {
+directive {
     argument {
         offset 37
         length 3
@@ -15,7 +15,7 @@ command {
         value "Hello, World!"
     }
 }
-command {
+directive {
     argument {
         offset 58
         length 2
@@ -27,8 +27,8 @@ command {
         value "isEmpty(msg)"
         expression
     }
-    subcommands {
-        command {
+    subdirectives {
+        directive {
             argument {
                 offset 80
                 length 3
@@ -47,7 +47,7 @@ command {
         }
     }
 }
-command {
+directive {
     argument {
         offset 102
         length 4
