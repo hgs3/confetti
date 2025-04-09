@@ -23,22 +23,22 @@ Configuration parser (libconfetti, -lconfetti)
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
-The \fBconf_get_directive\fR function returns the subdirective at \fIindex\fR for the Confetti directive \fIdir\fR.
+The \fBconf_get_directive\fR() function returns the subdirective at \fIindex\fR for the Confetti directive \fIdir\fR.
 .PP
-The \fBconf_get_directive_count\fR function returns the number of subdirectives in the Confetti directive \fIdir\fR.
+The \fBconf_get_directive_count\fR() function returns the number of subdirectives in the Confetti directive \fIdir\fR.
 .PP
 Review the SEE ALSO section for functions that the opaque type \fBconf_directive\fR can be used with.
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
 The subdirective or subdirective count for the Confetti directive \fIdir\fR.
-If \fIindex\fR is out-of-bounds or \fIdir\fR is \fCNULL\fR, then \fCNULL\fR is returned.
+If \fIindex\fR is out-of-bounds or \fIdir\fR is NULL, then NULL is returned.
 .\" --------------------------------------------------------------------------
 .SH SEE ALSO
-.BR conf_get_subdirective (3),
-.BR conf_get_subdirective_count (3),
+.BR conf_get_directive (3),
+.BR conf_get_directive_count (3),
 .BR conf_get_argument (3),
 .BR conf_get_argument_count (3)
 .\" --------------------------------------------------------------------------
 .SH LICENSING
-Confetti is Free Software distributed under the MIT License.
+Confetti is Open Source software distributed under the MIT License.
 Please see the LICENSE file included with the Confetti distribution for details.

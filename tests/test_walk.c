@@ -87,13 +87,13 @@ static int walk_callback(void *user_data, conf_element elem, int argc, const con
         ud->previous_directive = dir;
     }
 
-    if (elem == CONF_SUBDIRECTIVE_PUSH)
+    if (elem == CONF_BLOCK_ENTER)
     {
         assert(ud->previous_directive != NULL);
         ud->parent_directive = ud->previous_directive;
     }
 
-    if (elem == CONF_SUBDIRECTIVE_POP)
+    if (elem == CONF_BLOCK_LEAVE)
     {
         assert(ud->parent_directive != NULL);
         ud->parent_directive = ud->parent_directive->parent;
@@ -238,7 +238,7 @@ static int print_tokens(void *user_data, conf_element elem, int argc, const conf
         }
     }
 
-    if (elem == CONF_SUBDIRECTIVE_PUSH)
+    if (elem == CONF_BLOCK_ENTER)
     {
         ud->depth += 1;
         whitespace(ud->sb, ud->depth);
@@ -246,7 +246,7 @@ static int print_tokens(void *user_data, conf_element elem, int argc, const conf
         ud->depth += 1;
     }
 
-    if (elem == CONF_SUBDIRECTIVE_POP)
+    if (elem == CONF_BLOCK_LEAVE)
     {
         if (ud->prev == CONF_DIRECTIVE)
         {

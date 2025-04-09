@@ -23,9 +23,9 @@ Configuration parser (libconfetti, -lconfetti)
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
-The \fBconf_get_comment\fR function returns the comment at \fIindex\fR for the Confetti configuration \fIunit\fR.
+The \fBconf_get_comment\fR() function returns the comment at \fIindex\fR for the Confetti configuration \fIunit\fR.
 .PP
-The \fBconf_get_comment_count\fR function returns the number of comments discovered in the Confetti configuration \fIunit\fR.
+The \fBconf_get_comment_count\fR() function returns the number of comments discovered in the Confetti configuration \fIunit\fR.
 .\" --------------------------------------------------------------------------
 .SS Comment structure
 The \fBconf_comment\fR structure includes the following fields:
@@ -41,8 +41,8 @@ The \fIoffset\fR and \fIlength\fR fields describe the span of UTF-8 code units o
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
 The comment or comment count for the Confetti configuration \fIunit\fR.
-If \fIindex\fR is out-of-bounds or \fIunit\fR is \fCNULL\fR, then \fCNULL\fR is returned.
+If \fIindex\fR is out-of-bounds or \fIunit\fR is NULL, then NULL is returned.
 .\" --------------------------------------------------------------------------
 .SH LICENSING
-Confetti is Free Software distributed under the MIT License.
+Confetti is Open Source software distributed under the MIT License.
 Please see the LICENSE file included with the Confetti distribution for details.

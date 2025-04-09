@@ -23,9 +23,9 @@ Configuration parser (libconfetti, -lconfetti)
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
-The \fBconf_get_argument\fR function returns the argument at \fIindex\fR for directive \fIdir\fR.
+The \fBconf_get_argument\fR() function returns the argument at \fIindex\fR for directive \fIdir\fR.
 .PP
-The \fBconf_get_argument_count\fR function returns the number of arguments \fIdir\fR has.
+The \fBconf_get_argument_count\fR() function returns the number of arguments \fIdir\fR has.
 .\" --------------------------------------------------------------------------
 .SS Argument structure
 The \fBconf_argument\fR structure includes the following fields:
@@ -49,12 +49,12 @@ Expression arguments are a language extension enabled via the \fIconf_extensions
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
 The argument or argument count for the Confetti directive \fIdir\fR.
-If \fIindex\fR is out-of-bounds or \fIdir\fR is \fCNULL\fR, then \fCNULL\fR is returned.
+If \fIindex\fR is out-of-bounds or \fIdir\fR is NULL, then NULL is returned.
 .\" --------------------------------------------------------------------------
 .SH SEE ALSO
-.BR conf_get_subdirective (3),
-.BR conf_get_subdirective_count (3)
+.BR conf_get_directive (3),
+.BR conf_get_directive_count (3)
 .\" --------------------------------------------------------------------------
 .SH LICENSING
-Confetti is Free Software distributed under the MIT License.
+Confetti is Open Source software distributed under the MIT License.
 Please see the LICENSE file included with the Confetti distribution for details.

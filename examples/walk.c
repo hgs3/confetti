@@ -44,13 +44,13 @@ static int step(void *user_data, conf_element type, int argc, const conf_argumen
         putchar('\n');
         break;
 
-    case CONF_SUBDIRECTIVE_PUSH:
+    case CONF_BLOCK_ENTER:
         indent(*depth);
         puts("{");
         (*depth) += 1;
         break;
 
-    case CONF_SUBDIRECTIVE_POP:
+    case CONF_BLOCK_LEAVE:
         (*depth) -= 1;
         indent(*depth);
         puts("}");

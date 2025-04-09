@@ -1382,7 +1382,7 @@ static void walk_directive(conf_unit *conf, int depth)
     {
         eat(conf, &tok); // consume '{'
 
-        r = conf->walk(conf->options.user_data, CONF_SUBDIRECTIVE_PUSH, 0, NULL, NULL);
+        r = conf->walk(conf->options.user_data, CONF_BLOCK_ENTER, 0, NULL, NULL);
         if (r != 0)
         {
             die(conf, CONF_USER_ABORTED, conf->needle, "user aborted");
@@ -1396,7 +1396,7 @@ static void walk_directive(conf_unit *conf, int depth)
             eat(conf, &tok); // consume '}'
             peek(conf, &tok);
 
-            r = conf->walk(conf->options.user_data, CONF_SUBDIRECTIVE_POP, 0, NULL, NULL);
+            r = conf->walk(conf->options.user_data, CONF_BLOCK_LEAVE, 0, NULL, NULL);
             if (r != 0)
             {
                 die(conf, CONF_USER_ABORTED, conf->needle, "user aborted");

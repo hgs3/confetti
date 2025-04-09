@@ -22,11 +22,13 @@ Configuration parser (libconfetti, -lconfetti)
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
-The \fBconf_parse\fR function parses \fIstr\fR as Confetti source text and returns a pointer to the Confetti configuration unit.
-The resulting configuration unit must be freed with \fBconf_free\fR(3).
-If an error occurs during parsing, then \fCNULL\fR is returned and \fIerr\fR, if specified, is populated with error details.
+The \fBconf_parse\fR() function parses \fIstr\fR as Confetti source text and constructs an in-memory representation of the processed configuration unit.
+The resulting configuration unit is returned by this function.
+It must be freed with \fBconf_free\fR(3).
 .PP
-The behavior of the Confetti parser can be controlled with the optional \fIopts\fR argument.
+If an error occurs during parsing, then NULL is returned and \fIerr\fR, if specified, is populated with error details.
+.PP
+The behavior of the Confetti parser can be controlled with the optional \fIopts\fR argument which is documented below.
 .\" --------------------------------------------------------------------------
 .SS Error structure
 The \fBconf_error\fR structure includes the following fields:
@@ -39,9 +41,11 @@ char description[48];
 .EE
 .in
 .PP
-The \fIcode\fR field will be populated with a constant described in RETURN VALUE.
-The \fIwhere\fR field will be populated with the UTF-8 code unit index of the location where the error occurred in \fIstr\fR.
-The \fIdescription\fR field will describe the error localized in US English.
+The \fIcode\fR field will be populated by the implementation with a constant described in RETURN VALUE.
+.PP
+The \fIwhere\fR field will be populated by the implementation with the UTF-8 code unit index of the location where the error occurred in \fIstr\fR.
+.PP
+The \fIdescription\fR field will be populated by the implementation with an error message localized in US English.
 .\" --------------------------------------------------------------------------
 .SS Options structure
 The \fBconf_options\fR structure includes the following fields:
@@ -97,11 +101,11 @@ size_t size;
 .EE
 .in
 .PP
-If the \fIptr\fR argument is \fCNULL\fR, then the implementation must behave like \fBmalloc\fR(3) and return a valid pointer, otherwise, it must behave like \fBfree\fR(3) and free \fIptr\fR and return \fCNULL\fR.
+If the \fIptr\fR argument is NULL, then the implementation must behave like \fBmalloc\fR(3) and return a valid pointer, otherwise, it must behave like \fBfree\fR(3) and free \fIptr\fR and return NULL.
 The \fIsize\fR argument is either the size of the memory being allocated or the size of the memory being freed depending on if the implementation is to behave like \fBmalloc\fR(3) or \fBfree\fR(3).
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
-The Confetti configuration unit or \fCNULL\fR if an error occurs.
+The Confetti configuration unit or NULL if an error occurs.
 If an error occurs, then \fIerr\fR, if specified, will be populated with one of the following \fBconf_errno\fR constants:
 .TP
 .BR CONF_NO_ERROR
@@ -123,11 +127,65 @@ If \fIstr\fR is NULL.
 .BR CONF_MAX_DEPTH_EXCEEDED
 If the maximum subdirective nesting depth is exceeded.
 .\" --------------------------------------------------------------------------
+.SH EXAMPLES
+The following snippet demonstrates how to parse Confetti source text with \fBconf_parse\fR().
+The string "..." is used as a placeholder for a Confetti source string.
+.PP
+.in +4n
+.EX
+conf_error error = {0};
+conf_unit *unit = conf_parse("...", NULL, &error);
+if (unit == NULL) {
+    printf("error: %s\n", error.description);
+}
+.EE
+.in
+.PP
+The following snippet demonstrates how to set options and extensions with the \fBconf_options\fR and \fBconf_extensions\fR structures.
+This particular example enables the punctuator argumentes extension to treat ":=", "+", and "-" as distinct arguments.
+It also limits the maximum subdirective nesting depth to ten.
+.PP
+.in +4n
+.EX
+const char *punctuators[] = {":=", "+", "-", NULL};
+const conf_extensions extensions = {
+    .punctuator_arguments = punctuators,
+};
+
+const conf_options options = {
+    .extensions = &extensions,
+    .max_depth = 10,
+};
+
+conf_unit *unit = conf_parse("...", &options, NULL);
+.EE
+.in
+.PP
+The \fBconf_options\fR stucture accepts a custom memory allocator that must behave like \fBmalloc\fR(3) or \fBfree\fR(3) depending on how it's called.
+The following snippet shows a simple implementation of a custom memory allocator.
+.PP
+.PP
+.in +4n
+.EX
+void *allocator(void *ud, void *ptr, size_t size) {
+    if (ptr == NULL) {
+        return malloc(size);
+    } else {
+        free(ptr);
+        return NULL;
+    }
+}
+
+const conf_options options = { .allocator = &allocator };
+conf_unit *unit = conf_parse("...", &options, NULL);
+.EE
+.in
+.\" --------------------------------------------------------------------------
 .SH SEE ALSO
 .BR conf_get_root (3),
 .BR conf_get_comment (3),
 .BR conf_free (3),
 .\" --------------------------------------------------------------------------
 .SH LICENSING
-Confetti is Free Software distributed under the MIT License.
+Confetti is Open Source software distributed under the MIT License.
 Please see the LICENSE file included with the Confetti distribution for details.

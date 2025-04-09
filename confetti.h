@@ -70,8 +70,8 @@ typedef enum conf_element
 {
     CONF_COMMENT,
     CONF_DIRECTIVE,
-    CONF_SUBDIRECTIVE_PUSH,
-    CONF_SUBDIRECTIVE_POP,
+    CONF_BLOCK_ENTER,
+    CONF_BLOCK_LEAVE,
 } conf_element;
 
 typedef int (*conf_walkfn)(void *user_data, conf_element element, int argc, const conf_argument *argv, const conf_comment *comment);

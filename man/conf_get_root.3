@@ -22,17 +22,18 @@ Configuration parser (libconfetti, -lconfetti)
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
-The \fBconf_get_root\fR function returns a pseudo directive representing the top-level of the Confetti source text.
-This pseudo directive never has arguments.
-It is intended to be used with \fBconf_get_directive\fR(3) and \fBconf_get_directive_count\fR(3) for iterating the top-level directives of the Confetti source text.
+The \fBconf_get_root\fR() function returns a pseudo directive representing the top-level of the Confetti configuration unit.
+.PP
+The pseudo directive never has arguments.
+It is intended to be used with \fBconf_get_directive\fR(3) and \fBconf_get_directive_count\fR(3) for iterating the top-level directives of the Confetti configuration unit.
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
-A pseudo directive representing the top-level of the Confetti source text or \fCNULL\fR if \fIunit\fR is \fCNULL\fR.
+A pseudo directive representing the top-level of the Confetti configuration unit or NULL if \fIunit\fR is NULL.
 .\" --------------------------------------------------------------------------
 .SH SEE ALSO
 .BR conf_get_directive (3),
 .BR conf_get_directive_count (3)
 .\" --------------------------------------------------------------------------
 .SH LICENSING
-Confetti is Free Software distributed under the MIT License.
+Confetti is Open Source software distributed under the MIT License.
 Please see the LICENSE file included with the Confetti distribution for details.
