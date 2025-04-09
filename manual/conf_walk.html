@@ -1,0 +1,156 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Confetti is intended for human-editable configuration files. It is minimalistic, untyped, and unopinionated. Schema conformance is validated by the user application. Confetti does not compete with JSON or XML, it competes with INI files.">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Confetti Configuration Language">
+<meta property="og:image" content="https://confetti.hgs3.me/assets/branding-4x.png">
+<meta property="og:image:width" content="420">
+<meta property="og:image:height" content="192">
+<meta property="og:image:type" content="image/png">
+<meta property="og:website" content="https://confetti.hgs3.me/">
+<title>Confetti: Examples.</title>
+<link rel="apple-touch-icon" type="image/png" href="/assets/favicon-apple-touch.png">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" href="/assets/favicon.ico" sizes="32x32">
+<link rel="stylesheet" href="/assets/confetti.css">
+<script src="/assets/confetti.js" defer></script>
+</head>
+<body>
+  <div class="manpage-body">
+    <header class="manpage-header">
+      <a href="/">
+        <picture>
+          <source type="image/webp" srcset="/assets/branding.webp, /assets/branding-2x.webp 2x, /assets/branding-4x.webp 4x" width="105px" height="48px" />
+          <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
+        </picture>
+      </a>
+      <div class="manpage-header-links">
+        <p>libConfetti Manual</p>
+        <a href="https://github.com/hgs3/confetti/">GitHub Repository</a>
+      </div>
+    </header>
+    <div class="manpage-layout">
+      <aside>
+        <b>Manual Pages</b>
+        <menu><li><a href="/manual/confetti.html">confetti.3</a></li>
+<li class="active"><a href="/manual/conf_walk.html">conf_walk.3</a></li>
+<li><a href="/manual/conf_parse.html">conf_parse.3</a></li>
+<li><a href="/manual/conf_get_root.html">conf_get_root.3</a></li>
+<li><a href="/manual/conf_get_directive_count.html">conf_get_directive_count.3</a></li>
+<li><a href="/manual/conf_get_directive.html">conf_get_directive.3</a></li>
+<li><a href="/manual/conf_get_comment_count.html">conf_get_comment_count.3</a></li>
+<li><a href="/manual/conf_get_comment.html">conf_get_comment.3</a></li>
+<li><a href="/manual/conf_get_argument_count.html">conf_get_argument_count.3</a></li>
+<li><a href="/manual/conf_get_argument.html">conf_get_argument.3</a></li>
+<li><a href="/manual/conf_free.html">conf_free.3</a></li>
+</menu>
+      </aside>
+      <main class="manpage-content"><h1>NAME</h1>
+<p>conf_walk - parse confetti</p>
+<h1>LIBRARY</h1>
+<p>Configuration parser (libconfetti, -lconfetti)</p>
+<h1>SYNOPSIS</h1>
+<pre><code>#include &lt;confetti.h&gt;
+
+conf_errno conf_walk(const char *str, const conf_options *opts, conf_err *err, conf_walkcb cb);</code></pre>
+<h1>DESCRIPTION</h1>
+<p>The <strong>conf_walk</strong>() function parses <em>str</em> as
+Confetti source text and invokes the function <em>cb</em> when it
+discovers configuration elements, like a directive or the beginning or
+end of a subdirective. If <strong>conf_walk</strong>() fails, it returns
+an error code which is one of <strong>conf_errno</strong> values and
+populates <em>err</em>, if specified, with details. The conditions under
+which each <strong>conf_errno</strong> constant is returned are
+documented in RETURN VALUE.</p>
+<p>The <em>str</em> and <em>cb</em> arguments are required. All other
+arguments are optional. The implementation of <em>cb</em> must return
+the integer zero if parsing should continue, otherwise it can return
+non-zero to abort parsing.</p>
+<p>The behavior of the Confetti parser is controlled with the optional
+<em>opts</em> argument. See <a href="/manual/conf_parse.html" class="manlink">conf_parse(3)</a> for
+documentation on <em>opts</em> and <em>err</em>.</p>
+<h2>Walk function</h2>
+<p>The <strong>conf_walkcb</strong> function is a callback function
+invoked by the Confetti parser when it discovers configuration elements.
+The callback receives five arguments:</p>
+<pre><code>void *ud;
+conf_mark elem;
+int argc;
+const conf_arg *argv;
+const conf_comment *comnt;</code></pre>
+<p>The <em>ud</em> parameter is the user data pointer specified on the
+<em>opts</em> structure. It is passed through to the callback by the
+Confetti parser as-is.</p>
+<p>The <em>elem</em> parameter represents the configuration element
+discovered. It is one of the following:</p>
+<dl>
+<dt><strong>CONF_COMMENT</strong></dt>
+<dd>
+<p>When the parser discovers a comment. The <em>comnt</em> parameter
+will be populated the location of the comment in the Confetti source
+text.</p>
+</dd>
+<dt><strong>CONF_DIRECTIVE</strong></dt>
+<dd>
+<p>When the parser discovers a directive. The <em>argc</em> and
+<em>argv</em> parameters will be populated with the directives
+arguments.</p>
+</dd>
+<dt><strong>CONF_BLOCK_ENTER</strong></dt>
+<dd>
+<p>When the parser is entering a subdirective block for the previously
+reported directive.</p>
+</dd>
+<dt><strong>CONF_BLOCK_LEAVE</strong></dt>
+<dd>
+<p>When the parser is leaving a subdirective block.</p>
+</dd>
+</dl>
+<h1>RETURN VALUE</h1>
+<p>The <strong>conf_walk</strong>() function will return one of the
+following <strong>conf_errno</strong> constants. If provided, the
+<em>err</em> structure will be populated with details about the
+error.</p>
+<dl>
+<dt><strong>CONF_OK</strong></dt>
+<dd>
+<p>When <em>str</em> is parsed without errors.</p>
+</dd>
+<dt><strong>CONF_NO_MEMORY</strong></dt>
+<dd>
+<p>If dynamic memory allocation fails. The implementation guarantees all
+intermediate allocations will be freed to avoid resource leakage.</p>
+</dd>
+<dt><strong>CONF_BAD_SYNTAX,</strong></dt>
+<dd>
+<p>If a Confetti syntax error is discovered.</p>
+</dd>
+<dt><strong>CONF_ILLEGAL_BYTE_SEQUENCE,</strong></dt>
+<dd>
+<p>If a malformed UTF-8 sequence is found.</p>
+</dd>
+<dt><strong>CONF_INVALID_OPERATION</strong></dt>
+<dd>
+<p>If <em>str</em> or <em>cb</em> are NULL.</p>
+</dd>
+<dt><strong>CONF_MAX_DEPTH_EXCEEDED</strong></dt>
+<dd>
+<p>If the maximum subdirective nesting depth is exceeded.</p>
+</dd>
+<dt><strong>CONF_USER_ABORTED</strong></dt>
+<dd>
+<p>If parsing is aborted. The implementation of <strong>cb</strong> must
+return a non-zero integer to indicate that parsing should abort.</p>
+</dd>
+</dl>
+<h1>LICENSING</h1>
+<p>Confetti is Open Source software distributed under the MIT License.
+Please see the LICENSE file included with the Confetti distribution for
+details.</p>
+</main>
+    </div>
+  </div>
+</body>
+</html>

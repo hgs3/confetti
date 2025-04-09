@@ -1,0 +1,86 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Confetti is intended for human-editable configuration files. It is minimalistic, untyped, and unopinionated. Schema conformance is validated by the user application. Confetti does not compete with JSON or XML, it competes with INI files.">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Confetti Configuration Language">
+<meta property="og:image" content="https://confetti.hgs3.me/assets/branding-4x.png">
+<meta property="og:image:width" content="420">
+<meta property="og:image:height" content="192">
+<meta property="og:image:type" content="image/png">
+<meta property="og:website" content="https://confetti.hgs3.me/">
+<title>Confetti: Examples.</title>
+<link rel="apple-touch-icon" type="image/png" href="/assets/favicon-apple-touch.png">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" href="/assets/favicon.ico" sizes="32x32">
+<link rel="stylesheet" href="/assets/confetti.css">
+<script src="/assets/confetti.js" defer></script>
+</head>
+<body>
+  <div class="manpage-body">
+    <header class="manpage-header">
+      <a href="/">
+        <picture>
+          <source type="image/webp" srcset="/assets/branding.webp, /assets/branding-2x.webp 2x, /assets/branding-4x.webp 4x" width="105px" height="48px" />
+          <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
+        </picture>
+      </a>
+      <div class="manpage-header-links">
+        <p>libConfetti Manual</p>
+        <a href="https://github.com/hgs3/confetti/">GitHub Repository</a>
+      </div>
+    </header>
+    <div class="manpage-layout">
+      <aside>
+        <b>Manual Pages</b>
+        <menu><li><a href="/manual/confetti.html">confetti.3</a></li>
+<li><a href="/manual/conf_walk.html">conf_walk.3</a></li>
+<li><a href="/manual/conf_parse.html">conf_parse.3</a></li>
+<li><a href="/manual/conf_get_root.html">conf_get_root.3</a></li>
+<li><a href="/manual/conf_get_directive_count.html">conf_get_directive_count.3</a></li>
+<li><a href="/manual/conf_get_directive.html">conf_get_directive.3</a></li>
+<li><a href="/manual/conf_get_comment_count.html">conf_get_comment_count.3</a></li>
+<li class="active"><a href="/manual/conf_get_comment.html">conf_get_comment.3</a></li>
+<li><a href="/manual/conf_get_argument_count.html">conf_get_argument_count.3</a></li>
+<li><a href="/manual/conf_get_argument.html">conf_get_argument.3</a></li>
+<li><a href="/manual/conf_free.html">conf_free.3</a></li>
+</menu>
+      </aside>
+      <main class="manpage-content"><h1>NAME</h1>
+<p>conf_get_comment, conf_get_comment_count - retrieve comments</p>
+<h1>LIBRARY</h1>
+<p>Configuration parser (libconfetti, -lconfetti)</p>
+<h1>SYNOPSIS</h1>
+<pre><code>#include &lt;confetti.h&gt;
+
+const conf_comment *conf_get_comment(const conf_unit *unit, long index);
+long conf_get_comment_count(const conf_unit *unit);</code></pre>
+<h1>DESCRIPTION</h1>
+<p>The <strong>conf_get_comment</strong>() function returns the comment
+at <em>index</em> for the Confetti configuration <em>unit</em>. The
+pseudo directive returned is associated with <em>unit</em> and is freed
+when it's released with <a href="/manual/conf_free.html" class="manlink">conf_free(3)</a>.</p>
+<p>The <strong>conf_get_comment_count</strong>() function returns the
+number of comments discovered in the Confetti configuration
+<em>unit</em>.</p>
+<h2>Comment structure</h2>
+<p>The <strong>conf_comment</strong> structure includes the following
+fields:</p>
+<pre><code>size_t offset;
+size_t length;</code></pre>
+<p>The <em>offset</em> and <em>length</em> fields describe the span of
+UTF-8 code units of the comment in the Confetti source text.</p>
+<h1>RETURN VALUE</h1>
+<p>The comment or comment count for the Confetti configuration
+<em>unit</em>. If <em>index</em> is out-of-bounds or <em>unit</em> is
+NULL, then NULL is returned.</p>
+<h1>LICENSING</h1>
+<p>Confetti is Open Source software distributed under the MIT License.
+Please see the LICENSE file included with the Confetti distribution for
+details.</p>
+</main>
+    </div>
+  </div>
+</body>
+</html>

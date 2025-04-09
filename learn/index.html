@@ -53,7 +53,7 @@
       </footer>
     </div>
     <div class="main-content">
-      <header>
+      <header class="sticky-header">
         <nav class="header">
           <div class="branding">
             <a href="/">
@@ -201,15 +201,15 @@ If you need to preserve the newline characters, then use <a href="#_multi_line_a
 </div>
 </div>
 <div class="sect1">
-<h2 id="_subdirectives"><span>Subdirectives</span><a href="#_subdirectives">#</a></h2>
+<h2 id="_subdirective_blocks"><span>Subdirective Blocks</span><a href="#_subdirective_blocks">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Confetti supports hierarchical directives known as <em>subdirectives</em>.
 Conceptually, subdirectives can be thought of as children of a parent directive.
-Subdirectives are especially useful for grouping related concepts.</p>
+Subdirectives are useful for grouping related concepts.</p>
 </div>
 <div class="paragraph">
-<p>Subdirectives are enclosed in curly braces.
+<p>Subdirective blocks are enclosed in curly braces.
 The opening curly brace must be written after the directive that is intended to be the parent directive, either on the same line or a subsequent line.
 The following example writes them on the same line for compactness.</p>
 </div>

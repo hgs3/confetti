@@ -53,7 +53,7 @@
       </footer>
     </div>
     <div class="main-content">
-      <header>
+      <header class="sticky-header">
         <nav class="header">
           <div class="branding">
             <a href="/">
@@ -109,7 +109,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This specification defines <strong>version 0.9</strong> of Confetti.</p>
+<p>This specification defines <strong>version 1.0-alpha</strong> of Confetti.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -118,8 +118,8 @@
 <div class="title">Note</div>
 </td>
 <td class="content">
-Confetti is stable, however, user feedback <em>may</em> evolve the language.
-If you discover bugs in this specification or have ideas for alterations or new features, then please suggest them on the <a href="https://github.com/hgs3/confetti/issues">projects issue tracker</a>.
+Confetti is stable.
+If you discover bugs in this specification, then please report them to the <a href="https://github.com/hgs3/confetti/issues">project’s issue tracker</a>.
 </td>
 </tr>
 </table>
@@ -177,7 +177,7 @@ However, for readability, these words do not appear in all uppercase letters in 
 <h2 id="_lexical_structure"><span>Lexical Structure</span><a href="#_lexical_structure">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>A Confetti-conformant configuration file is formally known as a <em>configuration unit</em>.
+<p>Confetti-conformant source text is formally known as a <em>configuration unit</em>.
 Although a configuration unit might have a one-to-one correspondence with a file in a file system, such correspondence is not required.</p>
 </div>
 <div class="paragraph">
@@ -311,9 +311,6 @@ This specification does not mandate a specific Unicode character encoding form.<
 <p>A configuration unit shall consist of zero or more <em>directives</em>.</p>
 </div>
 <div class="paragraph">
-<p>A directive shall be a configuration statement or command.</p>
-</div>
-<div class="paragraph">
 <p>A simple directive shall be a sequence of one or more <a href="#_argument">arguments</a>.
 A simple directive must be terminated by a character from the <a href="#_line_terminators">line terminator</a> character set or a Semicolon (U+003B).</p>
 </div>
@@ -356,7 +353,7 @@ The subdirective block begins with a Left Curly Bracket (U+007B) and terminates 
 The argument character set shall consist of any Unicode scalar value excluding characters from the <a href="#_white_space">white space</a>, <a href="#_line_terminators">line terminator</a>, <a href="#_reserved_punctuators">reserved punctuator</a>, and <a href="#_forbidden_characters">forbidden</a> character sets.</p>
 </div>
 <div class="paragraph">
-<p>The value of an argument shall be the argument’s lexeme with <a href="#_escaped_characters">escaped characters</a> processed.</p>
+<p>The value of an argument shall be the argument’s lexeme with <a href="#_escaped_characters">escaped characters</a> processed and <a href="#_line_continuation">line continuations</a> processed.</p>
 </div>
 <div class="sect3">
 <h4 id="_quoted_argument"><span>Quoted Argument</span><a href="#_quoted_argument">#</a></h4>
@@ -364,10 +361,13 @@ The argument character set shall consist of any Unicode scalar value excluding c
 <p>A quoted argument shall be an argument enclosed in Quotation Marks (U+0022).</p>
 </div>
 <div class="paragraph">
-<p>A single-quoted argument must begin with a leading punctuator Quotation Mark (U+0022), followed by zero or more single-quoted argument characters, and terminated by the trailing punctuator Quotation Mark (U+0022).</p>
+<p>A quoted argument must begin with a leading punctuator Quotation Mark (U+0022), followed by zero or more quoted argument characters, and terminated by the trailing punctuator Quotation Mark (U+0022).</p>
 </div>
 <div class="paragraph">
-<p>The single-quoted argument character set shall be the union of the argument character set and <a href="#_white_space">white space</a> character set.</p>
+<p>The quoted argument character set shall be the union of the argument character set and <a href="#_white_space">white space</a> character set.</p>
+</div>
+<div class="paragraph">
+<p>The value of a quoted argument shall be the argument’s lexeme with <a href="#_escaped_characters">escaped characters</a> processed, leading and trailing Quotation Mark (U+0022) removed, and <a href="#_line_continuation">line continuations</a> processed.</p>
 </div>
 <div class="listingblock">
 <div class="title">Example: Directive with a quoted argument.</div>
@@ -376,10 +376,13 @@ The argument character set shall consist of any Unicode scalar value excluding c
 </div>
 </div>
 <div class="paragraph">
-<p>A triple-quoted argument must begin with three consecutive leading punctuator Quotation Mark (U+0022), followed by zero or more triple-quoted argument characters, and terminated by the trailing punctuator Quotation Mark (U+0022).</p>
+<p>A triple-quoted argument must begin with three consecutive leading punctuator Quotation Mark (U+0022), followed by zero or more characters from the triple-quoted argument character set, and terminated by the trailing punctuator Quotation Mark (U+0022).</p>
 </div>
 <div class="paragraph">
 <p>The triple-quoted argument character set shall be the union of the argument character set, the <a href="#_white_space">white space</a> character set, and the <a href="#_line_terminators">line terminator</a> character set.</p>
+</div>
+<div class="paragraph">
+<p>The value of a triple-quoted argument shall be the argument’s lexeme with <a href="#_escaped_characters">escaped characters</a> processed and the leading and trailing triple Quotation Mark (U+0022) characters removed.</p>
 </div>
 <div class="listingblock">
 <div class="title">Example: Directive with a triple-quoted argument.</div>
@@ -389,16 +392,13 @@ The argument character set shall consist of any Unicode scalar value excluding c
 }"""</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>The value of a quoted argument shall be the argument’s lexeme with <a href="#_escaped_characters">escaped characters</a> processed, leading and trailing Quotation Mark (U+0022) removed, and <a href="#_line_continuation">line continuations</a> processed.</p>
-</div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_escaped_characters"><span>Escaped Characters</span><a href="#_escaped_characters">#</a></h3>
 <div class="paragraph">
-<p>When a Reverse Solidus (U+005C) appears in an argument, a single-quoted argument, or a tripled quoted argument, it must be succeeded by a Unicode character 'C'.
-Unicode character 'C' is any Unicode scalar value except <a href="#_white_space">white space</a>, <a href="#_line_terminators">line terminators</a>, and <a href="#_forbidden_characters">forbidden characters</a>.</p>
+<p>When a Reverse Solidus (U+005C) appears in an argument, a quoted argument, or a tripled quoted argument, it must be succeeded by a Unicode character 'C'.
+Unicode character 'C' shall be any Unicode scalar value except <a href="#_white_space">white space</a>, <a href="#_line_terminators">line terminators</a>, and <a href="#_forbidden_characters">forbidden characters</a>.</p>
 </div>
 <div class="paragraph">
 <p>The Reverse Solidus (U+005C) and character 'C' are together labeled as an <em>escaped character</em>.
@@ -410,23 +410,6 @@ An escaped character is interpreted as if the character 'C' replaces the reverse
 </div>
 <div class="sect2">
 <h3 id="_line_continuation"><span>Line Continuation</span><a href="#_line_continuation">#</a></h3>
-<div class="paragraph">
-<p>Between the Quotation Marks (U+0022) of a single-quoted argument, when a Reverse Solidus (U+005C) immediately precedes a <a href="#_line_terminators">line terminator</a>, the implementation shall delete the reverse solidus and line terminator and continue processing single-quoted argument characters.</p>
-</div>
-<div class="listingblock">
-<div class="title">Example: Line continuation in a quoted argument.</div>
-<div class="content">
-<pre class="highlight"><code class="language-conf" data-lang="conf">message "Hello, \ <b class="conum">(1)</b>
-World!"</code></pre>
-</div>
-</div>
-<div class="colist arabic">
-<ol>
-<li>
-<p>Directive with arguments <code>message</code> and <code>Hello, World!</code></p>
-</li>
-</ol>
-</div>
 <div class="paragraph">
 <p>When the last argument of a directive is a Reverse Solidus (U+005C) succeeded by a <a href="#_line_terminators">line terminator</a>, the implementation shall delete the reverse solidus and line terminator and continue processing arguments for the directive.</p>
 </div>
@@ -441,6 +424,23 @@ eth1</code></pre>
 <ol>
 <li>
 <p>Directive with arguments <code>probe-device</code> and <code>eth0</code> and <code>eth1</code></p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Between the Quotation Marks (U+0022) of a quoted argument, when a Reverse Solidus (U+005C) immediately precedes a <a href="#_line_terminators">line terminator</a>, the implementation shall delete the reverse solidus and line terminator and continue processing quoted argument characters.</p>
+</div>
+<div class="listingblock">
+<div class="title">Example: Line continuation in a quoted argument.</div>
+<div class="content">
+<pre class="highlight"><code class="language-conf" data-lang="conf">message "Hello, \ <b class="conum">(1)</b>
+World!"</code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>Directive with arguments <code>message</code> and <code>Hello, World!</code></p>
 </li>
 </ol>
 </div>
@@ -528,7 +528,7 @@ It is possible newer standards may necessitate a revision of this specification.
 <p>Implementations may include a comment syntax based on C language conventions where multi-line comments are enclosed in <code>/*</code> and <code>*/</code> and single-line comments begin with <code>//</code>.</p>
 </div>
 <div class="paragraph">
-<p>Single-line comments must behave identically to Confetti <code>#</code> comments.</p>
+<p>Single-line comments must behave identically to <code>#</code> comments.</p>
 </div>
 <div class="paragraph">
 <p>Valid multi-line comments must begin with a <code>/*</code> and continue until a <code>*/</code> is found.</p>

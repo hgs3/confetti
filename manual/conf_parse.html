@@ -1,0 +1,213 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+<meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Confetti is intended for human-editable configuration files. It is minimalistic, untyped, and unopinionated. Schema conformance is validated by the user application. Confetti does not compete with JSON or XML, it competes with INI files.">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Confetti Configuration Language">
+<meta property="og:image" content="https://confetti.hgs3.me/assets/branding-4x.png">
+<meta property="og:image:width" content="420">
+<meta property="og:image:height" content="192">
+<meta property="og:image:type" content="image/png">
+<meta property="og:website" content="https://confetti.hgs3.me/">
+<title>Confetti: Examples.</title>
+<link rel="apple-touch-icon" type="image/png" href="/assets/favicon-apple-touch.png">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="icon" href="/assets/favicon.ico" sizes="32x32">
+<link rel="stylesheet" href="/assets/confetti.css">
+<script src="/assets/confetti.js" defer></script>
+</head>
+<body>
+  <div class="manpage-body">
+    <header class="manpage-header">
+      <a href="/">
+        <picture>
+          <source type="image/webp" srcset="/assets/branding.webp, /assets/branding-2x.webp 2x, /assets/branding-4x.webp 4x" width="105px" height="48px" />
+          <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
+        </picture>
+      </a>
+      <div class="manpage-header-links">
+        <p>libConfetti Manual</p>
+        <a href="https://github.com/hgs3/confetti/">GitHub Repository</a>
+      </div>
+    </header>
+    <div class="manpage-layout">
+      <aside>
+        <b>Manual Pages</b>
+        <menu><li><a href="/manual/confetti.html">confetti.3</a></li>
+<li><a href="/manual/conf_walk.html">conf_walk.3</a></li>
+<li class="active"><a href="/manual/conf_parse.html">conf_parse.3</a></li>
+<li><a href="/manual/conf_get_root.html">conf_get_root.3</a></li>
+<li><a href="/manual/conf_get_directive_count.html">conf_get_directive_count.3</a></li>
+<li><a href="/manual/conf_get_directive.html">conf_get_directive.3</a></li>
+<li><a href="/manual/conf_get_comment_count.html">conf_get_comment_count.3</a></li>
+<li><a href="/manual/conf_get_comment.html">conf_get_comment.3</a></li>
+<li><a href="/manual/conf_get_argument_count.html">conf_get_argument_count.3</a></li>
+<li><a href="/manual/conf_get_argument.html">conf_get_argument.3</a></li>
+<li><a href="/manual/conf_free.html">conf_free.3</a></li>
+</menu>
+      </aside>
+      <main class="manpage-content"><h1>NAME</h1>
+<p>conf_parse - parse confetti</p>
+<h1>LIBRARY</h1>
+<p>Configuration parser (libconfetti, -lconfetti)</p>
+<h1>SYNOPSIS</h1>
+<pre><code>#include &lt;confetti.h&gt;
+
+conf_unit *conf_parse(const char *str, const conf_options *opts, conf_error *err);</code></pre>
+<h1>DESCRIPTION</h1>
+<p>The <strong>conf_parse</strong>() function parses <em>str</em> as
+Confetti source text and constructs an in-memory representation of the
+processed configuration unit. The resulting configuration unit is
+returned by this function. It must be freed with
+<a href="/manual/conf_free.html" class="manlink">conf_free(3)</a>.</p>
+<p>If an error occurs during parsing, then NULL is returned and
+<em>err</em>, if specified, is populated with error details.</p>
+<p>The behavior of the Confetti parser can be controlled with the
+optional <em>opts</em> argument which is documented below.</p>
+<h2>Error structure</h2>
+<p>The <strong>conf_error</strong> structure includes the following
+fields:</p>
+<pre><code>long where;
+conf_errno code;
+char description[48];</code></pre>
+<p>The <em>code</em> field will be populated by the implementation with
+a constant described in RETURN VALUE.</p>
+<p>The <em>where</em> field will be populated by the implementation with
+the UTF-8 code unit index of the location where the error occurred in
+<em>str</em>.</p>
+<p>The <em>description</em> field will be populated by the
+implementation with an error message localized in US English.</p>
+<h2>Options structure</h2>
+<p>The <strong>conf_options</strong> structure includes the following
+fields:</p>
+<pre><code>int max_depth;
+bool allow_bidi;
+conf_allocfn allocator;
+void *user_data;
+conf_extensions *extensions;</code></pre>
+<p>The <em>max_depth</em> field, if non-zero, specifies the maximum
+nesting depth of Confetti subdirectives.</p>
+<p>The <em>allow_bidi</em> field, if true, allows bidirectional
+formatting characters in <em>str</em>. It is recommended to disable
+these characters, unless an implementation is prepared to properly
+process them. Mishandling these characters can result in unexpected
+behaviors, such as the Trojan Source vulnerability.</p>
+<p>The <em>allocator</em> field, if non-NULL, must point to a user
+implemented custom memory allocator, the behavior of which is described
+in the following subsection.</p>
+<p>The <em>user_data</em> field is a user pointer passed to the
+<em>allocator</em> function as-is. It is also passed to the callback
+associated with the <a href="/manual/conf_walk.html" class="manlink">conf_walk(3)</a> function.</p>
+<p>The <em>extensions</em> field, if non-NULL, refers to the extensions
+structure as documented in the subsequent subsection.</p>
+<h2>Extensions structure</h2>
+<p>The <strong>conf_extensions</strong> structure includes the following
+fields:</p>
+<pre><code>const char **punctuator_arguments;
+bool c_style_comments;
+bool expression_arguments;</code></pre>
+<p>The <em>punctuator_arguments</em> field is an array of strings where
+each string is to be interpreted as a punctuator argument. The last
+element must be NULL to terminate the array.</p>
+<p>The <em>c_style_comments</em> field, if true, enables C style single
+and multi-line comments.</p>
+<p>The <em>expression_arguments</em> field, if true, interprets
+arguments enclosed in parentheses as expressions.</p>
+<h2>Allocator function</h2>
+<p>The <strong>conf_allocfn</strong> function accepts three
+arguments:</p>
+<pre><code>void *ud;
+void *ptr;
+size_t size;</code></pre>
+<p>If the <em>ptr</em> argument is NULL, then the implementation must
+behave like <strong>malloc</strong>(3) and return a valid pointer,
+otherwise, it must behave like <strong>free</strong>(3) and free
+<em>ptr</em> and return NULL. The <em>size</em> argument is either the
+size of the memory being allocated or the size of the memory being freed
+depending on if the implementation is to behave like
+<strong>malloc</strong>(3) or <strong>free</strong>(3).</p>
+<h1>RETURN VALUE</h1>
+<p>The Confetti configuration unit or NULL if an error occurs. If an
+error occurs, then <em>err</em>, if specified, will be populated with
+one of the following <strong>conf_errno</strong> constants:</p>
+<dl>
+<dt><strong>CONF_NO_ERROR</strong></dt>
+<dd>
+<p>When <em>str</em> is parsed without errors.</p>
+</dd>
+<dt><strong>CONF_OUT_OF_MEMORY</strong></dt>
+<dd>
+<p>If dynamic memory allocation fails. The implementation guarantees all
+intermediate allocations will be freed to avoid resource leakage.</p>
+</dd>
+<dt><strong>CONF_BAD_SYNTAX,</strong></dt>
+<dd>
+<p>If a Confetti syntax error is discovered.</p>
+</dd>
+<dt><strong>CONF_ILLEGAL_BYTE_SEQUENCE,</strong></dt>
+<dd>
+<p>If a malformed UTF-8 sequence is found.</p>
+</dd>
+<dt><strong>CONF_INVALID_OPERATION</strong></dt>
+<dd>
+<p>If <em>str</em> is NULL.</p>
+</dd>
+<dt><strong>CONF_MAX_DEPTH_EXCEEDED</strong></dt>
+<dd>
+<p>If the maximum subdirective nesting depth is exceeded.</p>
+</dd>
+</dl>
+<h1>EXAMPLES</h1>
+<p>The following snippet demonstrates how to parse Confetti source text
+with <strong>conf_parse</strong>(). The string "..." is used as a
+placeholder for a Confetti source string.</p>
+<pre><code>conf_error error = {0};
+conf_unit *unit = conf_parse(&quot;...&quot;, NULL, &amp;error);
+if (unit == NULL) {
+    printf(&quot;error: %s, error.description);
+}</code></pre>
+<p>The following snippet demonstrates how to set options and extensions
+with the <strong>conf_options</strong> and
+<strong>conf_extensions</strong> structures. This particular example
+enables the punctuator arguments extension to treat ":=", "+", and "-"
+as distinct arguments. It also limits the maximum subdirective nesting
+depth to ten.</p>
+<pre><code>const char *punctuators[] = {&quot;:=&quot;, &quot;+&quot;, &quot;-&quot;, NULL};
+const conf_extensions extensions = {
+    .punctuator_arguments = punctuators,
+};
+
+const conf_options options = {
+    .extensions = &amp;extensions,
+    .max_depth = 10,
+};
+
+conf_unit *unit = conf_parse(&quot;...&quot;, &amp;options, NULL);</code></pre>
+<p>The <strong>conf_options</strong> structure accepts a custom memory
+allocator that must behave like <strong>malloc</strong>(3) or
+<strong>free</strong>(3) depending on how it's called. The following
+snippet shows a simple implementation of a custom memory allocator.</p>
+<pre><code>void *allocator(void *ud, void *ptr, size_t size) {
+    if (ptr == NULL) {
+        return malloc(size);
+    } else {
+        free(ptr);
+        return NULL;
+    }
+}
+
+const conf_options options = { .allocator = &amp;allocator };
+conf_unit *unit = conf_parse(&quot;...&quot;, &amp;options, NULL);</code></pre>
+<h1>SEE ALSO</h1>
+<p><a href="/manual/conf_get_root.html" class="manlink">conf_get_root(3)</a>,
+<a href="/manual/conf_get_comment.html" class="manlink">conf_get_comment(3)</a>, <a href="/manual/conf_free.html" class="manlink">conf_free(3)</a>,</p>
+<h1>LICENSING</h1>
+<p>Confetti is Open Source software distributed under the MIT License.
+Please see the LICENSE file included with the Confetti distribution for
+details.</p>
+</main>
+    </div>
+  </div>
+</body>
+</html>
