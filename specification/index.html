@@ -109,7 +109,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This specification defines <strong>version 0.8</strong> of Confetti.</p>
+<p>This specification defines <strong>version 0.9</strong> of Confetti.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -177,17 +177,20 @@ However, for readability, these words do not appear in all uppercase letters in 
 <h2 id="_lexical_structure"><span>Lexical Structure</span><a href="#_lexical_structure">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Confetti source text consists of zero or more Unicode scalar values.</p>
+<p>A Confetti-conformant configuration file is formally known as a <em>configuration unit</em>.
+Although a configuration unit might have a one-to-one correspondence with a file in a file system, such correspondence is not required.</p>
 </div>
 <div class="paragraph">
-<p>The Confetti language consists of zero or more <em>directives</em>.
-A directive consists of one or more <em>arguments</em> and optional subdirectives.</p>
+<p>A configuration unit shall consist of zero or more Unicode scalar values.
+This specification does not mandate a specific Unicode character encoding form.</p>
 </div>
 <div class="sect2">
 <h3 id="_forbidden_characters"><span>Forbidden Characters</span><a href="#_forbidden_characters">#</a></h3>
 <div class="paragraph">
-<p>Forbidden characters are Unicode scalar values with general category <code>Control</code>, <code>Surrogate</code>, and <code>Unassigned</code>, excluding characters with the <code>Whitespace</code> property.
-Forbidden characters must not appear in the source text.</p>
+<p>Forbidden characters are Unicode scalar values with general category <code>Control</code>, <code>Surrogate</code>, and <code>Unassigned</code>, excluding characters with the <code>Whitespace</code> property.</p>
+</div>
+<div class="paragraph">
+<p>Forbidden characters must not appear in a configuration unit.</p>
 </div>
 </div>
 <div class="sect2">
@@ -305,11 +308,14 @@ Forbidden characters must not appear in the source text.</p>
 <div class="sect2">
 <h3 id="_directive"><span>Directive</span><a href="#_directive">#</a></h3>
 <div class="paragraph">
-<p>A directive is a command or statement.</p>
+<p>A configuration unit shall consist of zero or more <em>directives</em>.</p>
 </div>
 <div class="paragraph">
-<p>A simple directive must be a sequence of one or more <a href="#_argument">arguments</a>.
-A simple directive must be terminated by a character from the <a href="#_line_terminators">line terminator</a> character set or a Semicolon (U+003B) character.</p>
+<p>A directive shall be a configuration statement or command.</p>
+</div>
+<div class="paragraph">
+<p>A simple directive shall be a sequence of one or more <a href="#_argument">arguments</a>.
+A simple directive must be terminated by a character from the <a href="#_line_terminators">line terminator</a> character set or a Semicolon (U+003B).</p>
 </div>
 <div class="listingblock">
 <div class="title">Example: Simple directive with two arguments.</div>
@@ -318,13 +324,17 @@ A simple directive must be terminated by a character from the <a href="#_line_te
 </div>
 </div>
 <div class="paragraph">
-<p>A compound directive must be a sequence of one or more <a href="#_argument">arguments</a>, zero or more <a href="#_line_terminators">line terminators</a>, and subdirectives.
-Subdirectives shall be a sequence of zero or more directives enclosed by curly braces.
-Subdirectives begin with a Left Curly Bracket (U+007B) and terminate with a Right Curly Bracket (U+007D).
-A compound directive may be succeeded by a Semicolon (U+003B) character.</p>
+<p>A block directive shall be a sequence of one or more <a href="#_argument">arguments</a>, zero or more <a href="#_line_terminators">line terminators</a>, and a subdirective block.</p>
+</div>
+<div class="paragraph">
+<p>A subdirective block shall be a sequence of zero or more directives enclosed in curly braces.
+The subdirective block begins with a Left Curly Bracket (U+007B) and terminates with a Right Curly Bracket (U+007D).</p>
+</div>
+<div class="paragraph">
+<p>A subdirective block may be succeeded by a Semicolon (U+003B).</p>
 </div>
 <div class="listingblock">
-<div class="title">Example: Compound directive with one subdirective.</div>
+<div class="title">Example: Composite directive with one subdirective.</div>
 <div class="content">
 <pre class="highlight"><code class="language-conf" data-lang="conf">application {
     version 1.2.3 <b class="conum">(1)</b>
@@ -334,7 +344,7 @@ A compound directive may be succeeded by a Semicolon (U+003B) character.</p>
 <div class="colist arabic">
 <ol>
 <li>
-<p>Subdirective.</p>
+<p>Subdirective with arguments <code>version</code> and <code>1.2.3</code></p>
 </li>
 </ol>
 </div>
@@ -351,11 +361,13 @@ The argument character set shall consist of any Unicode scalar value excluding c
 <div class="sect3">
 <h4 id="_quoted_argument"><span>Quoted Argument</span><a href="#_quoted_argument">#</a></h4>
 <div class="paragraph">
-<p>A quoted argument is a directive argument enclosed by Quotation Mark (U+0022) characters.</p>
+<p>A quoted argument shall be an argument enclosed in Quotation Marks (U+0022).</p>
 </div>
 <div class="paragraph">
-<p>Single quoted arguments must begin with a leading punctuator Quotation Mark (U+0022), followed by zero or more single quoted argument characters, and terminated by the trailing punctuator Quotation Mark (U+0022).
-The single quoted argument character set is the union of the argument character set and <a href="#_white_space">white space</a> character set.</p>
+<p>A single-quoted argument must begin with a leading punctuator Quotation Mark (U+0022), followed by zero or more single-quoted argument characters, and terminated by the trailing punctuator Quotation Mark (U+0022).</p>
+</div>
+<div class="paragraph">
+<p>The single-quoted argument character set shall be the union of the argument character set and <a href="#_white_space">white space</a> character set.</p>
 </div>
 <div class="listingblock">
 <div class="title">Example: Directive with a quoted argument.</div>
@@ -364,8 +376,10 @@ The single quoted argument character set is the union of the argument character 
 </div>
 </div>
 <div class="paragraph">
-<p>Triple quoted arguments must begin with three consecutive leading punctuator Quotation Mark (U+0022), followed by zero or more triple quoted argument characters, and terminated by the trailing punctuator Quotation Mark (U+0022).
-The triple quoted argument character set is the union of the argument character set, the <a href="#_white_space">white space</a> character set, and the <a href="#_line_terminators">line terminator</a> character set.</p>
+<p>A triple-quoted argument must begin with three consecutive leading punctuator Quotation Mark (U+0022), followed by zero or more triple-quoted argument characters, and terminated by the trailing punctuator Quotation Mark (U+0022).</p>
+</div>
+<div class="paragraph">
+<p>The triple-quoted argument character set shall be the union of the argument character set, the <a href="#_white_space">white space</a> character set, and the <a href="#_line_terminators">line terminator</a> character set.</p>
 </div>
 <div class="listingblock">
 <div class="title">Example: Directive with a triple-quoted argument.</div>
@@ -376,14 +390,14 @@ The triple quoted argument character set is the union of the argument character 
 </div>
 </div>
 <div class="paragraph">
-<p>The value of a quoted argument shall be the argument’s lexeme with <a href="#_escaped_characters">escaped characters</a> processed, leading and trailing Quotation Mark (U+0022) characters removed, and <a href="#_line_continuation">line continuations</a> processed.</p>
+<p>The value of a quoted argument shall be the argument’s lexeme with <a href="#_escaped_characters">escaped characters</a> processed, leading and trailing Quotation Mark (U+0022) removed, and <a href="#_line_continuation">line continuations</a> processed.</p>
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_escaped_characters"><span>Escaped Characters</span><a href="#_escaped_characters">#</a></h3>
 <div class="paragraph">
-<p>When a Reverse Solidus (U+005C) appears in an argument, a single quoted argument, or a tripled quoted argument, it must be succeeded by a Unicode character 'C'.
+<p>When a Reverse Solidus (U+005C) appears in an argument, a single-quoted argument, or a tripled quoted argument, it must be succeeded by a Unicode character 'C'.
 Unicode character 'C' is any Unicode scalar value except <a href="#_white_space">white space</a>, <a href="#_line_terminators">line terminators</a>, and <a href="#_forbidden_characters">forbidden characters</a>.</p>
 </div>
 <div class="paragraph">
@@ -397,7 +411,7 @@ An escaped character is interpreted as if the character 'C' replaces the reverse
 <div class="sect2">
 <h3 id="_line_continuation"><span>Line Continuation</span><a href="#_line_continuation">#</a></h3>
 <div class="paragraph">
-<p>Within the Quotation Marks (U+0022) of a single quoted argument, when a Reverse Solidus (U+005C) immediately precedes a <a href="#_line_terminators">line terminator</a>, the implementation shall delete the reverse solidus and line terminator and continue processing single quoted argument characters.</p>
+<p>Between the Quotation Marks (U+0022) of a single-quoted argument, when a Reverse Solidus (U+005C) immediately precedes a <a href="#_line_terminators">line terminator</a>, the implementation shall delete the reverse solidus and line terminator and continue processing single-quoted argument characters.</p>
 </div>
 <div class="listingblock">
 <div class="title">Example: Line continuation in a quoted argument.</div>
@@ -409,7 +423,7 @@ World!"</code></pre>
 <div class="colist arabic">
 <ol>
 <li>
-<p>Directive with arguments 'message' and 'Hello, World!'</p>
+<p>Directive with arguments <code>message</code> and <code>Hello, World!</code></p>
 </li>
 </ol>
 </div>
@@ -426,7 +440,7 @@ eth1</code></pre>
 <div class="colist arabic">
 <ol>
 <li>
-<p>Directive with arguments 'probe-device' and 'eth0' and 'eth1'</p>
+<p>Directive with arguments <code>probe-device</code> and <code>eth0</code> and <code>eth1</code></p>
 </li>
 </ol>
 </div>
@@ -441,16 +455,17 @@ eth1</code></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-ebnf" data-lang="ebnf">        directives = { &lt;simple-directive&gt; | &lt;compound-directive&gt; | &lt;newline-char&gt; }
+<pre class="highlight"><code class="language-ebnf" data-lang="ebnf">configuration-unit = &lt;directives&gt;
+        directives = { &lt;simple-directive&gt; | &lt;block-directive&gt; | &lt;newline-char&gt; }
   simple-directive = &lt;arguments&gt; ( &lt;newline-char&gt; | `;` )
-compound-directive = &lt;arguments&gt; { &lt;newline-char&gt; } &lt;subdirectives&gt; [ `;` ]
-     subdirectives = `{` &lt;directives&gt; `}`
+   block-directive = &lt;arguments&gt; { &lt;newline-char&gt; } &lt;block&gt; [ `;` ]
+             block = `{` &lt;directives&gt; `}`
          arguments = &lt;argument&gt; { &lt;argument&gt; }
           argument = &lt;simple-argument&gt; | &lt;quoted-argument&gt;
-   simple-argument = &lt;graphical-char&gt; { &lt;graphical-char&gt; }
+   simple-argument = &lt;argument-char&gt; { &lt;argument-char&gt; }
    quoted-argument = &lt;single-quoted&gt; | &lt;triple-quoted&gt;
-     single-quoted = `"` { &lt;graphical-char&gt; | &lt;space-char&gt; } `"`
-     triple-quoted = `"""` { &lt;graphical-char&gt; | &lt;space-char&gt; | &lt;newline-char&gt; } `"""`</code></pre>
+     single-quoted = `"` { &lt;argument-char&gt; | &lt;space-char&gt; } `"`
+     triple-quoted = `"""` { &lt;argument-char&gt; | &lt;space-char&gt; | &lt;newline-char&gt; } `"""`</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -458,7 +473,7 @@ compound-directive = &lt;arguments&gt; { &lt;newline-char&gt; } &lt;subdirective
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-ebnf" data-lang="ebnf">    graphical-char = [^ \p{Whitespace} \p{gc=Control} \p{gc=Surrogate} \p{gc=Unassigned} ]
+<pre class="highlight"><code class="language-ebnf" data-lang="ebnf">     argument-char = [^ \p{Whitespace} \p{gc=Control} \p{gc=Surrogate} \p{gc=Unassigned} ]
       newline-char = [ \u000A \u000B \u000C \u000D \u0085 \u2028 \u2029 ]
         space-char = [ [ \p{Whitespace} ] - [ &lt;newline-char&gt; ] ]</code></pre>
 </div>
@@ -469,25 +484,25 @@ compound-directive = &lt;arguments&gt; { &lt;newline-char&gt; } &lt;subdirective
 <h2 id="_implementation_scope"><span>Implementation Scope</span><a href="#_implementation_scope">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Implementations may set limits on the size of the source text.</p>
+<p>Implementations may impose limits on the number of Unicode scalar values that may appear in a configuration unit.</p>
 </div>
 <div class="paragraph">
-<p>Implementations may set limits on the number of Unicode scalar values each <a href="#_argument">argument</a> can have.</p>
+<p>Implementations may impose limits on the number of directives a configuration unit may have.</p>
 </div>
 <div class="paragraph">
-<p>Implementations may set limits on the number of arguments each directive can have.</p>
+<p>Implementations may impose limits on the number of arguments a directive may have.</p>
 </div>
 <div class="paragraph">
-<p>Implementations may set limits on the number of subdirectives each directive can have.</p>
+<p>Implementations may impose limits on the number of Unicode scalar values that an <a href="#_argument">argument</a> may have.</p>
 </div>
 <div class="paragraph">
-<p>Implementations may set limits on the maximum nesting depth of subdirectives.</p>
+<p>Implementations may impose limits on the maximum depth of nested block directives.</p>
 </div>
 <div class="paragraph">
-<p>Implementations may reject source text with Unicode bidirectional formatting characters.</p>
+<p>Implementations may reject configuration units with Unicode bidirectional formatting characters.</p>
 </div>
 <div class="paragraph">
-<p>Implementations may extend this specification, provided that any additions are clearly documented.</p>
+<p>Implementations may extend this specification, on the condition that any additions are thoroughly documented.</p>
 </div>
 </div>
 </div>
