@@ -142,7 +142,10 @@ char *readfile(const char *filename)
     char *buf = calloc(1, bufsize + sizeof(uint32_t));
     if (buf != NULL)
     {
-        fread(buf, sizeof(buf[0]), bufsize, fp);
+        if (fread(buf, sizeof(buf[0]), bufsize, fp) != bufsize)
+        {
+            perror("fread() failed");
+        }
     }
 
     fclose(fp);

@@ -56,8 +56,13 @@ jobs:
         Invoke-WebRequest -OutFile audition.msi -Uri https://github.com/railgunlabs/audition/releases/download/v1.0.3/Audition-1.0.3-x64.msi
         msiexec /i audition.msi /quiet /norestart
         echo "PATH=$env:PATH;$env:LOCALAPPDATA\Programs\Audition" | Out-File -FilePath $env:GITHUB_ENV -Append
-    - name: Build and Test
+    - name: Build and Test in Debug
       run: |
         cmake -B build -DCONFETTI_BUILD_TESTS=ON
         cmake --build build --config Debug
         ctest --output-on-failure --test-dir build -C Debug
+    - name: Build and Test in Release
+      run: |
+        cmake -B build -DCONFETTI_BUILD_TESTS=ON
+        cmake --build build --config Release
+        ctest --output-on-failure --test-dir build -C Release

@@ -25,6 +25,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/ConfettiConfig.cmake.in" "${CMAKE_CU
 # Register the library.
 add_library(confetti STATIC confetti.c confetti_unidata.c confetti.h)
 set_target_properties(confetti PROPERTIES PUBLIC_HEADER confetti.h)
+target_compile_definitions(confetti PUBLIC $<$<CONFIG:Debug>:DEBUG>)
 set_property(TARGET confetti PROPERTY C_STANDARD 11)
 set_property(TARGET confetti PROPERTY C_STANDARD_REQUIRED TRUE)
 

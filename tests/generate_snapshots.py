@@ -1138,6 +1138,24 @@ z
         []
     ),
     TestCase(
+        "error_unexpected_closing_curly_brace_in_longer_script",
+        # input
+        """# This is a code comment!
+foo bar {
+    baz {
+        123 456
+    } }
+}
+abc xyz {
+    qux
+}
+""",
+        # output
+        Error("error: found '}' without matching '{'\n"),
+        # extensions
+        []
+    ),
+    TestCase(
         "control_z",
         # input
         "foo\u001A",

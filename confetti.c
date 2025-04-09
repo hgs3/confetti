@@ -1964,22 +1964,11 @@ static conf_errno init_configuration_unit(conf_unit *unit, const char *string, c
 
 conf_unit *conf_parse(const char *string, const conf_options *options, conf_error *error)
 {
-    conf_unit *unit, tmp;
+    conf_unit *unit = NULL, tmp;
     const conf_errno eno = init_configuration_unit(&tmp, string, options, error, NULL);
     if (eno != CONF_NO_ERROR)
     {
         deinit_configuration_unit(&tmp);
-        return NULL;
-    }
-
-    if (setjmp(tmp.err_buf) != 0)
-    {
-        assert(unit != NULL); // LCOV_EXCL_BR_LINE
-        if (error != NULL)
-        {
-            memcpy(error, &unit->err, sizeof(error[0]));
-        }
-        conf_free(unit);
         return NULL;
     }
 
@@ -1997,6 +1986,17 @@ conf_unit *conf_parse(const char *string, const conf_options *options, conf_erro
     }
     memcpy(unit, &tmp, sizeof(unit[0]));
     unit->root = (conf_directive *)unit->padding;
+
+    // Setup exception-like handling for unrecoverable errors.
+    if (setjmp(unit->err_buf) != 0)
+    {
+        if (error != NULL)
+        {
+            memcpy(error, &unit->err, sizeof(error[0]));
+        }
+        conf_free(unit);
+        return NULL;
+    }
     parse_configuration_unit(unit);
 
     // Convert the comments linked list to an array for O(1) access.

@@ -74,6 +74,7 @@ TEST(conf_walk, low_max_depth)
     ASSERT_STR_EQ("maximum nesting depth exceeded", err.description);
 }
 
+#ifdef DEBUG
 TEST(conf_walk, bad_format_string)
 {
     STUB(vsnprintf, -1);
@@ -83,3 +84,4 @@ TEST(conf_walk, bad_format_string)
     ASSERT_EQ(err.where, 0);
     ASSERT_STR_EQ("formatting description failed", err.description);
 }
+#endif

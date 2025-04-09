@@ -37,6 +37,7 @@ TEST(conf_parse, null_string_argument)
     ASSERT_STR_EQ("missing string argument", err.description);
 }
 
+#ifdef DEBUG
 TEST(conf_parse, bad_format_string)
 {
     STUB(vsnprintf, -1);
@@ -46,6 +47,7 @@ TEST(conf_parse, bad_format_string)
     ASSERT_EQ(err.where, 0);
     ASSERT_STR_EQ("formatting description failed", err.description);
 }
+#endif
 
 TEST(conf_parse, low_max_depth)
 {

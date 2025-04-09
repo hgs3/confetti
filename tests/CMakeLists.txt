@@ -55,6 +55,7 @@ add_executable(tests_confetti
 set_property(TARGET tests_confetti PROPERTY C_STANDARD 11)
 target_compile_definitions(tests_confetti PRIVATE -DPATH_TO_SNAPSHOTS="${CMAKE_CURRENT_SOURCE_DIR}/snapshots")
 target_compile_definitions(tests_confetti PRIVATE -DPATH_TO_TESTDATA="${CMAKE_CURRENT_SOURCE_DIR}/data")
+target_compile_definitions(tests_confetti PRIVATE $<$<CONFIG:Debug>:DEBUG>)
 target_include_directories(tests_confetti PRIVATE ${AUDITION_INCLUDE_DIR})
 target_link_libraries(tests_confetti confetti)
 target_link_libraries(tests_confetti ${AUDITION_LIBRARY})
