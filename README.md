@@ -8,7 +8,8 @@ Schema conformance is validated by the user application.
 
 Confetti does **not** compete with JSON or XML, it competes with [INI files](https://en.wikipedia.org/wiki/INI_file).
 
-[![Build Status](https://github.com/hgs3/confetti/actions/workflows/build.yml/badge.svg)](https://github.com/hgs3/confetti/actions/workflows/build.yml)
+[![Build Status](https://github.com/hgs3/confetti/actions/workflows/build.yml/badge.svg)](https://github.com/hgs3/confetti/actions/workflows/build.yml)&nbsp;
+[![Documentation](https://img.shields.io/badge/Man_Pages-online-blue)](http://localhost:8080/manual/confetti.html)
 
 ## Example
 
