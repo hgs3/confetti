@@ -61,23 +61,23 @@ static char *parse(const char *input, const conf_extensions *extensions)
     };
 
     StringBuf *sb = strbuf_new();
-    conf_document *doc = conf_parse(input, &options, &error);
+    conf_unit *unit = conf_parse(input, &options, &error);
     if (error.code != CONF_NO_ERROR)
     {
-        assert(doc == NULL);
+        assert(unit == NULL);
         strbuf_printf(sb, "error: %s\n", error.description);
     }
     else
     {
-        assert(doc != NULL);
+        assert(unit != NULL);
 
-        conf_directive *root = conf_get_root(doc);
+        conf_directive *root = conf_get_root(unit);
         for (long i = 0; i < conf_get_directive_count(root); i++)
         {
             conf_directive *subdir = conf_get_directive(root, i);
             print_directive(sb, subdir, 0);
         }
-        conf_free(doc);
+        conf_free(unit);
     }
     return strbuf_drop(sb);
 }

@@ -18,7 +18,7 @@ Configuration parser (libconfetti, -lconfetti)
 .nf
 .B #include <confetti.h>
 .PP
-.BI "conf_directive *conf_get_root(conf_document *" doc ");"
+.BI "conf_directive *conf_get_root(conf_unit *" unit ");"
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
@@ -27,7 +27,7 @@ This pseudo directive never has arguments.
 It is intended to be used with \fBconf_get_directive\fR(3) and \fBconf_get_directive_count\fR(3) for iterating the top-level directives of the Confetti source text.
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
-A pseudo directive representing the top-level of the Confetti source text or \fCNULL\fR if \fIdoc\fR is \fCNULL\fR.
+A pseudo directive representing the top-level of the Confetti source text or \fCNULL\fR if \fIunit\fR is \fCNULL\fR.
 .\" --------------------------------------------------------------------------
 .SH SEE ALSO
 .BR conf_get_directive (3),

@@ -72,7 +72,7 @@ TEST(memory, custom_allocator, .iterations=COUNT_OF(tests_utf8))
         .extensions = &td->extensions,
     };
     conf_error error = {0};
-    conf_document *dir = conf_parse((const char *)td->input, &options, &error);
+    conf_unit *dir = conf_parse((const char *)td->input, &options, &error);
     if (dir != NULL)
     {
         conf_free(dir); // Avoid leakage.

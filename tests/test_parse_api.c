@@ -20,7 +20,7 @@ TEST(conf_parse, null_arguments)
 TEST(conf_parse, null_argument_for_everything_but_string_and_error)
 {
     conf_error err = {0};
-    conf_document *dir = conf_parse("", NULL, &err);
+    conf_unit *dir = conf_parse("", NULL, &err);
     ASSERT_NONNULL(dir);
     ASSERT_EQ(CONF_NO_ERROR, err.code);
     ASSERT_EQ(err.where, 0);
@@ -64,10 +64,10 @@ TEST(conf_get_root, null_confetti)
 
 TEST(conf_get_comment, out_of_bounds)
 {
-    conf_document *doc = conf_parse("# This is a comment.", NULL, NULL);
-    ASSERT_NULL(conf_get_comment(doc, -1));
-    ASSERT_NULL(conf_get_comment(doc, 1));
-    conf_free(doc);
+    conf_unit *unit = conf_parse("# This is a comment.", NULL, NULL);
+    ASSERT_NULL(conf_get_comment(unit, -1));
+    ASSERT_NULL(conf_get_comment(unit, 1));
+    conf_free(unit);
 }
 
 TEST(conf_get_comment, null_document)
@@ -82,12 +82,12 @@ TEST(conf_get_directive, null_document)
 
 TEST(conf_get_directive, out_of_bounds)
 {
-    conf_document *doc = conf_parse("foo", NULL, NULL);
-    conf_directive *dir = conf_get_root(doc);
+    conf_unit *unit = conf_parse("foo", NULL, NULL);
+    conf_directive *dir = conf_get_root(unit);
     ASSERT_NONNULL(dir);
     ASSERT_NULL(conf_get_directive(dir, -1));
     ASSERT_NULL(conf_get_directive(dir, 1));
-    conf_free(doc);
+    conf_free(unit);
 }
 
 TEST(conf_get_directive_count, null_directive)
@@ -107,12 +107,12 @@ TEST(conf_get_comment_count, null_document)
 
 TEST(conf_get_argument, out_of_bounds)
 {
-    conf_document *doc = conf_parse("foo", NULL, NULL);
-    conf_directive *dir = conf_get_root(doc);
+    conf_unit *unit = conf_parse("foo", NULL, NULL);
+    conf_directive *dir = conf_get_root(unit);
     ASSERT_NONNULL(dir);
     ASSERT_NULL(conf_get_argument(dir, -1));
     ASSERT_NULL(conf_get_argument(dir, 1));
-    conf_free(doc);
+    conf_free(unit);
 }
 
 TEST(conf_get_argument, null_directive)

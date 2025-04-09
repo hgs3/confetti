@@ -56,7 +56,7 @@ TEST(memory, parser_out_of_memory, .iterations=COUNT_OF(tests_utf8))
             .extensions = &td->extensions,
         };
         conf_error error = {0};
-        conf_document *dir = conf_parse((const char *)td->input, &options, &error);
+        conf_unit *dir = conf_parse((const char *)td->input, &options, &error);
         if (dir != NULL)
         {
             conf_free(dir); // Avoid leakage.
@@ -121,6 +121,6 @@ TEST(memory, null_error_structure)
         .user_data = &count,
         .allocator = fallible_allocator,
     };
-    conf_document *dir = conf_parse("foo", &options, NULL);
+    conf_unit *dir = conf_parse("foo", &options, NULL);
     ASSERT_NULL(dir);
 }

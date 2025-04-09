@@ -4,7 +4,7 @@
  *  http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-// This example reads a Confetti document from standard input, parses it
+// This example reads a Confetti configuration unit from standard input, parses it
 // into an in-memory representation, then pretty prints it to standard output.
 
 // Most configuration and data-interchange parsers build an in-memory representation
@@ -80,8 +80,8 @@ int main(int argc, char *argv[])
     //
 
     conf_error err = {0};
-    conf_document *doc = conf_parse(input, NULL, &err);
-    if (doc == NULL)
+    conf_unit *unit = conf_parse(input, NULL, &err);
+    if (unit == NULL)
     {
         printf("error: %s\n", err.description);
         return 1;
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     // (3) Pretty print the Confetti.
     //
 
-    conf_directive *root = conf_get_root(doc);
+    conf_directive *root = conf_get_root(unit);
     for (long i = 0; i < conf_get_directive_count(root); i++)
     {
         conf_directive *directive = conf_get_directive(root, i);
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
     // (4) Cleanup after ourselves.
     //
     
-    conf_free(doc);
+    conf_free(unit);
     free(input);
     return 0;
 }

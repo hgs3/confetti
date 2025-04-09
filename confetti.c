@@ -120,7 +120,7 @@ struct punctset
     char punctuators[]; // List of punctuator strings delimited by a zero byte.
 };
 
-struct conf_document
+struct conf_unit
 {
     const char *string; // Points to the beginning of the string being parsed.
     const char *needle; // Points to the current location being parsed.
@@ -160,9 +160,9 @@ struct conf_document
     alignas(max_align_t) unsigned char padding[sizeof(conf_directive)];
 };
 
-static void parse_body(conf_document *conf, conf_directive *parent, int depth);
+static void parse_body(conf_unit *conf, conf_directive *parent, int depth);
 
-_Noreturn static void die(conf_document *conf, conf_errno error, const char *where, const char *message, ...)
+_Noreturn static void die(conf_unit *conf, conf_errno error, const char *where, const char *message, ...)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -199,7 +199,7 @@ static void *default_alloc(void *ud, void *ptr, size_t size)
     }
 }
 
-static void *new(conf_document *conf, size_t size)
+static void *new(conf_unit *conf, size_t size)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -208,7 +208,7 @@ static void *new(conf_document *conf, size_t size)
     return conf->options.allocator(conf->options.user_data, NULL, size);
 }
 
-static void *zero_new(conf_document *conf, size_t size)
+static void *zero_new(conf_unit *conf, size_t size)
 {
     void *ptr = new(conf, size);
     if (ptr != NULL)
@@ -218,7 +218,7 @@ static void *zero_new(conf_document *conf, size_t size)
     return ptr;
 }
 
-static void delete(conf_document *conf, void *ptr, size_t size)
+static void delete(conf_unit *conf, void *ptr, size_t size)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -260,15 +260,15 @@ static uchar utf8decode2(const char *utf8, size_t *utf8_length)
     };
 
     static const uint8_t next_UTF8_DFA[] = {
-        0, 12, 24, 36, 60, 96, 84, 12, 12, 12, 48, 72,  // doc 0
-        12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, // doc 1
-        12, 0, 12, 12, 12, 12, 12, 0, 12, 0, 12, 12,    // doc 2
-        12, 24, 12, 12, 12, 12, 12, 24, 12, 24, 12, 12, // doc 3
-        12, 12, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, // doc 4
-        12, 24, 12, 12, 12, 12, 12, 12, 12, 24, 12, 12, // doc 5
-        12, 12, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, // doc 6
-        12, 36, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, // doc 7
-        12, 36, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, // doc 8
+        0, 12, 24, 36, 60, 96, 84, 12, 12, 12, 48, 72,  // state 0
+        12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, // state 1
+        12, 0, 12, 12, 12, 12, 12, 0, 12, 0, 12, 12,    // state 2
+        12, 24, 12, 12, 12, 12, 12, 24, 12, 24, 12, 12, // state 3
+        12, 12, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, // state 4
+        12, 24, 12, 12, 12, 12, 12, 12, 12, 24, 12, 12, // state 5
+        12, 12, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, // state 6
+        12, 36, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, // state 7
+        12, 36, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, // state 8
     };
 
     static const uint8_t byte_to_character_class[] = {
@@ -324,8 +324,8 @@ static uchar utf8decode2(const char *utf8, size_t *utf8_length)
     // Consume the first UTF-8 byte.
     uchar value = (uchar)(bytes[0] & bytes_needed_for_UTF8_sequence[256 + seqlen]);
 
-    // Transition to the first DFA doc.
-    uint8_t doc = next_UTF8_DFA[byte_to_character_class[bytes[0]]];
+    // Transition to the first DFA state.
+    uint8_t unit = next_UTF8_DFA[byte_to_character_class[bytes[0]]];
 
     // Consume the remaining UTF-8 bytes.
     for (int i = 1; i < seqlen; i++)
@@ -334,12 +334,12 @@ static uchar utf8decode2(const char *utf8, size_t *utf8_length)
         // It's of the form 10xxxxxx if valid UTF-8.
         value = value << UINT32_C(6) | (uchar)(bytes[i] & UINT8_C(0x3F));
 
-        // Transition to the next DFA doc.
-        doc = next_UTF8_DFA[doc + byte_to_character_class[bytes[i]]];
+        // Transition to the next DFA state.
+        unit = next_UTF8_DFA[unit + byte_to_character_class[bytes[i]]];
     }
 
     // Verify the encoded character was well-formed.
-    if (doc == UINT8_C(0))
+    if (unit == UINT8_C(0))
     {
         if (utf8_length != NULL)
         {
@@ -351,7 +351,7 @@ static uchar utf8decode2(const char *utf8, size_t *utf8_length)
     return BAD_ENCODING;
 }
 
-static uchar utf8decode(conf_document *conf, const char *utf8, size_t *utf8_length)
+static uchar utf8decode(conf_unit *conf, const char *utf8, size_t *utf8_length)
 {
     const uchar scalar = utf8decode2(utf8, utf8_length);
     if (scalar == BAD_ENCODING)
@@ -361,7 +361,7 @@ static uchar utf8decode(conf_document *conf, const char *utf8, size_t *utf8_leng
     return scalar;
 }
 
-static bool is_newline(conf_document *conf, const char *string, size_t *length)
+static bool is_newline(conf_unit *conf, const char *string, size_t *length)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -393,7 +393,7 @@ static bool is_newline(conf_document *conf, const char *string, size_t *length)
 // Scan expression arguments is implemented using a "virtual" stack data structure.
 // When '(' is encountered, it's pushed, when ')' is encountered, it's popped.
 // When the stack is empty, the expression has been fully processed.
-static void scan_expression_argument(conf_document *conf, const char *string, token *tok)
+static void scan_expression_argument(conf_unit *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -454,7 +454,7 @@ static void scan_expression_argument(conf_document *conf, const char *string, to
     tok->trim = 1;
 }
 
-static void scan_triple_quoted_argument(conf_document *conf, const char *string, token *tok)
+static void scan_triple_quoted_argument(conf_unit *conf, const char *string, token *tok)
 {
     const char *at = string;
     size_t length;
@@ -530,7 +530,7 @@ static void scan_triple_quoted_argument(conf_document *conf, const char *string,
     tok->trim = 3;
 }
 
-static void scan_single_quoted_argument(conf_document *conf, const char *string, token *tok)
+static void scan_single_quoted_argument(conf_unit *conf, const char *string, token *tok)
 {
     const char *at = string;
     size_t length;
@@ -609,7 +609,7 @@ static void scan_single_quoted_argument(conf_document *conf, const char *string,
     tok->trim = 1;
 }
 
-static bool scan_punctuator_argument(conf_document *conf, const char *string, token *tok, uchar starter)
+static bool scan_punctuator_argument(conf_unit *conf, const char *string, token *tok, uchar starter)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -657,7 +657,7 @@ static bool scan_punctuator_argument(conf_document *conf, const char *string, to
     return false;
 }
 
-static void scan_argument(conf_document *conf, const char *string, token *tok)
+static void scan_argument(conf_unit *conf, const char *string, token *tok)
 {
     const char *at = string;
     size_t length;
@@ -728,7 +728,7 @@ static void scan_argument(conf_document *conf, const char *string, token *tok)
     tok->trim = 0;
 }
 
-static void scan_whitespace(conf_document *conf, const char *string, token *tok)
+static void scan_whitespace(conf_unit *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -756,7 +756,7 @@ static void scan_whitespace(conf_document *conf, const char *string, token *tok)
     tok->trim = 0;
 }
 
-static void scan_single_line_comment(conf_document *conf, const char *string, token *tok)
+static void scan_single_line_comment(conf_unit *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -801,7 +801,7 @@ static void scan_single_line_comment(conf_document *conf, const char *string, to
     tok->trim = 0;
 }
 
-static void scan_multi_line_comment(conf_document *conf, const char *string, token *tok)
+static void scan_multi_line_comment(conf_unit *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -846,7 +846,7 @@ static void scan_multi_line_comment(conf_document *conf, const char *string, tok
     tok->trim = 0;
 }
 
-static void scan_token(conf_document *conf, const char *string, token *tok)
+static void scan_token(conf_unit *conf, const char *string, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -993,82 +993,82 @@ static void scan_token(conf_document *conf, const char *string, token *tok)
     die(conf, CONF_BAD_SYNTAX, string, "illegal character U+%04X", cp);
 }
 
-static void record_comment(conf_document *doc, const conf_comment *data)
+static void record_comment(conf_unit *unit, const conf_comment *data)
 {
-    struct comment *comment = new(doc, sizeof(comment[0]));
+    struct comment *comment = new(unit, sizeof(comment[0]));
     if (comment == NULL)
     {
-        die(doc, CONF_OUT_OF_MEMORY, doc->needle, "memory allocation failed");
+        die(unit, CONF_OUT_OF_MEMORY, unit->needle, "memory allocation failed");
     }
     comment->data.offset = data->offset;
     comment->data.length = data->length;
     comment->next = NULL;
 
-    if (doc->comment_head == NULL)
+    if (unit->comment_head == NULL)
     {
-        assert(doc->comment_tail == NULL); // LCOV_EXCL_BR_LINE
-        doc->comment_head = comment;
-        doc->comment_tail = comment;
+        assert(unit->comment_tail == NULL); // LCOV_EXCL_BR_LINE
+        unit->comment_head = comment;
+        unit->comment_tail = comment;
     }
     else
     {
-        assert(doc->comment_tail != NULL); // LCOV_EXCL_BR_LINE
-        doc->comment_tail->next = comment;
-        doc->comment_tail = comment;
+        assert(unit->comment_tail != NULL); // LCOV_EXCL_BR_LINE
+        unit->comment_tail->next = comment;
+        unit->comment_tail = comment;
     }
-    doc->comments_count += 1;
+    unit->comments_count += 1;
 }
 
-static token_type peek(conf_document *doc, token *tok)
+static token_type peek(conf_unit *unit, token *tok)
 {
     // LCOV_EXCL_START
-    assert(doc != NULL);
+    assert(unit != NULL);
     assert(tok != NULL);
     // LCOV_EXCL_STOP
 
-    if (doc->peek.type == TOK_INVALID)
+    if (unit->peek.type == TOK_INVALID)
     {
         for (;;)
         {
-            scan_token(doc, doc->needle, &doc->peek);
-            if (doc->peek.type == TOK_WHITESPACE)
+            scan_token(unit, unit->needle, &unit->peek);
+            if (unit->peek.type == TOK_WHITESPACE)
             {
-                doc->needle += doc->peek.lexeme_length;
+                unit->needle += unit->peek.lexeme_length;
                 continue;
             }
-            else if (doc->peek.type == TOK_COMMENT)
+            else if (unit->peek.type == TOK_COMMENT)
             {
                 // Prevent the same comment from being reported twice.
                 // Comments might be parsed twice when the parser
                 // is rewound, but they should only be reported
                 // once to the user.
-                if (doc->comment_processed <= doc->peek.lexeme)
+                if (unit->comment_processed <= unit->peek.lexeme)
                 {
                     const conf_comment comment = {
-                        .offset = doc->peek.lexeme,
-                        .length = doc->peek.lexeme_length,
+                        .offset = unit->peek.lexeme,
+                        .length = unit->peek.lexeme_length,
                     };
-                    if (doc->walk == NULL)
+                    if (unit->walk == NULL)
                     {
-                        record_comment(doc, &comment);
+                        record_comment(unit, &comment);
                     }
-                    else if (doc->walk(doc->options.user_data, CONF_COMMENT, 0, NULL, &comment) != 0)
+                    else if (unit->walk(unit->options.user_data, CONF_COMMENT, 0, NULL, &comment) != 0)
                     {
-                        die(doc, CONF_USER_ABORTED, doc->needle, "user aborted");
+                        die(unit, CONF_USER_ABORTED, unit->needle, "user aborted");
                     }
-                    doc->comment_processed = comment.offset + comment.length;
+                    unit->comment_processed = comment.offset + comment.length;
                 }
-                doc->needle += doc->peek.lexeme_length;
+                unit->needle += unit->peek.lexeme_length;
                 continue;
             }
             break;
         }
     }
-    *tok = doc->peek;
-    return doc->peek.type;
+    *tok = unit->peek;
+    return unit->peek.type;
 }
 
-static token_type eat(conf_document *conf, token *tok)
+static token_type eat(conf_unit *conf, token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -1081,7 +1081,7 @@ static token_type eat(conf_document *conf, token *tok)
     return tok->type;
 }
 
-static size_t copy_token_to_buffer(conf_document *conf, char *dest, const token *tok)
+static size_t copy_token_to_buffer(conf_unit *conf, char *dest, const token *tok)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -1142,7 +1142,7 @@ static size_t copy_token_to_buffer(conf_document *conf, char *dest, const token 
 // use of dynamic array (scanning a quoted literal is cheaper than allocating memory).
 //
 
-static void parse_directive(conf_document *conf, conf_directive *parent, int depth)
+static void parse_directive(conf_unit *conf, conf_directive *parent, int depth)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -1153,7 +1153,7 @@ static void parse_directive(conf_document *conf, conf_directive *parent, int dep
 
     // (1) figure out how much memory is needed for the arguments
 
-    const token saved_peek = conf->peek; // save parser doc
+    const token saved_peek = conf->peek; // save parser unit
     const char *saved_needle = conf->needle;
 
     long argument_count = 0;
@@ -1176,7 +1176,7 @@ static void parse_directive(conf_document *conf, conf_directive *parent, int dep
             break;
         }
     }
-    conf->peek = saved_peek; // rewind parser doc
+    conf->peek = saved_peek; // rewind parser unit
     conf->needle = saved_needle;
 
     // (2) allocate storage for the arguments and copy the data to it
@@ -1277,7 +1277,7 @@ static void parse_directive(conf_document *conf, conf_directive *parent, int dep
     }
 }
 
-static void walk_directive(conf_document *conf, int depth)
+static void walk_directive(conf_unit *conf, int depth)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -1418,7 +1418,7 @@ static void walk_directive(conf_document *conf, int depth)
 // Directive lists are parsed in a single pass and collected into a linked list.
 // After parsing is complete and the linked list is fully constructed, then the
 // list items are copied to an array for O(1) access.
-static void parse_body(conf_document *conf, conf_directive *parent, int depth)
+static void parse_body(conf_unit *conf, conf_directive *parent, int depth)
 {
     // LCOV_EXCL_START
     assert(conf != NULL);
@@ -1522,13 +1522,13 @@ long conf_get_directive_count(conf_directive *dir)
     return dir->subdir_count;
 }
 
-conf_directive *conf_get_root(conf_document *doc)
+conf_directive *conf_get_root(conf_unit *unit)
 {
-    if (doc == NULL)
+    if (unit == NULL)
     {
         return NULL;
     }
-    return doc->root;
+    return unit->root;
 }
 
 conf_argument *conf_get_argument(conf_directive *dir, long index)
@@ -1553,29 +1553,29 @@ long conf_get_argument_count(conf_directive *dir)
     return dir->arguments_count;
 }
 
-conf_comment *conf_get_comment(conf_document *doc, long index)
+conf_comment *conf_get_comment(conf_unit *unit, long index)
 {
-    if (doc == NULL)
+    if (unit == NULL)
     {
         return NULL;
     }
-    if (index < 0 || index >= doc->comments_count)
+    if (index < 0 || index >= unit->comments_count)
     {
         return NULL;
     }
-    return &doc->comments[index]->data;
+    return &unit->comments[index]->data;
 }
 
-long conf_get_comment_count(conf_document *doc)
+long conf_get_comment_count(conf_unit *unit)
 {
-    if (doc == NULL)
+    if (unit == NULL)
     {
         return 0;
     }
-    return doc->comments_count;
+    return unit->comments_count;
 }
 
-static void free_directive(conf_document *conf, conf_directive *dir)
+static void free_directive(conf_unit *conf, conf_directive *dir)
 {
     conf_directive *subdir = dir->subdir_head;
     while (subdir != NULL)
@@ -1595,96 +1595,96 @@ static void free_directive(conf_document *conf, conf_directive *dir)
     delete(conf, dir, sizeof(dir[0]) + dir->buffer_length);
 }
 
-void deinit_document(conf_document *doc)
+void deinit_configuration_unit(conf_unit *unit)
 {
-    assert(doc != NULL); // LCOV_EXCL_BR_LINE
+    assert(unit != NULL); // LCOV_EXCL_BR_LINE
 
-    if (doc->root != NULL)
+    if (unit->root != NULL)
     {
-        conf_directive *root = doc->root;
+        conf_directive *root = unit->root;
         conf_directive *dir = root->subdir_head;
         while (dir != NULL)
         {
             conf_directive *next = dir->next;
-            free_directive(doc, dir);
+            free_directive(unit, dir);
             dir = next;
         }
 
         if (root->subdir_count > 0)
         {
-            delete(doc, root->subdir, sizeof(root->subdir[0]) * root->subdir_count);
+            delete(unit, root->subdir, sizeof(root->subdir[0]) * root->subdir_count);
         }
     }
 
-    if (doc->comments_count > 0)
+    if (unit->comments_count > 0)
     {
-        struct comment *comment = doc->comment_head;
+        struct comment *comment = unit->comment_head;
         while (comment != NULL)
         {
             struct comment *next = comment->next;
-            delete(doc, comment, sizeof(comment[0]));
+            delete(unit, comment, sizeof(comment[0]));
             comment = next;
         }
 
-        if (doc->comments != NULL)
+        if (unit->comments != NULL)
         {
-            delete(doc, doc->comments, sizeof(doc->comments[0]) * doc->comments_count);
+            delete(unit, unit->comments, sizeof(unit->comments[0]) * unit->comments_count);
         }
     }
 
-    if (doc->punctuator_starters != NULL)
+    if (unit->punctuator_starters != NULL)
     {
-        delete(doc, doc->punctuator_starters, doc->punctuator_starters_size);
+        delete(unit, unit->punctuator_starters, unit->punctuator_starters_size);
     }
 
-    if (doc->punctuators != NULL)
+    if (unit->punctuators != NULL)
     {
-        for (long i = 0; i < doc->punctuators_count; i++)
+        for (long i = 0; i < unit->punctuators_count; i++)
         {
-            struct punctset *punct = doc->punctuators[i];
+            struct punctset *punct = unit->punctuators[i];
             if (punct != NULL)
             {
-                delete(doc, punct, punct->size);
+                delete(unit, punct, punct->size);
             }
         }
-        delete(doc, doc->punctuators, sizeof(doc->punctuators[0]) * doc->punctuators_count);
+        delete(unit, unit->punctuators, sizeof(unit->punctuators[0]) * unit->punctuators_count);
     }
 }
 
-void conf_free(conf_document *doc)
+void conf_free(conf_unit *unit)
 {
-    if (doc != NULL)
+    if (unit != NULL)
     {
-        deinit_document(doc);
-        delete(doc, doc, sizeof(doc[0]));
+        deinit_configuration_unit(unit);
+        delete(unit, unit, sizeof(unit[0]));
     }
 }
 
-static void parse_document(conf_document *doc)
+static void parse_configuration_unit(conf_unit *unit)
 {
     // Skip past the a BOM (byte order mark) character if present.
-    if (memchr(doc->needle, '\0', 3) == NULL)
+    if (memchr(unit->needle, '\0', 3) == NULL)
     {
-        if (memcmp(doc->needle, "\xEF\xBB\xBF", 3) == 0)
+        if (memcmp(unit->needle, "\xEF\xBB\xBF", 3) == 0)
         {
-            doc->needle += 3;
+            unit->needle += 3;
         }
     }
 
-    // Parse the Confetti document.
-    parse_body(doc, doc->root, 0);
+    // Parse the Confetti configuration unit.
+    parse_body(unit, unit->root, 0);
 
-    // Verify the document ended by checking for extraneous tokens.
+    // Verify the configuration unit ended by checking for extraneous tokens.
     token tok;
-    peek(doc, &tok);
+    peek(unit, &tok);
     if (tok.type != TOK_EOF)
     {
         assert(tok.type == '}'); // LCOV_EXCL_BR_LINE
-        die(doc, CONF_BAD_SYNTAX, doc->needle, "found '}' without matching '{'");
+        die(unit, CONF_BAD_SYNTAX, unit->needle, "found '}' without matching '{'");
     }
 }
 
-static conf_errno init_punctuator_arguments(conf_document *doc, const char **punctuator_arguments)
+static conf_errno init_punctuator_arguments(conf_unit *unit, const char **punctuator_arguments)
 {
     struct counters
     {
@@ -1727,27 +1727,27 @@ static conf_errno init_punctuator_arguments(conf_document *doc, const char **pun
             
             if (cp == BAD_ENCODING)
             {
-                doc->err.code = CONF_ILLEGAL_BYTE_SEQUENCE;
-                strcpy(doc->err.description, "punctuator argument with malformed UTF-8");
+                unit->err.code = CONF_ILLEGAL_BYTE_SEQUENCE;
+                strcpy(unit->err.description, "punctuator argument with malformed UTF-8");
                 goto cleanup;
             }
 
             // If the expression arguments extension is enabled, then disallow parentheses
             // as they reserved characters with the extension.
-            if (doc->extensions.expression_arguments)
+            if (unit->extensions.expression_arguments)
             {
                 if (cp == '(' || cp == ')')
                 {
-                    doc->err.code = CONF_INVALID_OPERATION;
-                    strcpy(doc->err.description, "illegal punctuator argument character");
+                    unit->err.code = CONF_INVALID_OPERATION;
+                    strcpy(unit->err.description, "illegal punctuator argument character");
                     goto cleanup;
                 }
             }
 
             if ((conf_uniflags(cp) & IS_ARGUMENT_CHARACTER) == 0)
             {
-                doc->err.code = CONF_INVALID_OPERATION;
-                strcpy(doc->err.description, "illegal punctuator argument character");
+                unit->err.code = CONF_INVALID_OPERATION;
+                strcpy(unit->err.description, "illegal punctuator argument character");
                 goto cleanup;
             }
 
@@ -1763,22 +1763,22 @@ static conf_errno init_punctuator_arguments(conf_document *doc, const char **pun
 
     // Create an array large enough to accommodate the unique starting character of each punctuator.
     // The array might not be fully used if multiple punctuators begin with the same character.
-    starters = zero_new(doc, sizeof(starters[0]) * count);
+    starters = zero_new(unit, sizeof(starters[0]) * count);
     if (starters == NULL)
     {
-        doc->err.code = CONF_OUT_OF_MEMORY;
-        strcpy(doc->err.description, "memory allocation failed");
+        unit->err.code = CONF_OUT_OF_MEMORY;
+        strcpy(unit->err.description, "memory allocation failed");
         goto cleanup;
     }
-    doc->punctuator_starters = starters;
-    doc->punctuator_starters_size = sizeof(starters[0]) * count;
+    unit->punctuator_starters = starters;
+    unit->punctuator_starters_size = sizeof(starters[0]) * count;
 
     // Create a temporary array for counters.
-    counters = zero_new(doc, sizeof(counters[0]) * count);
+    counters = zero_new(unit, sizeof(counters[0]) * count);
     if (counters == NULL)
     {
-        doc->err.code = CONF_OUT_OF_MEMORY;
-        strcpy(doc->err.description, "memory allocation failed");
+        unit->err.code = CONF_OUT_OF_MEMORY;
+        strcpy(unit->err.description, "memory allocation failed");
         goto cleanup;
     }
 
@@ -1831,15 +1831,15 @@ static conf_errno init_punctuator_arguments(conf_document *doc, const char **pun
     assert(unique_starters > 0); // LCOV_EXCL_BR_LINE
 
     // Allocate an array large enough to accomidate pointers to each string for each unique starter.
-    struct punctset **punctuators = zero_new(doc, sizeof(punctuators[0]) * unique_starters);
+    struct punctset **punctuators = zero_new(unit, sizeof(punctuators[0]) * unique_starters);
     if (punctuators == NULL)
     {
-        doc->err.code = CONF_OUT_OF_MEMORY;
-        strcpy(doc->err.description, "memory allocation failed");
+        unit->err.code = CONF_OUT_OF_MEMORY;
+        strcpy(unit->err.description, "memory allocation failed");
         goto cleanup;
     }
-    doc->punctuators = punctuators;
-    doc->punctuators_count = unique_starters;
+    unit->punctuators = punctuators;
+    unit->punctuators_count = unique_starters;
 
     // Begin copying the punctuator data to a cache-friendly buffer.
     index = 0;
@@ -1873,11 +1873,11 @@ static conf_errno init_punctuator_arguments(conf_document *doc, const char **pun
                 {
                     counter = &counters[i];
                     const size_t size = sizeof(punct[0]) + sizeof(punct[0].punctuators[0]) * counter->buffer_length;
-                    punct = zero_new(doc, size);
+                    punct = zero_new(unit, size);
                     if (punct == NULL)
                     {
-                        doc->err.code = CONF_OUT_OF_MEMORY;
-                        strcpy(doc->err.description, "memory allocation failed");
+                        unit->err.code = CONF_OUT_OF_MEMORY;
+                        strcpy(unit->err.description, "memory allocation failed");
                         goto cleanup;
                     }
                     punct->length = counter->unique_strings;
@@ -1903,38 +1903,38 @@ static conf_errno init_punctuator_arguments(conf_document *doc, const char **pun
 cleanup:
     if (counters != NULL)
     {
-        delete(doc, counters, sizeof(counters[0]) * count);
+        delete(unit, counters, sizeof(counters[0]) * count);
     }
-    return doc->err.code;
+    return unit->err.code;
 }
 
-// Initializes a Confetti document structure. This initilaization is common to both the walk() and parse() interfaces.
-static conf_errno init_document(conf_document *doc, const char *string, const conf_options *options, conf_error *error, conf_walkfn walk)
+// Initializes a Confetti configuration unit structure. This initilaization is common to both the walk() and parse() interfaces.
+static conf_errno init_configuration_unit(conf_unit *unit, const char *string, const conf_options *options, conf_error *error, conf_walkfn walk)
 {
-    memset(doc, 0, sizeof(doc[0]));
-    doc->string = string;
-    doc->needle = string;
-    doc->err.where = 0;
-    doc->err.code = CONF_NO_ERROR;
-    doc->walk = walk;
+    memset(unit, 0, sizeof(unit[0]));
+    unit->string = string;
+    unit->needle = string;
+    unit->err.where = 0;
+    unit->err.code = CONF_NO_ERROR;
+    unit->walk = walk;
 
     if (options != NULL)
     {
         if (options->extensions != NULL)
         {
-            doc->extensions = *options->extensions;
+            unit->extensions = *options->extensions;
         }
-        doc->options = *options;
+        unit->options = *options;
     }
 
-    if (doc->options.max_depth < 1)
+    if (unit->options.max_depth < 1)
     {
-        doc->options.max_depth = INT16_MAX; // Default maximum nesting depth.
+        unit->options.max_depth = 20; // Default maximum nesting depth.
     }
 
-    if (doc->options.allocator == NULL)
+    if (unit->options.allocator == NULL)
     {
-        doc->options.allocator = &default_alloc;
+        unit->options.allocator = &default_alloc;
     }
 
     if (string == NULL)
@@ -1947,90 +1947,90 @@ static conf_errno init_document(conf_document *doc, const char *string, const co
         return CONF_INVALID_OPERATION;
     }
 
-    if (doc->extensions.punctuator_arguments)
+    if (unit->extensions.punctuator_arguments)
     {
-        if (init_punctuator_arguments(doc, doc->extensions.punctuator_arguments) != CONF_NO_ERROR)
+        if (init_punctuator_arguments(unit, unit->extensions.punctuator_arguments) != CONF_NO_ERROR)
         {
             if (error != NULL)
             {
-                memcpy(error, &doc->err, sizeof(doc->err));
+                memcpy(error, &unit->err, sizeof(unit->err));
             }
-            return doc->err.code;
+            return unit->err.code;
         }
     }
 
     return CONF_NO_ERROR;
 }
 
-conf_document *conf_parse(const char *string, const conf_options *options, conf_error *error)
+conf_unit *conf_parse(const char *string, const conf_options *options, conf_error *error)
 {
-    conf_document *doc, tmp;
-    const conf_errno eno = init_document(&tmp, string, options, error, NULL);
+    conf_unit *unit, tmp;
+    const conf_errno eno = init_configuration_unit(&tmp, string, options, error, NULL);
     if (eno != CONF_NO_ERROR)
     {
-        deinit_document(&tmp);
+        deinit_configuration_unit(&tmp);
         return NULL;
     }
 
     if (setjmp(tmp.err_buf) != 0)
     {
-        assert(doc != NULL); // LCOV_EXCL_BR_LINE
+        assert(unit != NULL); // LCOV_EXCL_BR_LINE
         if (error != NULL)
         {
-            memcpy(error, &doc->err, sizeof(error[0]));
+            memcpy(error, &unit->err, sizeof(error[0]));
         }
-        conf_free(doc);
+        conf_free(unit);
         return NULL;
     }
 
     // Allocate the top-level directive and then begin parsing.
-    doc = new(&tmp, sizeof(tmp));
-    if (doc == NULL)
+    unit = new(&tmp, sizeof(tmp));
+    if (unit == NULL)
     {
         if (error != NULL)
         {
             error->code = CONF_OUT_OF_MEMORY;
             strcpy(error->description, "memory allocation failed");
         }
-        deinit_document(&tmp);
+        deinit_configuration_unit(&tmp);
         return NULL;
     }
-    memcpy(doc, &tmp, sizeof(doc[0]));
-    doc->root = (conf_directive *)doc->padding;
-    parse_document(doc);
+    memcpy(unit, &tmp, sizeof(unit[0]));
+    unit->root = (conf_directive *)unit->padding;
+    parse_configuration_unit(unit);
 
     // Convert the comments linked list to an array for O(1) access.
-    if (doc->comments_count > 0)
+    if (unit->comments_count > 0)
     {
-        struct comment **comments = new(doc, sizeof(comments[0]) * doc->comments_count);
+        struct comment **comments = new(unit, sizeof(comments[0]) * unit->comments_count);
         if (comments == NULL)
         {
-            die(doc, CONF_OUT_OF_MEMORY, doc->needle, "memory allocation failed");
+            die(unit, CONF_OUT_OF_MEMORY, unit->needle, "memory allocation failed");
         }
 
         // Copy subdirective pointers to the array.
         long index = 0;
-        for (struct comment *curr = doc->comment_head; curr != NULL; curr = curr->next)
+        for (struct comment *curr = unit->comment_head; curr != NULL; curr = curr->next)
         {
             comments[index] = curr;
             index += 1;
         }
-        doc->comments = comments;
+        unit->comments = comments;
     }
 
     if (error != NULL)
     {
-        error->where = doc->needle - doc->string;
+        error->where = unit->needle - unit->string;
         error->code = CONF_NO_ERROR;
         strcpy(error->description, "no error");
     }
-    return doc;
+    return unit;
 }
 
 conf_errno conf_walk(const char *string, const conf_options *options, conf_error *error, conf_walkfn walk)
 {
-    // The document walker interface requires a callback function to invoke
-    // when an "interesting" document element is found, e.g. a directive.
+    // The configuration unit walker interface requires a callback function to invoke
+    // when an "interesting" configuration unit element is found, e.g. a directive.
     if (walk == NULL)
     {
         if (error != NULL)
@@ -2041,30 +2041,30 @@ conf_errno conf_walk(const char *string, const conf_options *options, conf_error
         return CONF_INVALID_OPERATION;
     }
 
-    conf_document doc;
-    const conf_errno eno = init_document(&doc, string, options, error, walk);
+    conf_unit unit;
+    const conf_errno eno = init_configuration_unit(&unit, string, options, error, walk);
     if (eno != CONF_NO_ERROR)
     {
-        deinit_document(&doc);
+        deinit_configuration_unit(&unit);
         return eno;
     }
 
     // Setup exception-like handling for unrecoverable errors.
-    if (setjmp(doc.err_buf) == 0)
+    if (setjmp(unit.err_buf) == 0)
     {
-        parse_document(&doc);
+        parse_configuration_unit(&unit);
         if (error != NULL)
         {
-            error->where = doc.needle - doc.string;
+            error->where = unit.needle - unit.string;
             error->code = CONF_NO_ERROR;
             strcpy(error->description, "no error");
         }
     }
     else if (error != NULL)
     {
-        memcpy(error, &doc.err, sizeof(error[0]));
+        memcpy(error, &unit.err, sizeof(error[0]));
     }
 
-    deinit_document(&doc);
-    return doc.err.code;
+    deinit_configuration_unit(&unit);
+    return unit.err.code;
 }

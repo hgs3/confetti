@@ -229,30 +229,30 @@ static char *tokenize(const char *input, const conf_extensions *extensions)
     };
 
     conf_error error = {0};
-    conf_document *doc = conf_parse(input, &options, &error);
+    conf_unit *unit = conf_parse(input, &options, &error);
     if (error.code != CONF_NO_ERROR)
     {
         strbuf_printf(sb, "error: %s\n", error.description);
     }
     else
     {
-        conf_directive *root = conf_get_root(doc);
+        conf_directive *root = conf_get_root(unit);
         for (long i = 0; i < conf_get_directive_count(root); i++)
         {
             conf_directive *subdir = conf_get_directive(root, i);
             print_tokens(sb, subdir, 0);
         }
 
-        for (long i = 0; i < conf_get_comment_count(doc); i++)
+        for (long i = 0; i < conf_get_comment_count(unit); i++)
         {
-            conf_comment *comment = conf_get_comment(doc, i);
+            conf_comment *comment = conf_get_comment(unit, i);
             strbuf_printf(sb, "comment {\n");
             strbuf_printf(sb, "    offset %zu\n", comment->offset);
             strbuf_printf(sb, "    length %zu\n", comment->length);
             strbuf_puts(sb, "}");
         }
     }
-    conf_free(doc);
+    conf_free(unit);
     return strbuf_drop(sb);
 }
 

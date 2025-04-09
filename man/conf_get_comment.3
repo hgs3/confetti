@@ -18,14 +18,14 @@ Configuration parser (libconfetti, -lconfetti)
 .nf
 .B #include <confetti.h>
 .PP
-.BI "conf_comment *conf_get_comment(conf_document *" doc ", long " index ");"
-.BI "long conf_get_comment_count(conf_document *" doc ");"
+.BI "conf_comment *conf_get_comment(conf_unit *" unit ", long " index ");"
+.BI "long conf_get_comment_count(conf_unit *" unit ");"
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
-The \fBconf_get_comment\fR function returns the comment at \fIindex\fR for the Confetti document \fIdoc\fR.
+The \fBconf_get_comment\fR function returns the comment at \fIindex\fR for the Confetti configuration \fIunit\fR.
 .PP
-The \fBconf_get_comment_count\fR function returns the number of comments discovered in the Confetti document \fIdoc\fR.
+The \fBconf_get_comment_count\fR function returns the number of comments discovered in the Confetti configuration \fIunit\fR.
 .\" --------------------------------------------------------------------------
 .SS Comment structure
 The \fBconf_comment\fR structure includes the following fields:
@@ -40,8 +40,8 @@ size_t length;
 The \fIoffset\fR and \fIlength\fR fields describe the span of UTF-8 code units of the comment in the Confetti source text.
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
-The comment or comment count for the Confetti document \fIdoc\fR.
-If \fIindex\fR is out-of-bounds or \fIdoc\fR is \fCNULL\fR, then \fCNULL\fR is returned.
+The comment or comment count for the Confetti configuration \fIunit\fR.
+If \fIindex\fR is out-of-bounds or \fIunit\fR is \fCNULL\fR, then \fCNULL\fR is returned.
 .\" --------------------------------------------------------------------------
 .SH LICENSING
 Confetti is Free Software distributed under the MIT License.

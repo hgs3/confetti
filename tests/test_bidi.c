@@ -47,9 +47,9 @@ TEST(bidi, allowed, .iterations=COUNT_OF(bidi_chars))
 {
     conf_options opts = {.allow_bidi=true};
     conf_error err = {0};
-    conf_document *doc = conf_parse(bidi_chars[TEST_ITERATION], &opts, &err);
-    ASSERT_NONNULL(doc);
-    conf_free(doc);
+    conf_unit *unit = conf_parse(bidi_chars[TEST_ITERATION], &opts, &err);
+    ASSERT_NONNULL(unit);
+    conf_free(unit);
 }
 
 TEST(bidi, disallowed, .iterations=COUNT_OF(bidi_chars))
@@ -71,9 +71,9 @@ TEST(bidi, allowed_in_multi_line_comments)
     conf_extensions exts = {.c_style_comments=true};
     conf_options opts = {.allow_bidi=true, .extensions=&exts};
     conf_error err = {0};
-    conf_document *doc = conf_parse("/* \u2069 */", &opts, &err);
-    ASSERT_NONNULL(doc);
-    conf_free(doc);
+    conf_unit *unit = conf_parse("/* \u2069 */", &opts, &err);
+    ASSERT_NONNULL(unit);
+    conf_free(unit);
 }
 
 TEST(bidi, disallowed_in_multi_line_comments)
@@ -96,9 +96,9 @@ TEST(bidi, allowed_in_expression_arguments)
     conf_extensions exts = {.expression_arguments=true};
     conf_options opts = {.allow_bidi=true, .extensions=&exts};
     conf_error err = {0};
-    conf_document *doc = conf_parse("( \u2069 )", &opts, &err);
-    ASSERT_NONNULL(doc);
-    conf_free(doc);
+    conf_unit *unit = conf_parse("( \u2069 )", &opts, &err);
+    ASSERT_NONNULL(unit);
+    conf_free(unit);
 }
 
 TEST(bidi, disallowed_in_expression_arguments)

@@ -26,7 +26,7 @@ TEST(conf_parse, invalid_punctuator_argument, .iterations=COUNT_OF(invalid_punct
         .extensions = &exts,
     };
     conf_error err = {0};
-    conf_document *dir = conf_parse("", &opts, &err);
+    conf_unit *dir = conf_parse("", &opts, &err);
     ASSERT_NULL(dir);
     ASSERT_EQ(CONF_INVALID_OPERATION, err.code);
     ASSERT_EQ(err.where, 0);
@@ -44,7 +44,7 @@ TEST(conf_parse, parentheses_are_valid_punctuator_arguments)
         .extensions = &exts,
     };
     conf_error err = {0};
-    conf_document *dir = conf_parse("", &opts, &err);
+    conf_unit *dir = conf_parse("", &opts, &err);
     ASSERT_NONNULL(dir);
     ASSERT_EQ(CONF_NO_ERROR, err.code);
     ASSERT_EQ(err.where, 0);
@@ -63,7 +63,7 @@ TEST(conf_parse, parentheses_are_invalid_punctuator_arguments, .iterations=COUNT
         .extensions = &exts,
     };
     conf_error err = {0};
-    conf_document *dir = conf_parse("", &opts, &err);
+    conf_unit *dir = conf_parse("", &opts, &err);
     ASSERT_NULL(dir);
     ASSERT_EQ(CONF_INVALID_OPERATION, err.code);
     ASSERT_EQ(err.where, 0);
@@ -81,7 +81,7 @@ TEST(conf_parse, empty_punctuator_argument_array)
         .extensions = &exts,
     };
     conf_error err = {0};
-    conf_document *dir = conf_parse("", &opts, &err);
+    conf_unit *dir = conf_parse("", &opts, &err);
     ASSERT_NONNULL(dir);
     ASSERT_EQ(CONF_NO_ERROR, err.code);
     ASSERT_EQ(err.where, 0);
@@ -99,7 +99,7 @@ TEST(conf_parse, only_empty_strings_in_punctuator_arguments)
         .extensions = &exts,
     };
     conf_error err = {0};
-    conf_document *dir = conf_parse("", &opts, &err);
+    conf_unit *dir = conf_parse("", &opts, &err);
     ASSERT_NONNULL(dir);
     ASSERT_EQ(CONF_NO_ERROR, err.code);
     ASSERT_EQ(err.where, 0);
@@ -117,7 +117,7 @@ TEST(conf_parse, empty_string_in_punctuator_argument)
         .extensions = &exts,
     };
     conf_error err = {0};
-    conf_document *dir = conf_parse("", &opts, &err);
+    conf_unit *dir = conf_parse("", &opts, &err);
     ASSERT_NONNULL(dir);
     ASSERT_EQ(CONF_NO_ERROR, err.code);
     ASSERT_EQ(err.where, 0);
@@ -135,7 +135,7 @@ TEST(conf_parse, punctuator_argument_with_malformed_unicode)
         .extensions = &exts,
     };
     conf_error err = {0};
-    conf_document *dir = conf_parse("", &opts, &err);
+    conf_unit *dir = conf_parse("", &opts, &err);
     ASSERT_NULL(dir);
     ASSERT_EQ(CONF_ILLEGAL_BYTE_SEQUENCE, err.code);
     ASSERT_EQ(err.where, 0);
