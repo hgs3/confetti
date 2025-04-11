@@ -68,7 +68,7 @@ Code examples can be found in the [examples](examples/) directory.
 Confetti language documentation is available on [its website](https://confetti.hgs3.me/).
 
 The C API is documented by its man pages.
-Run `man confetti` after installing the library.
+Run `man confetti` after installing the library or [view them online](https://confetti.hgs3.me/manual/confetti.html).
 
 ## License
 
