@@ -24,7 +24,7 @@ Confetti is a configuration language that combines the readability of Unix confi
 It is minimalistic, untyped, and unopinionated.
 Schema conformance is validated by the user application.
 .\" -------------------------------------
-.SS Parsing Confetti
+.SS Parsing
 Confetti-conformant source text is formally known as a configuration unit.
 A configuration unit might correspond with a file in a file system, but that correspondence is not required.
 .PP
@@ -39,6 +39,39 @@ See \fBconf_walk\fR(3) for details.
 The second interface builds an in-memory representation of the configuration unit which can be inspected in a freeform way.
 This approach will be familiar as most parsers build an in-memory representation for freeform traversal.
 See \fBconf_parse\fR(3) for details.
+.\" -------------------------------------
+.SS Functions
+The Confetti C API consists of fewer than a dozen functions:
+.TP
+.BR conf_walk (3)
+Parse a configuration unit and incrementally invoke a function callback as the parser discovers configuration elements.
+.TP
+.BR conf_parse (3)
+Parse a configuration unit into an in-memory representation for freeform traversal.
+.TP
+.BR conf_free (3)
+Free a configuration unit returned from \fBconf_parse\fR(3).
+.TP
+.BR conf_get_root (3)
+Returns a pseudo directive representing the top-level of the configuration unit.
+.TP
+.BR conf_get_comment (3)
+Get a comment from the configuration unit.
+.TP
+.BR conf_get_comment_count (3)
+Number of comments in the configuration unit.
+.TP
+.BR conf_get_directive (3)
+Get a subdirective from a directive.
+.TP
+.BR conf_get_directive_count (3)
+Number of subdirectives belonging to a directive.
+.TP
+.BR conf_get_argument (3)
+Get an argument belonging to a directive.
+.TP
+.BR conf_get_argument_count (3)
+Number of arguments belonging to a directive.
 .\" --------------------------------------------------------------------------
 .SH EXAMPLE
 The following is an example of a Confetti-conformant configuration unit:
@@ -64,6 +97,8 @@ user "Joe Williams" {
 }
 .EE
 .in
+.PP
+Complete code examples using the C API to parse Confetti are included with the source distribution.
 .\" --------------------------------------------------------------------------
 .SH SEE ALSO
 .BR conf_walk (3),
