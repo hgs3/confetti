@@ -13,7 +13,7 @@ option(CONFETTI_MEMORY_SANITIZER "Toggle address sanitizer" OFF)
 
 # Python is required to generate the Unicode data table source file.
 if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/confetti_unidata.c")
-    message(FATAL_ERROR "Please run unicode.py before configuring the project!")
+    message(FATAL_ERROR "Please run unicode.py before configuring the project! Alternatively, build from the release tarball (instead of repo checkout) to skip this step.")
 endif()
 
 # Generate version information.
