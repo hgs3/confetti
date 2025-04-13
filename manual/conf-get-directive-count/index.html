@@ -10,7 +10,7 @@
 <meta property="og:image:height" content="192">
 <meta property="og:image:type" content="image/png">
 <meta property="og:website" content="https://confetti.hgs3.me/">
-<title>Confetti: Examples.</title>
+<title>Confetti C API: conf_get_directive_count()</title>
 <link rel="apple-touch-icon" type="image/png" href="/assets/favicon-apple-touch.png">
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="icon" href="/assets/favicon.ico" sizes="32x32">
@@ -26,28 +26,13 @@
           <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
         </picture>
       </a>
+      <a href="/manual/" class="manpage-home-link">&lt; back &gt;</a>
       <div class="manpage-header-links">
         <p>libConfetti Manual</p>
         <a href="https://github.com/hgs3/confetti/">GitHub Repository</a>
       </div>
     </header>
-    <div class="manpage-layout">
-      <aside>
-        <b>Manual Pages</b>
-        <menu><li><a href="/manual/confetti.html">confetti.3</a></li>
-<li><a href="/manual/conf_walk.html">conf_walk.3</a></li>
-<li><a href="/manual/conf_parse.html">conf_parse.3</a></li>
-<li><a href="/manual/conf_get_root.html">conf_get_root.3</a></li>
-<li class="active"><a href="/manual/conf_get_directive_count.html">conf_get_directive_count.3</a></li>
-<li><a href="/manual/conf_get_directive.html">conf_get_directive.3</a></li>
-<li><a href="/manual/conf_get_comment_count.html">conf_get_comment_count.3</a></li>
-<li><a href="/manual/conf_get_comment.html">conf_get_comment.3</a></li>
-<li><a href="/manual/conf_get_argument_count.html">conf_get_argument_count.3</a></li>
-<li><a href="/manual/conf_get_argument.html">conf_get_argument.3</a></li>
-<li><a href="/manual/conf_free.html">conf_free.3</a></li>
-</menu>
-      </aside>
-      <main class="manpage-content"><h1>NAME</h1>
+    <main class="manpage-content"><h1>NAME</h1>
 <p>conf_get_directive, conf_get_directive_count - get directives and
 subdirectives</p>
 <h1>LIBRARY</h1>
@@ -62,7 +47,7 @@ long conf_get_directive_count(const conf_directive *dir);</code></pre>
 subdirective at <em>index</em> for the Confetti directive <em>dir</em>.
 The subdirective returned is associated with its configuration unit and
 is freed when the unit is released with
-<a href="/manual/conf_free.html" class="manlink">conf_free(3)</a>.</p>
+<a href="/manual/conf-free/" class="manlink">conf_free(3)</a>.</p>
 <p>The <strong>conf_get_directive_count</strong>() function returns the
 number of subdirectives in the Confetti directive <em>dir</em>.</p>
 <p>Review the SEE ALSO section for functions that the opaque type
@@ -72,16 +57,13 @@ number of subdirectives in the Confetti directive <em>dir</em>.</p>
 <em>dir</em>. If <em>index</em> is out-of-bounds or <em>dir</em> is
 NULL, then NULL is returned.</p>
 <h1>SEE ALSO</h1>
-<p><a href="/manual/conf_get_directive.html" class="manlink">conf_get_directive(3)</a>,
-<a href="/manual/conf_get_directive_count.html" class="manlink">conf_get_directive_count(3)</a>,
-<a href="/manual/conf_get_argument.html" class="manlink">conf_get_argument(3)</a>,
-<a href="/manual/conf_get_argument_count.html" class="manlink">conf_get_argument_count(3)</a></p>
+<p><a href="/manual/conf-get-argument/" class="manlink">conf_get_argument(3)</a>,
+<a href="/manual/conf-get-argument-count/" class="manlink">conf_get_argument_count(3)</a></p>
 <h1>LICENSING</h1>
 <p>Confetti is Open Source software distributed under the MIT License.
 Please see the LICENSE file included with the Confetti distribution for
 details.</p>
 </main>
-    </div>
   </div>
 </body>
 </html>

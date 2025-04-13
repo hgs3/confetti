@@ -10,7 +10,7 @@
 <meta property="og:image:height" content="192">
 <meta property="og:image:type" content="image/png">
 <meta property="og:website" content="https://confetti.hgs3.me/">
-<title>Confetti: Examples.</title>
+<title>Confetti C API</title>
 <link rel="apple-touch-icon" type="image/png" href="/assets/favicon-apple-touch.png">
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="icon" href="/assets/favicon.ico" sizes="32x32">
@@ -26,28 +26,13 @@
           <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
         </picture>
       </a>
+      
       <div class="manpage-header-links">
         <p>libConfetti Manual</p>
         <a href="https://github.com/hgs3/confetti/">GitHub Repository</a>
       </div>
     </header>
-    <div class="manpage-layout">
-      <aside>
-        <b>Manual Pages</b>
-        <menu><li class="active"><a href="/manual/confetti.html">confetti.3</a></li>
-<li><a href="/manual/conf_walk.html">conf_walk.3</a></li>
-<li><a href="/manual/conf_parse.html">conf_parse.3</a></li>
-<li><a href="/manual/conf_get_root.html">conf_get_root.3</a></li>
-<li><a href="/manual/conf_get_directive_count.html">conf_get_directive_count.3</a></li>
-<li><a href="/manual/conf_get_directive.html">conf_get_directive.3</a></li>
-<li><a href="/manual/conf_get_comment_count.html">conf_get_comment_count.3</a></li>
-<li><a href="/manual/conf_get_comment.html">conf_get_comment.3</a></li>
-<li><a href="/manual/conf_get_argument_count.html">conf_get_argument_count.3</a></li>
-<li><a href="/manual/conf_get_argument.html">conf_get_argument.3</a></li>
-<li><a href="/manual/conf_free.html">conf_free.3</a></li>
-</menu>
-      </aside>
-      <main class="manpage-content"><h1>NAME</h1>
+    <main class="manpage-content"><h1>NAME</h1>
 <p>confetti - configuration language and parser library</p>
 <h1>LIBRARY</h1>
 <p>Configuration parser (libconfetti, -lconfetti)</p>
@@ -58,7 +43,7 @@
 Unix configuration files with the flexibility of S-expressions. It is
 minimalistic, untyped, and unopinionated. Schema conformance is
 validated by the user application.</p>
-<h2>Parsing Confetti</h2>
+<h2>Parsing</h2>
 <p>Confetti-conformant source text is formally known as a configuration
 unit. A configuration unit might correspond with a file in a file
 system, but that correspondence is not required.</p>
@@ -69,15 +54,63 @@ interfaces for processing configuration units:</p>
 configuration unit without building an in-memory representation of the
 unit. This is achieved by invoking a user-provided callback function as
 the parser discovers configuration elements. See
-<a href="/manual/conf_walk.html" class="manlink">conf_walk(3)</a> for details.</p></li>
+<a href="/manual/conf-walk/" class="manlink">conf_walk(3)</a> for details.</p></li>
 </ul>
 <ul>
 <li><p>The second interface builds an in-memory representation of the
 configuration unit which can be inspected in a freeform way. This
 approach will be familiar as most parsers build an in-memory
 representation for freeform traversal. See
-<a href="/manual/conf_parse.html" class="manlink">conf_parse(3)</a> for details.</p></li>
+<a href="/manual/conf-parse/" class="manlink">conf_parse(3)</a> for details.</p></li>
 </ul>
+<h2>Functions</h2>
+<p>The Confetti C API consists of fewer than a dozen functions:</p>
+<dl>
+<dt><a href="/manual/conf-walk/" class="manlink">conf_walk(3)</a></dt>
+<dd>
+<p>Parse a configuration unit and incrementally invoke a function
+callback as the parser discovers configuration elements.</p>
+</dd>
+<dt><a href="/manual/conf-parse/" class="manlink">conf_parse(3)</a></dt>
+<dd>
+<p>Parse a configuration unit into an in-memory representation for
+freeform traversal.</p>
+</dd>
+<dt><a href="/manual/conf-free/" class="manlink">conf_free(3)</a></dt>
+<dd>
+<p>Free a configuration unit returned from
+<a href="/manual/conf-parse/" class="manlink">conf_parse(3)</a>.</p>
+</dd>
+<dt><a href="/manual/conf-get-root/" class="manlink">conf_get_root(3)</a></dt>
+<dd>
+<p>Returns a pseudo directive representing the top-level of the
+configuration unit.</p>
+</dd>
+<dt><a href="/manual/conf-get-comment/" class="manlink">conf_get_comment(3)</a></dt>
+<dd>
+<p>Get a comment from the configuration unit.</p>
+</dd>
+<dt><a href="/manual/conf-get-comment-count/" class="manlink">conf_get_comment_count(3)</a></dt>
+<dd>
+<p>Number of comments in the configuration unit.</p>
+</dd>
+<dt><a href="/manual/conf-get-directive/" class="manlink">conf_get_directive(3)</a></dt>
+<dd>
+<p>Get a subdirective from a directive.</p>
+</dd>
+<dt><a href="/manual/conf-get-directive-count/" class="manlink">conf_get_directive_count(3)</a></dt>
+<dd>
+<p>Number of subdirectives belonging to a directive.</p>
+</dd>
+<dt><a href="/manual/conf-get-argument/" class="manlink">conf_get_argument(3)</a></dt>
+<dd>
+<p>Get an argument belonging to a directive.</p>
+</dd>
+<dt><a href="/manual/conf-get-argument-count/" class="manlink">conf_get_argument_count(3)</a></dt>
+<dd>
+<p>Number of arguments belonging to a directive.</p>
+</dd>
+</dl>
 <h1>EXAMPLE</h1>
 <p>The following is an example of a Confetti-conformant configuration
 unit:</p>
@@ -98,15 +131,17 @@ user &quot;Joe Williams&quot; {
     login joe
     machine 167.89.14.1
 }</code></pre>
+<p>Complete code examples demonstrating how to parse Confetti source
+text with the C API are included with the source distribution.</p>
 <h1>SEE ALSO</h1>
-<p><a href="/manual/conf_walk.html" class="manlink">conf_walk(3)</a>, <a href="/manual/conf_parse.html" class="manlink">conf_parse(3)</a>,
-<a href="/manual/conf_free.html" class="manlink">conf_free(3)</a>, <a href="/manual/conf_get_root.html" class="manlink">conf_get_root(3)</a>,
-<a href="/manual/conf_get_comment.html" class="manlink">conf_get_comment(3)</a>,
-<a href="/manual/conf_get_comment_count.html" class="manlink">conf_get_comment_count(3)</a>,
-<a href="/manual/conf_get_directive.html" class="manlink">conf_get_directive(3)</a>,
-<a href="/manual/conf_get_directive_count.html" class="manlink">conf_get_directive_count(3)</a>,
-<a href="/manual/conf_get_argument.html" class="manlink">conf_get_argument(3)</a>,
-<a href="/manual/conf_get_argument_count.html" class="manlink">conf_get_argument_count(3)</a></p>
+<p><a href="/manual/conf-walk/" class="manlink">conf_walk(3)</a>, <a href="/manual/conf-parse/" class="manlink">conf_parse(3)</a>,
+<a href="/manual/conf-free/" class="manlink">conf_free(3)</a>, <a href="/manual/conf-get-root/" class="manlink">conf_get_root(3)</a>,
+<a href="/manual/conf-get-comment/" class="manlink">conf_get_comment(3)</a>,
+<a href="/manual/conf-get-comment-count/" class="manlink">conf_get_comment_count(3)</a>,
+<a href="/manual/conf-get-directive/" class="manlink">conf_get_directive(3)</a>,
+<a href="/manual/conf-get-directive-count/" class="manlink">conf_get_directive_count(3)</a>,
+<a href="/manual/conf-get-argument/" class="manlink">conf_get_argument(3)</a>,
+<a href="/manual/conf-get-argument-count/" class="manlink">conf_get_argument_count(3)</a></p>
 <h1>INTERNET RESOURCES</h1>
 <p>The website for Confetti, which hosts learning materials, examples,
 and the specification, is published at <a
@@ -120,7 +155,6 @@ issue tracker.</p>
 Please see the LICENSE file included with the Confetti distribution for
 details.</p>
 </main>
-    </div>
   </div>
 </body>
 </html>
