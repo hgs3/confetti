@@ -9,7 +9,7 @@ Schema conformance is validated by the user application.
 Confetti does **not** compete with JSON or XML, it competes with [INI files](https://en.wikipedia.org/wiki/INI_file).
 
 [![Build Status](https://github.com/hgs3/confetti/actions/workflows/build.yml/badge.svg)](https://github.com/hgs3/confetti/actions/workflows/build.yml)&nbsp;
-[![Documentation](https://img.shields.io/badge/Man_Pages-online-blue)](https://confetti.hgs3.me/manual/confetti.html)
+[![Documentation](https://img.shields.io/badge/Man_Pages-online-blue)](https://confetti.hgs3.me/manual/)
 
 ## Example
 
@@ -68,7 +68,7 @@ Code examples can be found in the [examples](examples/) directory.
 Confetti language documentation is available on [its website](https://confetti.hgs3.me/).
 
 The C API is documented by its man pages.
-Run `man confetti` after installing the library or [view them online](https://confetti.hgs3.me/manual/confetti.html).
+Run `man confetti` after installing the library or [view them online](https://confetti.hgs3.me/manual/).
 
 ## License
 
