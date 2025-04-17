@@ -29,6 +29,11 @@ target_compile_definitions(confetti PUBLIC $<$<CONFIG:Debug>:DEBUG>)
 set_property(TARGET confetti PROPERTY C_STANDARD 11)
 set_property(TARGET confetti PROPERTY C_STANDARD_REQUIRED TRUE)
 
+# Enable code coverage.
+if (CONFETTI_CODE_COVERAGE)
+    target_compile_definitions(confetti PUBLIC -DCODE_COVERAGE=1)
+endif ()
+
 # Enable compiler flags to detect common issues.
 if (CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_C_COMPILER_ID MATCHES "GNU")
     target_compile_options(confetti PRIVATE -pedantic)

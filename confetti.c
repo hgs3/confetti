@@ -37,6 +37,13 @@
 #include <stdalign.h>
 #include <stddef.h>
 
+// When gathering branch coverage, do not let untaken assert branches contribute negatively to
+// the metrics. Asserts are never supposed to fail so their branches will not be taken.
+#if defined(CODE_COVERAGE)
+#undef assert
+#define assert(x)
+#endif
+
 // This is a workaround for Visual Studio's lack of support for max_align_t.
 #if defined(_MSC_VER)
 #define max_align_t 16
@@ -164,10 +171,8 @@ static void parse_body(conf_unit *conf, conf_directive *parent, int depth);
 
 _Noreturn static void die(conf_unit *conf, conf_errno error, const char *where, const char *message, ...)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(where != NULL);
-    // LCOV_EXCL_STOP
 
     conf->err.code = error;
     conf->err.where = where - conf->string;
@@ -180,14 +185,14 @@ _Noreturn static void die(conf_unit *conf, conf_errno error, const char *where, 
         strcpy(conf->err.description, "formatting description failed");
     }
     va_end(args);
-    assert(n < (int)sizeof(conf->err.description)); // LCOV_EXCL_BR_LINE
+    assert(n < (int)sizeof(conf->err.description));
 
     longjmp(conf->err_buf, 1);
 }
 
 static void *default_alloc(void *ud, void *ptr, size_t size)
 {
-    assert(size > 0); // LCOV_EXCL_BR_LINE
+    assert(size > 0);
     if (ptr == NULL)
     {
         return malloc(size);
@@ -201,10 +206,8 @@ static void *default_alloc(void *ud, void *ptr, size_t size)
 
 static void *new(conf_unit *conf, size_t size)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(size > 0);
-    // LCOV_EXCL_STOP
     return conf->options.allocator(conf->options.user_data, NULL, size);
 }
 
@@ -220,19 +223,15 @@ static void *zero_new(conf_unit *conf, size_t size)
 
 static void delete(conf_unit *conf, void *ptr, size_t size)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(ptr != NULL);
     assert(size > 0);
-    // LCOV_EXCL_STOP
     conf->options.allocator(conf->options.user_data, ptr, size);
 }
 
 static uchar utf8decode2(const char *utf8, size_t *utf8_length)
 {
-    // LCOV_EXCL_START
     assert(utf8 != NULL);
-    // LCOV_EXCL_STOP
 
     static const uint8_t bytes_needed_for_UTF8_sequence[] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -363,11 +362,9 @@ static uchar utf8decode(conf_unit *conf, const char *utf8, size_t *utf8_length)
 
 static bool is_newline(conf_unit *conf, const char *string, size_t *length)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(string != NULL);
     assert(length != NULL);
-    // LCOV_EXCL_STOP
 
     if (strncmp(string, "\r\n", 2) == 0)
     {
@@ -395,12 +392,10 @@ static bool is_newline(conf_unit *conf, const char *string, size_t *length)
 // When the stack is empty, the expression has been fully processed.
 static void scan_expression_argument(conf_unit *conf, const char *string, token *tok)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(string != NULL);
     assert(string[0] == '(');
     assert(tok != NULL);
-    // LCOV_EXCL_STOP
 
     const char *at = string + 1; // +1 to skip the opening '(' character
     size_t stack = 1; // "push" an opening '(' character onto the "stack"
@@ -459,12 +454,10 @@ static void scan_triple_quoted_argument(conf_unit *conf, const char *string, tok
     const char *at = string;
     size_t length;
 
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(string != NULL);
     assert(tok != NULL);
     assert((at[0] == '"') && (at[1] == '"') && (at[2] == '"'));
-    // LCOV_EXCL_STOP
 
     at += 3; // Skip the opening quote characters.
 
@@ -535,12 +528,10 @@ static void scan_single_quoted_argument(conf_unit *conf, const char *string, tok
     const char *at = string;
     size_t length;
 
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(string != NULL);
     assert(tok != NULL);
     assert(at[0] == '"');
-    // LCOV_EXCL_STOP
 
     at += 1; // Skip the opening quote character.
 
@@ -611,12 +602,10 @@ static void scan_single_quoted_argument(conf_unit *conf, const char *string, tok
 
 static bool scan_punctuator_argument(conf_unit *conf, const char *string, token *tok, uchar starter)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(conf->punctuators_count > 0);
     assert(string != NULL);
     assert(tok != NULL);
-    // LCOV_EXCL_STOP
 
     size_t longest_match = 0;
     for (long i = 0; i < conf->punctuators_count; i++)
@@ -662,11 +651,9 @@ static void scan_argument(conf_unit *conf, const char *string, token *tok)
     const char *at = string;
     size_t length;
 
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(string != NULL);
     assert(tok != NULL);
-    // LCOV_EXCL_STOP
     
     for (;;)
     {
@@ -730,11 +717,9 @@ static void scan_argument(conf_unit *conf, const char *string, token *tok)
 
 static void scan_whitespace(conf_unit *conf, const char *string, token *tok)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(string != NULL);
     assert(tok != NULL);
-    // LCOV_EXCL_STOP
 
     const char *at = string;
     for (;;)
@@ -758,12 +743,10 @@ static void scan_whitespace(conf_unit *conf, const char *string, token *tok)
 
 static void scan_single_line_comment(conf_unit *conf, const char *string, token *tok)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(string != NULL);
     assert(string[0] == '#' || (string[0] == '/' && string[1] == '/'));
     assert(tok != NULL);
-    // LCOV_EXCL_STOP
 
     const char *at = string;
     for (;;)
@@ -803,12 +786,10 @@ static void scan_single_line_comment(conf_unit *conf, const char *string, token 
 
 static void scan_multi_line_comment(conf_unit *conf, const char *string, token *tok)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(string != NULL);
     assert(string[0] == '/' && string[1] == '*');
     assert(tok != NULL);
-    // LCOV_EXCL_STOP
 
     const char *at = string;
     for (;;)
@@ -848,11 +829,9 @@ static void scan_multi_line_comment(conf_unit *conf, const char *string, token *
 
 static void scan_token(conf_unit *conf, const char *string, token *tok)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(string != NULL);
     assert(tok != NULL);
-    // LCOV_EXCL_STOP
 
     if (string[0] == '#')
     {
@@ -1006,13 +985,13 @@ static void record_comment(conf_unit *unit, const conf_comment *data)
 
     if (unit->comment_head == NULL)
     {
-        assert(unit->comment_tail == NULL); // LCOV_EXCL_BR_LINE
+        assert(unit->comment_tail == NULL);
         unit->comment_head = comment;
         unit->comment_tail = comment;
     }
     else
     {
-        assert(unit->comment_tail != NULL); // LCOV_EXCL_BR_LINE
+        assert(unit->comment_tail != NULL);
         unit->comment_tail->next = comment;
         unit->comment_tail = comment;
     }
@@ -1021,10 +1000,8 @@ static void record_comment(conf_unit *unit, const conf_comment *data)
 
 static token_type peek(conf_unit *unit, token *tok)
 {
-    // LCOV_EXCL_START
     assert(unit != NULL);
     assert(tok != NULL);
-    // LCOV_EXCL_STOP
 
     if (unit->peek.type == TOK_INVALID)
     {
@@ -1070,10 +1047,8 @@ static token_type peek(conf_unit *unit, token *tok)
 
 static token_type eat(conf_unit *conf, token *tok)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(tok != NULL);
-    // LCOV_EXCL_STOP
 
     peek(conf, tok);
     conf->needle += tok->lexeme_length;
@@ -1083,10 +1058,8 @@ static token_type eat(conf_unit *conf, token *tok)
 
 static size_t copy_token_to_buffer(conf_unit *conf, char *dest, const token *tok)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(tok != NULL);
-    // LCOV_EXCL_STOP
 
     const char *stop_offset = &conf->string[tok->lexeme + tok->lexeme_length];
     const char *offset = &conf->string[tok->lexeme];
@@ -1144,10 +1117,8 @@ static size_t copy_token_to_buffer(conf_unit *conf, char *dest, const token *tok
 
 static void parse_directive(conf_unit *conf, conf_directive *parent, int depth)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(depth >= 0);
-    // LCOV_EXCL_STOP
 
     token tok;
 
@@ -1227,13 +1198,13 @@ static void parse_directive(conf_unit *conf, conf_directive *parent, int depth)
     // Link this directive with its parent directive.
     if (parent->subdir_head == NULL)
     {
-        assert(parent->subdir_tail == NULL); // LCOV_EXCL_BR_LINE
+        assert(parent->subdir_tail == NULL);
         parent->subdir_head = dir;
         parent->subdir_tail = dir;
     }
     else
     {
-        assert(parent->subdir_tail != NULL); // LCOV_EXCL_BR_LINE
+        assert(parent->subdir_tail != NULL);
         parent->subdir_tail->next = dir;
         parent->subdir_tail = dir;
     }
@@ -1279,10 +1250,8 @@ static void parse_directive(conf_unit *conf, conf_directive *parent, int depth)
 
 static void walk_directive(conf_unit *conf, int depth)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(depth >= 0);
-    // LCOV_EXCL_STOP
 
     token tok;
 
@@ -1420,10 +1389,8 @@ static void walk_directive(conf_unit *conf, int depth)
 // list items are copied to an array for O(1) access.
 static void parse_body(conf_unit *conf, conf_directive *parent, int depth)
 {
-    // LCOV_EXCL_START
     assert(conf != NULL);
     assert(depth >= 0);
-    // LCOV_EXCL_STOP
 
     // Check if the maxmimum nesting depth has been exceeded.
     if (depth >= conf->options.max_depth)
@@ -1446,13 +1413,13 @@ static void parse_body(conf_unit *conf, conf_directive *parent, int depth)
             if (parent == NULL)
             {
                 walk_directive(conf, depth);
-                assert(conf->walk != NULL); // LCOV_EXCL_BR_LINE
+                assert(conf->walk != NULL);
             }
             else
             {
                 parse_directive(conf, parent, depth);
                 subdirs_count += 1;
-                assert(conf->walk == NULL); // LCOV_EXCL_BR_LINE
+                assert(conf->walk == NULL);
             }
             continue;
         }
@@ -1475,7 +1442,7 @@ static void parse_body(conf_unit *conf, conf_directive *parent, int depth)
             die(conf, CONF_BAD_SYNTAX, conf->needle, "unexpected line continuation");
         }
 
-        assert((tok.type == ';') || (tok.type == '{')); // LCOV_EXCL_BR_LINE
+        assert((tok.type == ';') || (tok.type == '{'));
         die(conf, CONF_BAD_SYNTAX, conf->needle, "unexpected '%c'", tok.type);
     }
 
@@ -1590,14 +1557,14 @@ static void free_directive(conf_unit *conf, conf_directive *dir)
         delete(conf, dir->subdir, sizeof(dir->subdir[0]) * dir->subdir_count);
     }
     
-    assert(dir->arguments_count > 0); // LCOV_EXCL_BR_LINE
+    assert(dir->arguments_count > 0);
     delete(conf, dir->arguments, sizeof(dir->arguments[0]) * dir->arguments_count);
     delete(conf, dir, sizeof(dir[0]) + dir->buffer_length);
 }
 
 void deinit_configuration_unit(conf_unit *unit)
 {
-    assert(unit != NULL); // LCOV_EXCL_BR_LINE
+    assert(unit != NULL);
 
     if (unit->root != NULL)
     {
@@ -1679,7 +1646,7 @@ static void parse_configuration_unit(conf_unit *unit)
     peek(unit, &tok);
     if (tok.type != TOK_EOF)
     {
-        assert(tok.type == '}'); // LCOV_EXCL_BR_LINE
+        assert(tok.type == '}');
         die(unit, CONF_BAD_SYNTAX, unit->needle, "found '}' without matching '{'");
     }
 }
@@ -1828,7 +1795,7 @@ static conf_errno init_punctuator_arguments(conf_unit *unit, const char **punctu
             unique_starters += 1;
         }
     }
-    assert(unique_starters > 0); // LCOV_EXCL_BR_LINE
+    assert(unique_starters > 0);
 
     // Allocate an array large enough to accomidate pointers to each string for each unique starter.
     struct punctset **punctuators = zero_new(unit, sizeof(punctuators[0]) * unique_starters);
@@ -1892,8 +1859,8 @@ static conf_errno init_punctuator_arguments(conf_unit *unit, const char **punctu
                 break;
             }
         }
-        assert(punct != NULL); // LCOV_EXCL_BR_LINE
-        assert(counter != NULL); // LCOV_EXCL_BR_LINE
+        assert(punct != NULL);
+        assert(counter != NULL);
 
         // Copy the punctuator to the cache-friendly buffer.
         memcpy(&punct->punctuators[counter->buffer_offset], string, length + 1);
