@@ -37,7 +37,8 @@
           <li><a href="/specification/">Specification<span class="icon-chevron"></span></a></li>
         </ul>
         <ul>
-          <li><a href="https://github.com/hgs3/confetti"><span>GitHub</span><span class="icon-github"></span></a></li>
+          <li><a href="https://github.com/hgs3/confetti/discussions"><span>Discussion</span><span class="icon-discuss"></span></a></li>
+          <li><a href="https://github.com/hgs3/confetti"><span>Repository</span><span class="icon-github"></span></a></li>
         </ul>
       </nav>
     </aside>
@@ -70,11 +71,8 @@
             <li class="active"><a href="/specification/">Specification</a></li>
           </ul>
           <ul class="header-external-links">
-            <li>
-              <a href="https://github.com/hgs3/confetti/">
-                <span class="icon-github"></span>
-              </a>
-            </li>
+            <li><a title="Discussion" href="https://github.com/hgs3/confetti/discussions"><span class="icon-discuss"></span></a></li>
+            <li><a title="Repository" href="https://github.com/hgs3/confetti/"><span class="icon-github"></span></a></li>
           </ul>
         </nav>
       </header>
@@ -148,10 +146,12 @@ These extensions provide a syntactic framework for extending Confetti in a way c
 </div>
 <div class="paragraph">
 <p>The Confetti grammar has been designed to allow each directive to be processed individually; that is, an implementation may process all arguments of a single directive before continuing to the next directive or subdirectives.
-This design allows for implementations that let the user decide if processing should continue based on their semantic interpretation of the directive.</p>
+This design allows for <em>incremental processing</em>.
+It also allows the user to decide if processing should continue (or abort) based on their semantic interpretation of a directive.</p>
 </div>
 <div class="paragraph">
-<p>The complete grammar is available in the back matter of this specification.</p>
+<p>Implementations may use their own terminology when presenting Confetti concepts to end users.
+For example, they may refer to the first argument of a directive as its <em>name</em> (or <em>key</em>) and the remaining arguments as its <em>de facto arguments</em> (or <em>values</em>).</p>
 </div>
 <div class="paragraph">
 <p>This specification is also available as a <a href="/downloads/specification.pdf">PDF download</a>.</p>
@@ -205,7 +205,7 @@ This specification does not mandate a specific Unicode character encoding form.<
 <p>Comments must begin with a <code>#</code> and continue until a <a href="#_line_terminators">line terminator</a> or EOF is found.</p>
 </div>
 <div class="paragraph">
-<p>All Unicode characters should be allowed in comments excluding <a href="#_forbidden_characters">forbidden characters</a>.</p>
+<p>All Unicode characters should be permitted in comments excluding <a href="#_forbidden_characters">forbidden characters</a>.</p>
 </div>
 <div class="listingblock">
 <div class="title">Example: Comment.</div>
@@ -569,7 +569,7 @@ It is possible newer standards may necessitate a revision of this specification.
 <div class="sectionbody">
 <div class="paragraph">
 <p>Implementations may support <em>expression arguments</em>.
-An expression argument is a user-defined expression that may appear wherever an <a href="#_argument">argument</a> is allowed.
+An expression argument is a user-defined expression that may appear wherever an <a href="#_argument">argument</a> is permitted.
 The interpretation and evaluation of an expression argument is implementation defined.</p>
 </div>
 <div class="paragraph">
@@ -593,7 +593,7 @@ expression-argument ::= `(` ? implementation defined ? `)`</code></pre>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Implementations may define their own <em>punctuator arguments</em>.
-A punctuator argument is a self-delimiting argument that may appear wherever an <a href="#_argument">argument</a> is allowed.</p>
+A punctuator argument is a self-delimiting argument that may appear wherever an <a href="#_argument">argument</a> is permitted.</p>
 </div>
 <div class="paragraph">
 <p>Punctuator arguments shall consist of one or more characters from the <a href="#_argument">argument character set</a>.</p>

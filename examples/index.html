@@ -37,7 +37,8 @@
           <li><a href="/specification/">Specification<span class="icon-chevron"></span></a></li>
         </ul>
         <ul>
-          <li><a href="https://github.com/hgs3/confetti"><span>GitHub</span><span class="icon-github"></span></a></li>
+          <li><a href="https://github.com/hgs3/confetti/discussions"><span>Discussion</span><span class="icon-discuss"></span></a></li>
+          <li><a href="https://github.com/hgs3/confetti"><span>Repository</span><span class="icon-github"></span></a></li>
         </ul>
       </nav>
     </aside>
@@ -70,11 +71,8 @@
             <li ><a href="/specification/">Specification</a></li>
           </ul>
           <ul class="header-external-links">
-            <li>
-              <a href="https://github.com/hgs3/confetti/">
-                <span class="icon-github"></span>
-              </a>
-            </li>
+            <li><a title="Discussion" href="https://github.com/hgs3/confetti/discussions"><span class="icon-discuss"></span></a></li>
+            <li><a title="Repository" href="https://github.com/hgs3/confetti/"><span class="icon-github"></span></a></li>
           </ul>
         </nav>
       </header>
@@ -87,13 +85,14 @@
 <li><a href="#_application_settings">Application Settings</a></li>
 <li><a href="#_document_markup">Document Markup</a></li>
 <li><a href="#_workflow_automation">Workflow Automation</a></li>
-<li><a href="#_user_interface">User Interface</a></li>
+<li><a href="#_user_interfaces">User Interfaces</a></li>
+<li><a href="#_build_systems">Build Systems</a></li>
 <li><a href="#_ai_training">AI Training</a></li>
 <li><a href="#_command_formats">Command Formats</a></li>
 <li><a href="#_domain_specific_languages">Domain Specific Languages</a>
 <ul class="sectlevel2">
 <li><a href="#_shell_commands">Shell Commands</a></li>
-<li><a href="#_stack_based_language">Stack-Based Language</a></li>
+<li><a href="#_stack_based_languages">Stack-Based Languages</a></li>
 <li><a href="#_control_flow">Control Flow</a></li>
 <li><a href="#_state_machine">State Machine</a></li>
 </ul>
@@ -188,7 +187,7 @@ It represents various tasks that you could potentially run via the command line.
 </div>
 </div>
 <div class="sect1">
-<h2 id="_user_interface"><span>User Interface</span><a href="#_user_interface">#</a></h2>
+<h2 id="_user_interfaces"><span>User Interfaces</span><a href="#_user_interfaces">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This example demonstrates how Confetti could be used for designing user interfaces.
@@ -208,6 +207,28 @@ function() {
 }
 """</span>
         }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_build_systems"><span>Build Systems</span><a href="#_build_systems">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A programming language could use Confetti for its build system.</p>
+</div>
+<div class="paragraph">
+<p>The following snippet is an example of a pseudo build script for the C programming language.
+Here, the arguments for each subdirective of <code>sources</code> are interpreted as a contiguous list of source files.</p>
+</div>
+<pre><code><span class="directive">project</span> Linux
+<span class="directive">version</span> 6.14
+<span class="directive">target</span> kernel {
+    <span class="directive">flags</span> -Wall
+    <span class="directive">sources</span> {
+        init.c fork.c scheduler.c
+        interrupt.c
+        deadlock.c panic.c
     }
 }</code></pre>
 </div>
@@ -291,7 +312,7 @@ From simple commands:</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_stack_based_language"><span>Stack-Based Language</span><a href="#_stack_based_language">#</a></h3>
+<h3 id="_stack_based_languages"><span>Stack-Based Languages</span><a href="#_stack_based_languages">#</a></h3>
 <div class="paragraph">
 <p>Confetti can be used to create simple stack-based languages.</p>
 </div>
