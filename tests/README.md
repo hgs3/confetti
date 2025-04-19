@@ -1,7 +1,7 @@
 # Conformance Test Suite
 
 If you create your own implementation of Confetti, then you should test it against the official conformance test suite.
-The test cases are located in the [suite](suite/) directory.
+The test cases are located in the [conformance](conformance/) directory.
 
 Files ending with the extension `.conf` are the input files.
 You feed these to your Confetti parser.

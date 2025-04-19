@@ -2245,25 +2245,25 @@ for tcase in test_cases:
         out.write(bytes)
 
     # Generate test data for 3rd party implementations to validate against.
-    Path(f"suite").mkdir(exist_ok=True)
-    with open(f"suite/{tcase.name}.conf", "wb") as out:
+    Path(f"conformance").mkdir(exist_ok=True)
+    with open(f"conformance/{tcase.name}.conf", "wb") as out:
         out.write(bytes)
     if isinstance(tcase.output, Success):
-        with open(f"suite/{tcase.name}.pass", "wb") as out:
+        with open(f"conformance/{tcase.name}.pass", "wb") as out:
             out.write(tcase.output.value.encode("utf-8"))
     else:
-        with open(f"suite/{tcase.name}.fail", "wb") as out:
+        with open(f"conformance/{tcase.name}.fail", "wb") as out:
             out.write(tcase.output.value.encode("utf-8"))
     # Include extensions.
     for extension in tcase.extensions:
         if isinstance(extension, CommentExtension):
-            with open(f"suite/{tcase.name}.ext_c_style_comments", "w", encoding="utf-8") as out:
+            with open(f"conformance/{tcase.name}.ext_c_style_comments", "w", encoding="utf-8") as out:
                 pass
         elif isinstance(extension, ExpressionArgumentsExtension):
-            with open(f"suite/{tcase.name}.ext_expression_arguments", "w", encoding="utf-8") as out:
+            with open(f"conformance/{tcase.name}.ext_expression_arguments", "w", encoding="utf-8") as out:
                 pass
         elif isinstance(extension, PunctuatorArgumentsExtension):
-            with open(f"suite/{tcase.name}.ext_punctuator_arguments", "w", encoding="utf-8") as out:
+            with open(f"conformance/{tcase.name}.ext_punctuator_arguments", "w", encoding="utf-8") as out:
                 for punct in extension.punctuators:
                     out.write(punct + "\n")
 
