@@ -91,7 +91,12 @@
 <li><a href="#_line_terminators">Line Terminators</a></li>
 <li><a href="#_reserved_punctuators">Reserved Punctuators</a></li>
 <li><a href="#_directive">Directive</a></li>
-<li><a href="#_argument">Argument</a></li>
+<li><a href="#_argument">Argument</a>
+<ul class="sectlevel3">
+<li><a href="#_quoted_argument">Quoted Argument</a></li>
+<li><a href="#_triple_quoted_argument">Triple-Quoted Argument</a></li>
+</ul>
+</li>
 <li><a href="#_escaped_characters">Escaped Characters</a></li>
 <li><a href="#_line_continuation">Line Continuation</a></li>
 </ul>
@@ -375,6 +380,9 @@ The argument character set shall consist of any Unicode scalar value excluding c
 <pre class="highlight"><code class="language-conf" data-lang="conf">name "John Smith, Jr."</code></pre>
 </div>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_triple_quoted_argument"><span>Triple-Quoted Argument</span><a href="#_triple_quoted_argument">#</a></h4>
 <div class="paragraph">
 <p>A triple-quoted argument must begin with three consecutive leading punctuator Quotation Mark (U+0022), followed by zero or more characters from the triple-quoted argument character set, and terminated by the trailing punctuator Quotation Mark (U+0022).</p>
 </div>
