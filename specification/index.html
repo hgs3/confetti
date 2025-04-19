@@ -91,12 +91,8 @@
 <li><a href="#_line_terminators">Line Terminators</a></li>
 <li><a href="#_reserved_punctuators">Reserved Punctuators</a></li>
 <li><a href="#_directive">Directive</a></li>
-<li><a href="#_argument">Argument</a>
-<ul class="sectlevel3">
+<li><a href="#_argument">Argument</a></li>
 <li><a href="#_quoted_argument">Quoted Argument</a></li>
-<li><a href="#_triple_quoted_argument">Triple-Quoted Argument</a></li>
-</ul>
-</li>
 <li><a href="#_escaped_characters">Escaped Characters</a></li>
 <li><a href="#_line_continuation">Line Continuation</a></li>
 </ul>
@@ -112,7 +108,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This specification defines <strong>version 1.0-beta</strong> of Confetti.</p>
+<p>This specification defines <strong>version 1.0-beta.1</strong> of Confetti.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -315,9 +311,13 @@ This specification does not mandate a specific Unicode character encoding form.<
 <div class="paragraph">
 <p>A configuration unit shall consist of zero or more <em>directives</em>.</p>
 </div>
+<div class="sect3">
+<h4 id="_simple_directive"><span>Simple Directive</span><a href="#_simple_directive">#</a></h4>
 <div class="paragraph">
-<p>A simple directive shall be a sequence of one or more <a href="#_argument">arguments</a>.
-A simple directive must be terminated by a character from the <a href="#_line_terminators">line terminator</a> character set or a Semicolon (U+003B).</p>
+<p>A simple directive shall be a sequence of one or more <a href="#_argument">arguments</a>.</p>
+</div>
+<div class="paragraph">
+<p>A simple directive must be terminated by a character from the <a href="#_line_terminators">line terminator</a> character set or a Semicolon (U+003B).</p>
 </div>
 <div class="listingblock">
 <div class="title">Example: Simple directive with two arguments.</div>
@@ -325,6 +325,9 @@ A simple directive must be terminated by a character from the <a href="#_line_te
 <pre class="highlight"><code class="language-conf" data-lang="conf">username jsmith</code></pre>
 </div>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_block_directive"><span>Block Directive</span><a href="#_block_directive">#</a></h4>
 <div class="paragraph">
 <p>A block directive shall be a sequence of one or more <a href="#_argument">arguments</a>, zero or more <a href="#_line_terminators">line terminators</a>, and a subdirective block.</p>
 </div>
@@ -351,6 +354,7 @@ The subdirective block begins with a Left Curly Bracket (U+007B) and terminates 
 </ol>
 </div>
 </div>
+</div>
 <div class="sect2">
 <h3 id="_argument"><span>Argument</span><a href="#_argument">#</a></h3>
 <div class="paragraph">
@@ -360,22 +364,25 @@ The argument character set shall consist of any Unicode scalar value excluding c
 <div class="paragraph">
 <p>The value of an argument shall be the argument’s lexeme with <a href="#_escaped_characters">escaped characters</a> processed and <a href="#_line_continuation">line continuations</a> processed.</p>
 </div>
-<div class="sect3">
-<h4 id="_quoted_argument"><span>Quoted Argument</span><a href="#_quoted_argument">#</a></h4>
+</div>
+<div class="sect2">
+<h3 id="_quoted_argument"><span>Quoted Argument</span><a href="#_quoted_argument">#</a></h3>
 <div class="paragraph">
 <p>A quoted argument shall be an argument enclosed in Quotation Marks (U+0022).</p>
 </div>
+<div class="sect3">
+<h4 id="_single_quoted_argument"><span>Single-Quoted Argument</span><a href="#_single_quoted_argument">#</a></h4>
 <div class="paragraph">
-<p>A quoted argument must begin with a leading punctuator Quotation Mark (U+0022), followed by zero or more quoted argument characters, and terminated by the trailing punctuator Quotation Mark (U+0022).</p>
+<p>A single-quoted argument must begin with a leading punctuator Quotation Mark (U+0022), followed by zero or more single-quoted argument characters, and terminated by the trailing punctuator Quotation Mark (U+0022).</p>
 </div>
 <div class="paragraph">
-<p>The quoted argument character set shall be the union of the argument character set and <a href="#_white_space">white space</a> character set.</p>
+<p>The single-quoted argument character set shall be the union of the argument character set and <a href="#_white_space">white space</a> character set.</p>
 </div>
 <div class="paragraph">
-<p>The value of a quoted argument shall be the argument’s lexeme with <a href="#_escaped_characters">escaped characters</a> processed, leading and trailing Quotation Mark (U+0022) removed, and <a href="#_line_continuation">line continuations</a> processed.</p>
+<p>The value of a single-quoted argument shall be the argument’s lexeme with <a href="#_escaped_characters">escaped characters</a> processed, leading and trailing Quotation Mark (U+0022) removed, and <a href="#_line_continuation">line continuations</a> processed.</p>
 </div>
 <div class="listingblock">
-<div class="title">Example: Directive with a quoted argument.</div>
+<div class="title">Example: Directive with a single-quoted argument.</div>
 <div class="content">
 <pre class="highlight"><code class="language-conf" data-lang="conf">name "John Smith, Jr."</code></pre>
 </div>
@@ -405,7 +412,7 @@ The argument character set shall consist of any Unicode scalar value excluding c
 <div class="sect2">
 <h3 id="_escaped_characters"><span>Escaped Characters</span><a href="#_escaped_characters">#</a></h3>
 <div class="paragraph">
-<p>When a Reverse Solidus (U+005C) appears in an argument, a quoted argument, or a tripled quoted argument, it must be succeeded by a Unicode character 'C'.
+<p>When a Reverse Solidus (U+005C) appears in an argument, a single-quoted argument, or a tripled quoted argument, it must be succeeded by a Unicode character 'C'.
 Unicode character 'C' shall be any Unicode scalar value except <a href="#_white_space">white space</a>, <a href="#_line_terminators">line terminators</a>, and <a href="#_forbidden_characters">forbidden characters</a>.</p>
 </div>
 <div class="paragraph">
@@ -436,10 +443,10 @@ eth1</code></pre>
 </ol>
 </div>
 <div class="paragraph">
-<p>Between the Quotation Marks (U+0022) of a quoted argument, when a Reverse Solidus (U+005C) immediately precedes a <a href="#_line_terminators">line terminator</a>, the implementation shall delete the reverse solidus and line terminator and continue processing quoted argument characters.</p>
+<p>Between the Quotation Marks (U+0022) of a single-quoted argument, when a Reverse Solidus (U+005C) immediately precedes a <a href="#_line_terminators">line terminator</a>, the implementation shall delete the reverse solidus and line terminator and continue processing single-quoted argument characters.</p>
 </div>
 <div class="listingblock">
-<div class="title">Example: Line continuation in a quoted argument.</div>
+<div class="title">Example: Line continuation in a single-quoted argument.</div>
 <div class="content">
 <pre class="highlight"><code class="language-conf" data-lang="conf">message "Hello, \ <b class="conum">(1)</b>
 World!"</code></pre>
