@@ -41,8 +41,11 @@ size_t length;
 The \fIoffset\fR and \fIlength\fR fields describe the span of UTF-8 code units of the comment in the Confetti source text.
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
-The comment or comment count for the Confetti configuration \fIunit\fR.
+.SH RETURN VALUE
+The \fBconf_get_comment\fR() function returns the comment at \fIindex\fR for the Confetti configuration \fIunit\fR.
 If \fIindex\fR is out-of-bounds or \fIunit\fR is NULL, then NULL is returned.
+.PP
+The \fBconf_get_comment_count\fR() function returns the number of comments for the Confetti configuration \fIunit\fR.
 .\" --------------------------------------------------------------------------
 .SH LICENSING
 Confetti is Open Source software distributed under the MIT License.

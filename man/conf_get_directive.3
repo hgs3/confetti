@@ -31,8 +31,10 @@ The \fBconf_get_directive_count\fR() function returns the number of subdirective
 Review the SEE ALSO section for functions that the opaque type \fBconf_directive\fR can be used with.
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
-The subdirective or subdirective count for the Confetti directive \fIdir\fR.
+The \fBconf_get_directive\fR() function returns the subdirective at \fIindex\fR for the Confetti directive \fIdir\fR.
 If \fIindex\fR is out-of-bounds or \fIdir\fR is NULL, then NULL is returned.
+.PP
+The \fBconf_get_directive_count\fR() function returns the number of subdirectives for the Confetti directive \fIdir\fR.
 .\" --------------------------------------------------------------------------
 .SH SEE ALSO
 .BR conf_get_argument (3),

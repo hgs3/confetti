@@ -29,7 +29,7 @@ The pseudo directive never has arguments.
 It is intended to be used with \fBconf_get_directive\fR(3) and \fBconf_get_directive_count\fR(3) for iterating the top-level directives of the Confetti configuration unit.
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
-A pseudo directive representing the top-level of the Confetti configuration unit or NULL if \fIunit\fR is NULL.
+The \fBconf_get_root\fR() function returns a pseudo directive representing the top-level of the Confetti configuration unit or NULL if \fIunit\fR is NULL.
 .\" --------------------------------------------------------------------------
 .SH SEE ALSO
 .BR conf_get_directive (3),

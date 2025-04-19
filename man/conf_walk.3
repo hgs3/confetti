@@ -23,7 +23,7 @@ Configuration parser (libconfetti, -lconfetti)
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
 The \fBconf_walk\fR() function parses \fIstr\fR as Confetti source text and invokes the function \fIcb\fR when it discovers configuration elements, like a directive or the beginning or end of a subdirective.
-If \fBconf_walk\fR() fails, it returns an error code which is one of \fBconf_errno\fR values and populates \fIerr\fR, if specified, with details.
+If \fBconf_walk\fR() fails, it returns an error code which is one of \fBconf_errno\fR values and populates \fIerr\fR, if provided, with details.
 The conditions under which each \fBconf_errno\fR constant is returned are documented in RETURN VALUE.
 .PP
 The \fIstr\fR and \fIcb\fR arguments are required.

@@ -41,7 +41,7 @@ bool is_expression;
 .in
 .PP
 The \fIvalue\fR field is the evaluated argument as a null-terminated UTF-8 encoded string.
-The memory \fIvalue\fR points to is freed with the configuration unit via \fBconf_free\fR(3).
+The string is freed with the configuration unit.
 .PP
 The \fIlexeme_offset\fR and \fIlexeme_length\fR fields describe the span of UTF-8 code units of the argument in the Confetti source text.
 .PP
@@ -50,8 +50,10 @@ Expression arguments are arguments enclosed in parentheses.
 Expression arguments are a language extension enabled via the \fIconf_extensions\fR structure.
 .\" --------------------------------------------------------------------------
 .SH RETURN VALUE
-The argument or argument count for the Confetti directive \fIdir\fR.
+The \fBconf_get_argument\fR() function returns the argument at \fIindex\fR for the Confetti directive \fIdir\fR.
 If \fIindex\fR is out-of-bounds or \fIdir\fR is NULL, then NULL is returned.
+.PP
+The \fBconf_get_argument_count\fR() function returns the number of arguments for the Confetti directive \fIdir\fR.
 .\" --------------------------------------------------------------------------
 .SH SEE ALSO
 .BR conf_get_directive (3),
