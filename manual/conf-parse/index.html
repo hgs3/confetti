@@ -20,13 +20,9 @@
 <body>
   <div class="manpage-body">
     <header class="manpage-header">
-      <a href="/">
-        <picture>
-          <source type="image/webp" srcset="/assets/branding.webp, /assets/branding-2x.webp 2x, /assets/branding-4x.webp 4x" width="105px" height="48px" />
-          <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
-        </picture>
-      </a>
-      <a href="/manual/" class="manpage-home-link">&lt; back &gt;</a>
+      
+      <a href="/manual/" class="manpage-home-link"><span class="icon-goback"></span>Back</a>
+      
       <div class="manpage-header-links">
         <p>libConfetti Manual</p>
         <a href="https://github.com/hgs3/confetti/">GitHub Repository</a>
@@ -47,7 +43,7 @@ processed configuration unit. The resulting configuration unit is
 returned by this function. It must be freed with
 <a href="/manual/conf-free/" class="manlink">conf_free(3)</a>.</p>
 <p>If an error occurs during parsing, then NULL is returned and
-<em>err</em>, if specified, is populated with error details.</p>
+<em>err</em>, if provided, is populated with error details.</p>
 <p>The behavior of the Confetti parser can be controlled with the
 optional <em>opts</em> argument which is documented below.</p>
 <h2>Error structure</h2>
@@ -113,9 +109,10 @@ size of the memory being allocated or the size of the memory being freed
 depending on if the implementation is to behave like
 <strong>malloc</strong>(3) or <strong>free</strong>(3).</p>
 <h1>RETURN VALUE</h1>
-<p>The Confetti configuration unit or NULL if an error occurs. If an
-error occurs, then <em>err</em>, if specified, will be populated with
-one of the following <strong>conf_errno</strong> constants:</p>
+<p>The <strong>conf_parse</strong>() function returns an instance of a
+Confetti configuration unit or NULL if an error occurs. If an error
+occurs, then <em>err</em>, if provided, will be populated with one of
+the following <strong>conf_errno</strong> constants:</p>
 <dl>
 <dt><strong>CONF_NO_ERROR</strong></dt>
 <dd>

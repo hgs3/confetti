@@ -20,13 +20,9 @@
 <body>
   <div class="manpage-body">
     <header class="manpage-header">
-      <a href="/">
-        <picture>
-          <source type="image/webp" srcset="/assets/branding.webp, /assets/branding-2x.webp 2x, /assets/branding-4x.webp 4x" width="105px" height="48px" />
-          <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
-        </picture>
-      </a>
-      <a href="/manual/" class="manpage-home-link">&lt; back &gt;</a>
+      
+      <a href="/manual/" class="manpage-home-link"><span class="icon-goback"></span>Back</a>
+      
       <div class="manpage-header-links">
         <p>libConfetti Manual</p>
         <a href="https://github.com/hgs3/confetti/">GitHub Repository</a>
@@ -68,9 +64,12 @@ an expression argument. Expression arguments are arguments enclosed in
 parentheses. Expression arguments are a language extension enabled via
 the <em>conf_extensions</em> structure.</p>
 <h1>RETURN VALUE</h1>
-<p>The argument or argument count for the Confetti directive
-<em>dir</em>. If <em>index</em> is out-of-bounds or <em>dir</em> is
-NULL, then NULL is returned.</p>
+<p>The <strong>conf_get_argument</strong>() function returns the
+argument at <em>index</em> for the Confetti directive <em>dir</em>. If
+<em>index</em> is out-of-bounds or <em>dir</em> is NULL, then NULL is
+returned.</p>
+<p>The <strong>conf_get_argument_count</strong>() function returns the
+number of arguments for the Confetti directive <em>dir</em>.</p>
 <h1>SEE ALSO</h1>
 <p><a href="/manual/conf-get-directive/" class="manlink">conf_get_directive(3)</a>,
 <a href="/manual/conf-get-directive-count/" class="manlink">conf_get_directive_count(3)</a></p>

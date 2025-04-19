@@ -20,13 +20,9 @@
 <body>
   <div class="manpage-body">
     <header class="manpage-header">
-      <a href="/">
-        <picture>
-          <source type="image/webp" srcset="/assets/branding.webp, /assets/branding-2x.webp 2x, /assets/branding-4x.webp 4x" width="105px" height="48px" />
-          <img type="image/png" src="/assets/branding.png" srcset="/assets/branding-2x.png 2x, /assets/branding-4x.png 4x" width="105px" height="48px" />
-        </picture>
-      </a>
-      <a href="/manual/" class="manpage-home-link">&lt; back &gt;</a>
+      
+      <a href="/manual/" class="manpage-home-link"><span class="icon-goback"></span>Back</a>
+      
       <div class="manpage-header-links">
         <p>libConfetti Manual</p>
         <a href="https://github.com/hgs3/confetti/">GitHub Repository</a>
@@ -50,8 +46,9 @@ with <a href="/manual/conf-get-directive/" class="manlink">conf_get_directive(3)
 <a href="/manual/conf-get-directive-count/" class="manlink">conf_get_directive_count(3)</a> for iterating the top-level
 directives of the Confetti configuration unit.</p>
 <h1>RETURN VALUE</h1>
-<p>A pseudo directive representing the top-level of the Confetti
-configuration unit or NULL if <em>unit</em> is NULL.</p>
+<p>The <strong>conf_get_root</strong>() function returns a pseudo
+directive representing the top-level of the Confetti configuration unit
+or NULL if <em>unit</em> is NULL.</p>
 <h1>SEE ALSO</h1>
 <p><a href="/manual/conf-get-directive/" class="manlink">conf_get_directive(3)</a>,
 <a href="/manual/conf-get-directive-count/" class="manlink">conf_get_directive_count(3)</a></p>
