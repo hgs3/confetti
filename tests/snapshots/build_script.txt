@@ -1,0 +1,95 @@
+directive {
+    argument {
+        offset 0
+        length 7
+        value "project"
+    }
+    argument {
+        offset 8
+        length 5
+        value "Linux"
+    }
+}
+directive {
+    argument {
+        offset 14
+        length 7
+        value "version"
+    }
+    argument {
+        offset 22
+        length 4
+        value "6.14"
+    }
+}
+directive {
+    argument {
+        offset 27
+        length 6
+        value "target"
+    }
+    argument {
+        offset 34
+        length 6
+        value "kernel"
+    }
+    subdirectives {
+        directive {
+            argument {
+                offset 47
+                length 5
+                value "flags"
+            }
+            argument {
+                offset 53
+                length 5
+                value "-Wall"
+            }
+        }
+        directive {
+            argument {
+                offset 63
+                length 7
+                value "sources"
+            }
+            subdirectives {
+                directive {
+                    argument {
+                        offset 81
+                        length 6
+                        value "init.c"
+                    }
+                    argument {
+                        offset 88
+                        length 6
+                        value "fork.c"
+                    }
+                    argument {
+                        offset 95
+                        length 11
+                        value "scheduler.c"
+                    }
+                }
+                directive {
+                    argument {
+                        offset 115
+                        length 11
+                        value "interrupt.c"
+                    }
+                }
+                directive {
+                    argument {
+                        offset 135
+                        length 10
+                        value "deadlock.c"
+                    }
+                    argument {
+                        offset 146
+                        length 7
+                        value "panic.c"
+                    }
+                }
+            }
+        }
+    }
+}

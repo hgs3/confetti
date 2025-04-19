@@ -1717,6 +1717,34 @@ function() {
         []
     ),
     TestCase(
+        "build_script",
+        # input
+        """project Linux
+version 6.14
+target kernel {
+    flags -Wall
+    sources {
+        init.c fork.c scheduler.c
+        interrupt.c
+        deadlock.c panic.c
+    }
+}""",
+        # output
+        Success("""<project> <Linux>
+<version> <6.14>
+<target> <kernel> [
+    <flags> <-Wall>
+    <sources> [
+        <init.c> <fork.c> <scheduler.c>
+        <interrupt.c>
+        <deadlock.c> <panic.c>
+    ]
+]
+"""),
+        # extensions
+        []
+    ),
+    TestCase(
         "ai_training",
         # input
         """model {
