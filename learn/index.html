@@ -179,7 +179,7 @@ Notice how the semicolon didn’t terminate the directive because it is escaped!
 <div class="sect2">
 <h3 id="_line_continuation"><span>Line Continuation</span><a href="#_line_continuation">#</a></h3>
 <div class="paragraph">
-<p>Directives and single quoted arguments can be continued onto the next line by ending the line with a backslash.
+<p>Directives can be continued onto the next line by ending the line with a backslash.
 Conceptually, the backslash and newline characters are “removed” and processing continues as if they weren’t there.</p>
 </div>
 <div class="paragraph">
@@ -195,8 +195,8 @@ $greeting</code></pre>
 <pre><code><span class="directive">set</span> $greeting <span class="quoted">"Hello, World!"</span>
 <span class="directive">send_mail</span> $greeting</code></pre>
 <div class="paragraph">
-<p>Escaping directives is most useful for <em>really long</em> directives.
-If you need to preserve the newline characters, then use <a href="#_multi_line_arguments">triple quotes</a>.</p>
+<p>Line continuations are most useful for directives with many arguments.
+For <em>really long</em> arguments and for when newlines need to be preserved, use <a href="#_multi_line_arguments">triple quotes</a>.</p>
 </div>
 </div>
 </div>
@@ -206,7 +206,7 @@ If you need to preserve the newline characters, then use <a href="#_multi_line_a
 <div class="sectionbody">
 <div class="paragraph">
 <p>Confetti supports hierarchical directives known as <em>subdirectives</em>.
-Conceptually, subdirectives are children of a parent directive.</p>
+Conceptually, subdirectives are child directives of a parent directive.</p>
 </div>
 <div class="paragraph">
 <p>Subdirectives are enclosed in curly braces.
@@ -230,15 +230,14 @@ The <code>proxy</code> subdirective has its own subdirective that begins with <c
 <h2 id="_comments"><span>Comments</span><a href="#_comments">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Confetti comments begin with a <code>#</code> character and extend until the next line terminator.
-They can be written on their own line or after the end of a directive.</p>
+<p>Confetti comments begin with a <code>#</code> character and continue until the end of the line.</p>
 </div>
 <pre><code><span class="comment"># This is a comment.</span>
 <span class="directive">login</span> jsmith  <span class="comment"># This is another comment.</span>
 </code></pre>
 <div class="paragraph">
-<p>In a quoted argument, the <code>#</code> character is interpreted as part of the argument and <strong>not</strong> the beginning of a comment.
-The character can appear in an unquoted argument by escaping it with a preceding backslash character.</p>
+<p>In a quoted or multi-line argument, the <code>#</code> character is interpreted as part of the argument.
+The character can also appear in an unquoted argument by escaping it with a preceding backslash character.</p>
 </div>
 </div>
 </div>
