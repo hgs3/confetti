@@ -53,9 +53,8 @@ size_t lexeme_offset;
 size_t lexeme_length;
 bool is_expression;</code></pre>
 <p>The <em>value</em> field is the evaluated argument as a
-null-terminated UTF-8 encoded string. The memory <em>value</em> points
-to is freed with the configuration unit via
-<a href="/manual/conf-free/" class="manlink">conf_free(3)</a>.</p>
+null-terminated UTF-8 encoded string. The string is freed with the
+configuration unit.</p>
 <p>The <em>lexeme_offset</em> and <em>lexeme_length</em> fields describe
 the span of UTF-8 code units of the argument in the Confetti source
 text.</p>
