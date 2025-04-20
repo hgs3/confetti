@@ -1,0 +1,31 @@
+directive {
+    argument {
+        offset 0
+        length 25
+        value "The quick
+brown fox"
+    }
+    argument {
+        offset 26
+        length 17
+        value "jumped
+over"
+    }
+    subdirectives {
+        directive {
+            argument {
+                offset 46
+                length 16
+                value "
+the lazy
+"
+            }
+            argument {
+                offset 63
+                length 11
+                value "
+dog."
+            }
+        }
+    }
+}

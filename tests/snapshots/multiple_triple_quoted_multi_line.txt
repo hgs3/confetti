@@ -1,0 +1,21 @@
+directive {
+    argument {
+        offset 0
+        length 25
+        value "The quick
+brown fox"
+    }
+    argument {
+        offset 26
+        length 17
+        value "jumped
+over"
+    }
+    argument {
+        offset 44
+        length 21
+        value "
+the lazy dog.
+"
+    }
+}

@@ -772,6 +772,46 @@ baz""",
         []
     ),
     TestCase(
+        "multiple_triple_quoted_multi_line",
+        # input
+        '''"""The quick
+brown fox""" """jumped
+over""" """
+the lazy dog.
+"""''',
+        # output
+        Success("""<The quick
+brown fox> <jumped
+over> <
+the lazy dog.
+>
+"""),
+        # extensions
+        []
+    ),
+    TestCase(
+        "multiple_triple_quoted_multi_line_with_subdirectives",
+        # input
+        '''"""The quick
+brown fox""" """jumped
+over""" { """
+the lazy
+""" """
+dog.""" } ''',
+        # output
+        Success("""<The quick
+brown fox> <jumped
+over> [
+    <
+the lazy
+> <
+dog.>
+]
+"""),
+        # extensions
+        []
+    ),
+    TestCase(
         "script_latin",
         # input
         "The quick brown fox jumps over the lazy dog",
