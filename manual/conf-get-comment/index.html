@@ -40,8 +40,8 @@ long conf_get_comment_count(const conf_unit *unit);</code></pre>
 <h1>DESCRIPTION</h1>
 <p>The <strong>conf_get_comment</strong>() function returns the comment
 at <em>index</em> for the Confetti configuration <em>unit</em>. The
-pseudo directive returned is associated with <em>unit</em> and is freed
-when it's released with <a href="/manual/conf-free/" class="manlink">conf_free(3)</a>.</p>
+pointer returned remains valid until <em>unit</em> is released with
+<a href="/manual/conf-free/" class="manlink">conf_free(3)</a>.</p>
 <p>The <strong>conf_get_comment_count</strong>() function returns the
 number of comments discovered in the Confetti configuration
 <em>unit</em>.</p>

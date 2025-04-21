@@ -81,7 +81,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>Confetti is a <strong>configuration language</strong> that blends the readability of Unix configuration files with the flexibility of S-expressions.
+<p>Confetti is a <strong>configuration language</strong> that combines the readability of Unix configuration files with the flexibility of S-expressions.
 It is minimalistic, untyped, and unopinionated.
 Schema conformance is validated by the user application.</p>
 </div>
@@ -122,7 +122,7 @@ Schema conformance is validated by the user application.</p>
 <p>The canonical implementation of Confetti is written in C11 and is available on GitHub.</p>
 </div>
 <div class="paragraph">
-<p>If you would like to create your own implementation of Confetti, then review the <a href="/specification/">specification</a> and test your implementation against the <a href="https://github.com/hgs3/confetti/blob/master/tests/README.md">official conformance test suite</a>.</p>
+<p>If you would like to create your own implementation of Confetti, then review the <a href="/specification/">specification</a> and test your implementation against the <a href="https://github.com/hgs3/confetti/blob/master/tests/CONFORMANCE.md">official conformance test suite</a>.</p>
 </div>
 </div>
 </div>
@@ -130,12 +130,12 @@ Schema conformance is validated by the user application.</p>
 <h2 id="_philosophy"><span>Philosophy</span><a href="#_philosophy">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Simplicity and minimalism is at the heart of Confetti.
+<p>Simplicity and minimalism are at the heart of Confetti.
 Some formats, like YAML, are <em>very</em> complicated (look at the size of <a href="https://yaml.org/spec/1.2.2/">its specification!</a>) whereas Confetti’s spec is simple and minimal, and it can be <a href="/learn/">learned in minutes</a>.</p>
 </div>
 <div class="paragraph">
 <p>Confetti is <em>typeless</em> by design and its syntax is composable.
-Confetti provides the atoms necessary to create everything from simple configuration, to textual file formats, to lightweight scripting.
+Confetti provides the building blocks necessary to create everything from simple configuration to textual file formats and lightweight scripting.
 Check out the <a href="/examples/">various examples</a> for inspiration.</p>
 </div>
 <div class="paragraph">
@@ -149,7 +149,7 @@ This is in contrast to formats, like TOML, which mandate the keywords <code>true
 </li>
 <li>
 <p><strong>Localization Friendly</strong>: Confetti lets you write configuration files in your native language.
-This is in contrast to formats, like JSON, which requires the English words <code>null</code>, <code>true</code>, and <code>false</code>, and Western digits <code>0</code> through <code>9</code>.</p>
+This is in contrast to formats, like JSON, which requires the English words <code>null</code>, <code>true</code>, and <code>false</code>, and Arabic numerals <code>0</code> through <code>9</code>.</p>
 </li>
 <li>
 <p><strong>Extensions Encouraged</strong>: Much like how Markdown has different flavors, you are encouraged to create unique flavors of Confetti.
@@ -306,7 +306,7 @@ The specification defines the common language and its annex includes extensions 
 <p><sup>1</sup> INI has no specification and therefore support for internalization and Unicode are implementation dependent.</p>
 </div>
 <div class="paragraph">
-<p><sup>2</sup> JSON and TOML mandate the English words <code>true</code> and <code>false</code> and Western digits <code>0</code> through <code>9</code>.</p>
+<p><sup>2</sup> JSON and TOML mandate the English words <code>true</code> and <code>false</code> and Arabic numerals <code>0</code> through <code>9</code>.</p>
 </div>
 </div>
 </div>

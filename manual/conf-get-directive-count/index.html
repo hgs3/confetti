@@ -41,8 +41,8 @@ long conf_get_directive_count(const conf_directive *dir);</code></pre>
 <h1>DESCRIPTION</h1>
 <p>The <strong>conf_get_directive</strong>() function returns the
 subdirective at <em>index</em> for the Confetti directive <em>dir</em>.
-The subdirective returned is associated with its configuration unit and
-is freed when the unit is released with
+The pointer returned remains valid until the configuration unit that
+directive <em>dir</em> was derived from is released with
 <a href="/manual/conf-free/" class="manlink">conf_free(3)</a>.</p>
 <p>The <strong>conf_get_directive_count</strong>() function returns the
 number of subdirectives in the Confetti directive <em>dir</em>.</p>

@@ -36,15 +36,20 @@ argument</p>
 <h1>SYNOPSIS</h1>
 <pre><code>#include &lt;confetti.h&gt;
 
-const conf_argument *conf_get_argument(const conf_directive *dir, long index);
+const char *conf_get_argument(const conf_directive *dir, long index);
 long conf_get_argument_count(const conf_directive *dir);</code></pre>
 <h1>DESCRIPTION</h1>
 <p>The <strong>conf_get_argument</strong>() function returns the
-argument at <em>index</em> for directive <em>dir</em>. The argument
-returned is associated with its configuration unit and is freed when the
-unit is released with <a href="/manual/conf-free/" class="manlink">conf_free(3)</a>.</p>
+argument at <em>index</em> for directive <em>dir</em>. The pointer
+returned remains valid until the configuration unit that directive
+<em>dir</em> is derived from is released with
+<a href="/manual/conf-free/" class="manlink">conf_free(3)</a>.</p>
 <p>The <strong>conf_get_argument_count</strong>() function returns the
 number of arguments <em>dir</em> has.</p>
+<p>The argument at index zero denotes the name of directive
+<em>dir</em>. This design is identical to a program entry point in the C
+programming language, where argument zero refers to the program name
+(the directive name) rather than a de facto argument.</p>
 <h2>Argument structure</h2>
 <p>The <strong>conf_argument</strong> structure includes the following
 fields:</p>

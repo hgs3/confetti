@@ -82,7 +82,7 @@
 <div class="sectionbody">
 <div class="paragraph">
 <p>Confetti is a minimalistic configuration language designed for humans.
-It blends the readability of Unix configuration files with the flexibility of S-expressions.
+It combines the readability of Unix configuration files with the flexibility of S-expressions.
 By reading this guide, you can learn Confetti in just a few minutes!</p>
 </div>
 </div>
@@ -93,30 +93,31 @@ By reading this guide, you can learn Confetti in just a few minutes!</p>
 <div class="paragraph">
 <p>A Confetti configuration file consists of zero or more <em>directives</em>.
 You can think of a directive as a statement that is interpreted by the program processing the file.
-The following is an example of a single directive:</p>
+Here’s an example of a single directive:</p>
 </div>
 <pre><code><span class="directive">ports</span> <span class="number">582 583</span></code></pre>
 <div class="paragraph">
-<p>Each directive consists of one or more <em>arguments</em>.
-Arguments must be separated by at least one whitespace character.
-In the previous example, the directive has three arguments: <code>ports</code>, <code>582</code>, and <code>583</code>.</p>
+<p>A directive consists of a <em>name</em> followed by zero or more <em>arguments</em>.
+The directive name and each of its arguments must be separated by one or more whitespace characters.
+In the previous example, the directive has the name <code>ports</code> and two arguments: <code>582</code> and <code>583</code>.</p>
 </div>
 <div class="paragraph">
 <p>It is up to <em>you</em> to assign semantic meaning to directives and their arguments.
-For example, you might interpret the first argument of a directive as its <em>name</em> (or <em>key</em>) and the remaining arguments as its <em>de facto arguments</em> (or <em>values</em>).</p>
+For example, you could interpret the name of a directive as a <em>key</em> and the arguments as <em>values</em>.
+Alternatively, you could interpret the name as a <em>command</em> and the arguments as its <em>parameters</em>.</p>
 </div>
 <div class="sect2">
 <h3 id="_terminating_directives"><span>Terminating Directives</span><a href="#_terminating_directives">#</a></h3>
 <div class="paragraph">
 <p>Directives are terminated by a newline character.
-The following example defines two directives: the first directive has arguments <code>login</code> and <code>jsmith</code>, and the second directive has arguments <code>password</code> and <code>hunter2</code>.</p>
+The following example defines two directives: the first directive is named <code>login</code> with argument <code>jsmith</code>, and the second directive is named <code>password</code> with argument <code>hunter2</code>.</p>
 </div>
 <pre><code><span class="directive">login</span> jsmith
 <span class="directive">password</span> hunter2</code></pre>
 <div class="paragraph">
 <p>Directives can also be terminated by a semicolon.
-This following snippet is equivalent to the previous snippet, except it uses a semicolon instead of a newline to separate the directives.
-Whitespace around the semicolon is insignificant, although this example adds it for clarity.</p>
+The following snippet is equivalent to the previous snippet, except it uses a semicolon instead of a newline to separate the directives.
+Whitespace around the semicolon is ignored, though it’s added here for clarity.</p>
 </div>
 <pre><code><span class="directive">login</span> jsmith ; <span class="directive">password</span> hunter2</code></pre>
 </div>
@@ -130,7 +131,11 @@ Whitespace around the semicolon is insignificant, although this example adds it 
 </div>
 <div class="paragraph">
 <p>Arguments are <em>typeless</em>.
-Although they might resemble identifiers, strings, or numbers as you’re likely used to in various programming languages, they are all interpreted as typeless strings by Confetti.</p>
+While they may resemble identifiers, strings, or numbers — as commonly seen in various programming languages — they are all interpreted as typeless strings by Confetti.</p>
+</div>
+<div class="paragraph">
+<p>A directive name is conceptually the argument at index zero, i.e. the argument before the <em>de facto arguments</em>.
+As such, directive names follow the same syntax rules as arguments.</p>
 </div>
 <div class="sect2">
 <h3 id="_quoted_arguments"><span>Quoted Arguments</span><a href="#_quoted_arguments">#</a></h3>
@@ -145,7 +150,7 @@ Note that the enclosing quotes are not part of the argument’s value.</p>
 <h3 id="_multi_line_arguments"><span>Multi-line Arguments</span><a href="#_multi_line_arguments">#</a></h3>
 <div class="paragraph">
 <p>You can define a multi-line argument by enclosing it in triple quotation marks.
-The enclosing triple quotation marks are not part of the argument’s value, but the enclosed new line characters are.</p>
+The enclosing triple quotation marks are not part of the argument’s value, but the enclosed new line characters are included.</p>
 </div>
 <div class="paragraph">
 <p>The following directive has two arguments: <code>user</code> and <code>The quick brown fox\njumps over the\nlazy dog</code>.
@@ -167,7 +172,7 @@ For example, semicolons and quotation marks have special meaning in Confetti, an
 </div>
 <div class="paragraph">
 <p>The following snippet escapes two quotation mark characters in a quoted argument.
-Here, the directive consists of two arguments: <code>message</code> and <code>Say "Hi" to the guests</code>.</p>
+Here, the directive has the name <code>message</code> with argument <code>Say "Hi" to the guests</code>.</p>
 </div>
 <pre><code><span class="directive">message</span> <span class="quoted">"Say \"Hi\" to the guests"</span></code></pre>
 <div class="paragraph">
@@ -179,8 +184,8 @@ Notice how the semicolon didn’t terminate the directive because it is escaped!
 <div class="sect2">
 <h3 id="_line_continuation"><span>Line Continuation</span><a href="#_line_continuation">#</a></h3>
 <div class="paragraph">
-<p>Directives can be continued onto the next line by ending the line with a backslash.
-Conceptually, the backslash and newline characters are “removed” and processing continues as if they weren’t there.</p>
+<p>To continue a directive on the next line, end the line with a backslash (<code>\</code>).
+The backslash and the newline are conceptually removed during parsing.</p>
 </div>
 <div class="paragraph">
 <p>For example, the following snippet:</p>
@@ -196,7 +201,7 @@ $greeting</code></pre>
 <span class="directive">send_mail</span> $greeting</code></pre>
 <div class="paragraph">
 <p>Line continuations are most useful for directives with many arguments.
-For <em>really long</em> arguments and for when newlines need to be preserved, use <a href="#_multi_line_arguments">triple quotes</a>.</p>
+For <em>really long</em> arguments and for when newlines should be preserved, use <a href="#_multi_line_arguments">triple quotes</a>.</p>
 </div>
 </div>
 </div>
@@ -221,8 +226,11 @@ The following example writes them on the same line for compactness.</p>
     }
 }</code></pre>
 <div class="paragraph">
-<p>In the example, the first directive, which consists of the arguments <code>user</code> and <code>John Smith Jr</code>, has subdirectives that begin with <code>login</code>, <code>password</code>, and <code>proxy</code>.
-The <code>proxy</code> subdirective has its own subdirective that begins with <code>ports</code>.</p>
+<p>In the example, the directive <code>user</code> has subdirectives <code>login</code>, <code>password</code>, and <code>proxy</code>.
+The <code>proxy</code> subdirective has its own subdirective named <code>ports</code>.</p>
+</div>
+<div class="paragraph">
+<p>Subdirectives can be arbitrarily deep, unless an implementation imposes a limit.</p>
 </div>
 </div>
 </div>
@@ -239,14 +247,17 @@ The <code>proxy</code> subdirective has its own subdirective that begins with <c
 <p>In a quoted or multi-line argument, the <code>#</code> character is interpreted as part of the argument.
 The character can also appear in an unquoted argument by escaping it with a preceding backslash character.</p>
 </div>
+<div class="paragraph">
+<p>Comments cannot appear after a line continuation backslash, as that would break continuation.</p>
+</div>
 </div>
 </div>
 <div class="sect1">
 <h2 id="_file_extension"><span>File Extension</span><a href="#_file_extension">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The “official” file extension for a Confetti file is <code>.conf</code> or <code>.cfg</code>.
-However, application authors are free to choose a custom extension or drop the extension entirely.</p>
+<p>The recommended file extension for a Confetti file is <code>.conf</code> or <code>.cfg</code>.
+However, you’re free to choose a custom extension or drop the extension entirely.</p>
 </div>
 </div>
 </div>

@@ -39,8 +39,8 @@ const conf_directive *conf_get_root(conf_unit *unit);</code></pre>
 <h1>DESCRIPTION</h1>
 <p>The <strong>conf_get_root</strong>() function returns a pseudo
 directive representing the top-level of the Confetti configuration unit.
-The pseudo directive returned is associated with <em>unit</em> and is
-freed when it's released with <a href="/manual/conf-free/" class="manlink">conf_free(3)</a>.</p>
+The pointer returned remains valid until <em>unit</em> is released with
+<a href="/manual/conf-free/" class="manlink">conf_free(3)</a>.</p>
 <p>The pseudo directive never has arguments. It is intended to be used
 with <a href="/manual/conf-get-directive/" class="manlink">conf_get_directive(3)</a> and
 <a href="/manual/conf-get-directive-count/" class="manlink">conf_get_directive_count(3)</a> for iterating the top-level

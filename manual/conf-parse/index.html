@@ -39,11 +39,13 @@ conf_unit *conf_parse(const char *str, const conf_options *opts, conf_error *err
 <h1>DESCRIPTION</h1>
 <p>The <strong>conf_parse</strong>() function parses <em>str</em> as
 Confetti source text and constructs an in-memory representation of the
-processed configuration unit. The resulting configuration unit is
-returned by this function. It must be freed with
+processed configuration unit. It must be freed with
 <a href="/manual/conf-free/" class="manlink">conf_free(3)</a>.</p>
 <p>If an error occurs during parsing, then NULL is returned and
 <em>err</em>, if provided, is populated with error details.</p>
+<p>Any pointers returned by functions listed in SEE ALSO are managed by
+the unit and do not require separate deallocation. They remain valid
+until the unit is freed with <a href="/manual/conf-free/" class="manlink">conf_free(3)</a>.</p>
 <p>The behavior of the Confetti parser can be controlled with the
 optional <em>opts</em> argument which is documented below.</p>
 <h2>Error structure</h2>
