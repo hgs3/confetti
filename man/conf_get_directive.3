@@ -24,7 +24,7 @@ Configuration parser (libconfetti, -lconfetti)
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
 The \fBconf_get_directive\fR() function returns the subdirective at \fIindex\fR for the Confetti directive \fIdir\fR.
-The subdirective returned is associated with its configuration unit and is freed when the unit is released with \fBconf_free\fR(3).
+The pointer returned remains valid until the configuration unit that directive \fIdir\fR was derived from is released with \fBconf_free\fR(3).
 .PP
 The \fBconf_get_directive_count\fR() function returns the number of subdirectives in the Confetti directive \fIdir\fR.
 .PP

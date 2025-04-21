@@ -24,7 +24,7 @@ Configuration parser (libconfetti, -lconfetti)
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
 The \fBconf_get_comment\fR() function returns the comment at \fIindex\fR for the Confetti configuration \fIunit\fR.
-The pseudo directive returned is associated with \fIunit\fR and is freed when it's released with \fBconf_free\fR(3).
+The pointer returned remains valid until \fIunit\fR is released with \fBconf_free\fR(3).
 .PP
 The \fBconf_get_comment_count\fR() function returns the number of comments discovered in the Confetti configuration \fIunit\fR.
 .\" --------------------------------------------------------------------------

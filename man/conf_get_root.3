@@ -23,7 +23,7 @@ Configuration parser (libconfetti, -lconfetti)
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
 The \fBconf_get_root\fR() function returns a pseudo directive representing the top-level of the Confetti configuration unit.
-The pseudo directive returned is associated with \fIunit\fR and is freed when it's released with \fBconf_free\fR(3).
+The pointer returned remains valid until \fIunit\fR is released with \fBconf_free\fR(3).
 .PP
 The pseudo directive never has arguments.
 It is intended to be used with \fBconf_get_directive\fR(3) and \fBconf_get_directive_count\fR(3) for iterating the top-level directives of the Confetti configuration unit.

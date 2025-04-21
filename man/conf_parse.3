@@ -23,10 +23,12 @@ Configuration parser (libconfetti, -lconfetti)
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
 The \fBconf_parse\fR() function parses \fIstr\fR as Confetti source text and constructs an in-memory representation of the processed configuration unit.
-The resulting configuration unit is returned by this function.
 It must be freed with \fBconf_free\fR(3).
 .PP
 If an error occurs during parsing, then NULL is returned and \fIerr\fR, if provided, is populated with error details.
+.PP
+Any pointers returned by functions listed in SEE ALSO are managed by the unit and do not require separate deallocation.
+They remain valid until the unit is freed with \fBconf_free\fR(3).
 .PP
 The behavior of the Confetti parser can be controlled with the optional \fIopts\fR argument which is documented below.
 .\" --------------------------------------------------------------------------

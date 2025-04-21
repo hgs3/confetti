@@ -18,15 +18,18 @@ Configuration parser (libconfetti, -lconfetti)
 .nf
 .B #include <confetti.h>
 .PP
-.BI "const conf_argument *conf_get_argument(const conf_directive *" dir ", long " index ");"
+.BI "const char *conf_get_argument(const conf_directive *" dir ", long " index ");"
 .BI "long conf_get_argument_count(const conf_directive *" dir ");"
 .fi
 .\" --------------------------------------------------------------------------
 .SH DESCRIPTION
 The \fBconf_get_argument\fR() function returns the argument at \fIindex\fR for directive \fIdir\fR.
-The argument returned is associated with its configuration unit and is freed when the unit is released with \fBconf_free\fR(3).
+The pointer returned remains valid until the configuration unit that directive \fIdir\fR is derived from is released with \fBconf_free\fR(3).
 .PP
 The \fBconf_get_argument_count\fR() function returns the number of arguments \fIdir\fR has.
+.PP
+The argument at index zero denotes the name of directive \fIdir\fR.
+This design is identical to a program entry point in the C programming language, where argument zero refers to the program name (the directive name) rather than a de facto argument.
 .\" --------------------------------------------------------------------------
 .SS Argument structure
 The \fBconf_argument\fR structure includes the following fields:
