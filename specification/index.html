@@ -173,11 +173,11 @@ Incremental processing can be implemented by processing the arguments of a singl
 <p><strong>This clause is informative.</strong></p>
 </div>
 <div class="paragraph">
-<p>Confetti source text is representable with two interfaces: one representing the configuration file (or <em>configuration unit</em>) and the other representing an individual directive.
-What follows is a pseudocode description of these interfaces intended to aid implementation authors conceptualize how Confetti <strong>may</strong> be represented.</p>
+<p>Confetti source text can be modeled with two interfaces: one representing the configuration file (or <em>configuration unit</em>) and the other representing an individual directive.
+What follows is a pseudocode description of these interfaces intended to help implementation authors conceptualize how Confetti <strong>may</strong> be presented to end users.</p>
 </div>
 <div class="paragraph">
-<p>The first interface, the configuration unit, represents the Confetti source text.
+<p>The first interface, the configuration unit, represents the Confetti source text as a whole.
 It consists of zero or more top-level directives.</p>
 </div>
 <div class="listingblock">
@@ -188,7 +188,7 @@ It consists of zero or more top-level directives.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>The second interface, the directive, represents an individual top-level directive or a subdirective.
+<p>The second interface, the directive, represents a top-level directive or a subdirective.
 Each directive has a <em>name</em>, zero or more <em>de facto arguments</em>, and zero or more <em>subdirectives</em>.</p>
 </div>
 <div class="listingblock">
