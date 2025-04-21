@@ -592,6 +592,15 @@ baz""",
         []
     ),
     TestCase(
+        "quoted_argument_without_closing_quote",
+        # input
+        'foo"bar',
+        # output
+        Error('error: unclosed quoted\n'),
+        # extensions
+        []
+    ),
+    TestCase(
         "missing_closing_quote",
         # input
         '"foo',
