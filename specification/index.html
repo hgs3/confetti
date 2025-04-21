@@ -639,8 +639,10 @@ The interpretation and evaluation of an expression argument is implementation de
 </div>
 <div class="paragraph">
 <p>This extension requires Left Parenthesis (U+0028) and Right Parenthesis (U+0029) to be interpreted as <a href="#_reserved_punctuators">reserved punctuators</a>.
-If an implementation permits parenthesis in the expression argument, then they must be <em>balanced</em>.
-Parentheses are balanced if for every Left Parenthesis (U+0028) there is a succeeding Right Parenthesis (U+0029).</p>
+If an implementation permits parenthesis in the expression argument, then they must be <em>balanced</em> — that is, for every Left Parenthesis (U+0028), there must be a succeeding Right Parenthesis (U+0029).</p>
+</div>
+<div class="paragraph">
+<p>The <em>value</em> of an expression argument is the enclosed content with the outer parentheses removed.</p>
 </div>
 <div class="paragraph">
 <p>The production rules shall be amended as follows:</p>
@@ -654,8 +656,15 @@ expression-argument ::= `(` ? implementation defined ? `)`</code></pre>
 <div class="listingblock">
 <div class="title">Example: Compute a mathematical equation.</div>
 <div class="content">
-<pre class="highlight"><code class="language-conf" data-lang="conf">compute (1 + 2 + 3)</code></pre>
+<pre class="highlight"><code class="language-conf" data-lang="conf">compute (1 + (2 * 3)) <b class="conum">(1)</b></code></pre>
 </div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>A directive with two arguments: <code>compute</code> and <code>1 + (2 * 3)</code>.</p>
+</li>
+</ol>
 </div>
 <div class="listingblock">
 <div class="title">Example: Branch with conditional expression.</div>
@@ -668,7 +677,7 @@ expression-argument ::= `(` ? implementation defined ? `)`</code></pre>
 <div class="colist arabic">
 <ol>
 <li>
-<p>A directive with two arguments: <code>if</code> and <code>$username == "joe"</code>, the latter is a user-evaluated expression.</p>
+<p>A directive with two arguments: <code>if</code> and <code>$username == "joe"</code>. The second argument is a user-defined expression.</p>
 </li>
 </ol>
 </div>
