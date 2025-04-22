@@ -1,0 +1,17 @@
+directive {
+    argument {
+        offset 0
+        length 1
+        value "x"
+    }
+    argument {
+        offset 1
+        length 3
+        value "==="
+    }
+    argument {
+        offset 4
+        length 1
+        value "y"
+    }
+}

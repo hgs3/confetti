@@ -2240,6 +2240,15 @@ set y = (x * x)
         [PunctuatorArgumentsExtension(["===", "==", "="])]
     ),
     TestCase(
+        "punctuator_arguments_mixed",
+        # input
+        "x===y",
+        # output
+        Success("<x> <===> <y>\n"),
+        # extensions
+        [PunctuatorArgumentsExtension(['==', '=', '==='])]
+    ),
+    TestCase(
         "punctuator_arguments_multiple_duplicate_starters",
         # input
         "++=-=-",

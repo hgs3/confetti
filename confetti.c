@@ -621,19 +621,17 @@ static bool scan_punctuator_argument(conf_unit *conf, const char *string, token 
         {
             const char *punctuator = &set->punctuators[buffer_offset];
             const size_t punctuator_length = strlen(punctuator);
-            if (punctuator_length < longest_match)
+            if (punctuator_length >= longest_match)
             {
-                continue;
-            }
-
-            if (strncmp(string, punctuator, punctuator_length) == 0)
-            {
-                tok->lexeme = string - conf->string;
-                tok->lexeme_length =  punctuator_length;
-                tok->type = TOK_ARGUMENT;
-                tok->flags = 0;
-                tok->trim = 0;
-                longest_match = punctuator_length;    
+                if (strncmp(string, punctuator, punctuator_length) == 0)
+                {
+                    tok->lexeme = string - conf->string;
+                    tok->lexeme_length =  punctuator_length;
+                    tok->type = TOK_ARGUMENT;
+                    tok->flags = 0;
+                    tok->trim = 0;
+                    longest_match = punctuator_length;    
+                }
             }
             buffer_offset += punctuator_length + 1;
         }
