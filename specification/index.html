@@ -173,8 +173,12 @@ Incremental processing can be implemented by processing the arguments of a singl
 <p><strong>This clause is informative.</strong></p>
 </div>
 <div class="paragraph">
-<p>Confetti source text can be modeled with two interfaces: one representing the configuration file (or <em>configuration unit</em>) and the other representing an individual directive.
-What follows is a pseudocode description of these interfaces intended to help implementation authors conceptualize how Confetti <strong>may</strong> be presented to end users.</p>
+<p>Confetti source text can be modeled with two interfaces: one representing the configuration unit, and the other representing an individual directive.
+What follows is a pseudocode description of these interfaces intended to help implementation authors conceptualize how Confetti <em>might</em> be presented to end users.</p>
+</div>
+<div class="paragraph">
+<p>These interfaces are <em>illustrative only</em>.
+Implementation authors are not required to adhere to them.</p>
 </div>
 <div class="paragraph">
 <p>The first interface, the configuration unit, represents the Confetti source text as a whole.
@@ -189,12 +193,11 @@ It consists of zero or more top-level directives.</p>
 </div>
 <div class="paragraph">
 <p>The second interface, the directive, represents a top-level directive or a subdirective.
-Each directive has a <em>name</em>, zero or more <em>de facto arguments</em>, and zero or more <em>subdirectives</em>.</p>
+Each directive has one or more arguments and zero or more subdirectives.</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-conf" data-lang="conf">interface Directive {
-    name: string
     arguments: string[]
     subdirectives: Directive[]
 }</code></pre>
@@ -360,7 +363,7 @@ This specification does not mandate a specific Unicode character encoding form.<
 <div class="sect3">
 <h4 id="_simple_directive"><span>Simple Directive</span><a href="#_simple_directive">#</a></h4>
 <div class="paragraph">
-<p>A simple directive shall be represented as a sequence of one or more <a href="#_argument">arguments</a>, where the argument at position zero shall denote the directive’s name.</p>
+<p>A simple directive shall be represented as a sequence of one or more <a href="#_argument">arguments</a>.</p>
 </div>
 <div class="paragraph">
 <p>A simple directive must be terminated by a character from the <a href="#_line_terminators">line terminator</a> character set or a Semicolon (U+003B).</p>
@@ -375,8 +378,7 @@ This specification does not mandate a specific Unicode character encoding form.<
 <div class="sect3">
 <h4 id="_block_directive"><span>Block Directive</span><a href="#_block_directive">#</a></h4>
 <div class="paragraph">
-<p>A block directive shall be a sequence of one or more <a href="#_argument">arguments</a>, zero or more <a href="#_line_terminators">line terminators</a>, and a subdirective block.
-The argument at position zero shall denote the directive’s name.</p>
+<p>A block directive shall be a sequence of one or more <a href="#_argument">arguments</a>, zero or more <a href="#_line_terminators">line terminators</a>, and a subdirective block.</p>
 </div>
 <div class="paragraph">
 <p>A subdirective block shall be a sequence of zero or more directives enclosed in curly braces.
@@ -409,7 +411,7 @@ The subdirective block begins with a Left Curly Bracket (U+007B) and terminates 
 The argument character set shall consist of any Unicode scalar value excluding characters from the <a href="#_white_space">white space</a>, <a href="#_line_terminators">line terminator</a>, <a href="#_reserved_punctuators">reserved punctuator</a>, and <a href="#_forbidden_characters">forbidden</a> character sets.</p>
 </div>
 <div class="paragraph">
-<p>The value of an argument shall be the argument’s lexeme with <a href="#_escaped_characters">escaped characters</a> processed and <a href="#_line_continuation">line continuations</a> processed.</p>
+<p>The value of an argument shall be the argument’s lexeme with <a href="#_escaped_characters">escaped characters</a> and <a href="#_line_continuation">line continuations</a> processed.</p>
 </div>
 </div>
 <div class="sect2">
