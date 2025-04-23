@@ -10,6 +10,9 @@ Each test case is represented as a file on the file system:
     * A `.pass` file indicates that the input is valid Confetti.
     * A `.fail` file indicates that the input is invalid Confetti.
 
+> [!TIP]
+> It is recommended to glob the `.conf` files rather than hardcode their names, as they can potentially be renamed. Globbing also ensures new tests are automatically detected by your test harness.
+
 ## _Pass_ File Format
 
 The contents of the `.pass` file are as follows:
