@@ -126,9 +126,18 @@ test_cases: List[TestCase] = [
     TestCase(
         "directive_with_quoted_argument",
         # input
-        "foo \"bar baz\" qux",
+        """foo "bar baz" qux""",
         # output
         Success("<foo> <bar baz> <qux>\n"),
+        # extensions
+        []
+    ),
+    TestCase(
+        "directive_with_escaped_quoted_argument",
+        # input
+        """foo \\"bar baz\\" qux""",
+        # output
+        Success("""<foo> <"bar> <baz"> <qux>\n"""),
         # extensions
         []
     ),
@@ -1656,7 +1665,7 @@ author "Edgar Allan Poe"
 section "First Act" {
   paragraph {
     "Once upon a midnight dreary, while I pondered, weak and weary,"
-    "Over many a quaint and " bold{"curious"} " volume of forgotten lore-\"
+    "Over many a quaint and " bold{"curious"} " volume of forgotten lore-"
   }
   paragraph {
     "While I nodded, nearly napping, suddenly there came a tapping,"

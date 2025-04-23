@@ -1,0 +1,22 @@
+directive {
+    argument {
+        offset 0
+        length 3
+        value "foo"
+    }
+    argument {
+        offset 4
+        length 5
+        value "\"bar"
+    }
+    argument {
+        offset 10
+        length 5
+        value "baz\""
+    }
+    argument {
+        offset 16
+        length 3
+        value "qux"
+    }
+}
