@@ -1,5 +1,6 @@
 /*
  * Confetti: a configuration language and parser library
+ * Copyright (c) 2025 Henry G. Stratmann III
  * Copyright (c) 2025 Confetti Contributors
  *
  * This file is part of Confetti, distributed under the MIT License.
