@@ -3,7 +3,7 @@
 # Confetti: a configuration language and parser library
 # Copyright (c) 2025 Confetti Contributors
 #
-# This file is part of Confetti, distributed under the MIT License
+# This file is part of Confetti, distributed under the MIT License.
 # For full terms see the included LICENSE file.
 
 # This script builds a two-stage table for referencing Unicode character
