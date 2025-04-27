@@ -83,11 +83,11 @@
 <ul class="sectlevel1">
 <li><a href="#_user_settings">User Settings</a></li>
 <li><a href="#_application_settings">Application Settings</a></li>
-<li><a href="#_document_markup">Document Markup</a></li>
-<li><a href="#_workflow_automation">Workflow Automation</a></li>
 <li><a href="#_user_interfaces">User Interfaces</a></li>
 <li><a href="#_build_systems">Build Systems</a></li>
 <li><a href="#_ai_training">AI Training</a></li>
+<li><a href="#_workflow_automation">Workflow Automation</a></li>
+<li><a href="#_document_markup">Document Markup</a></li>
 <li><a href="#_command_formats">Command Formats</a></li>
 <li><a href="#_domain_specific_languages">Domain Specific Languages</a>
 <ul class="sectlevel2">
@@ -105,14 +105,6 @@
 </ul>
 </li>
 </ul>
-</div>
-<div id="preamble">
-<div class="sectionbody">
-<div class="paragraph">
-<p>This page demonstrates how the Confetti syntax can be used for configuration files, scripting, markup, and more.
-Examples range from basic key-value stores to full domain-specific language usage.</p>
-</div>
-</div>
 </div>
 <div class="sect1">
 <h2 id="_user_settings"><span>User Settings</span><a href="#_user_settings">#</a></h2>
@@ -147,50 +139,6 @@ Examples range from basic key-value stores to full domain-specific language usag
 <span class="directive">display</span> {
     <span class="directive">resolution</span> 1920x1080
     <span class="directive">full-screen</span> true
-}</code></pre>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_document_markup"><span>Document Markup</span><a href="#_document_markup">#</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The grammar is flexible enough to create a markup language!</p>
-</div>
-<pre><code><span class="directive">chapter</span> <span class="quoted">"The Raven"</span>
-<span class="directive">author</span> <span class="quoted">"Edgar Allan Poe"</span>
-<span class="directive">section</span> <span class="quoted">"First Act"</span> {
-  <span class="directive">paragraph</span> {
-    <span class="quoted">"Once upon a midnight dreary, while I pondered, weak and weary,"</span>
-    <span class="quoted">"Over many a quaint and "</span> <span class="directive">bold</span>{<span class="quoted">"curious"</span>} <span class="quoted">" volume of forgotten lore-"</span>
-  }
-  <span class="directive">paragraph</span> {
-    <span class="quoted">"While I nodded, nearly napping, suddenly there came a tapping,"</span>
-    <span class="quoted">"As of some one "</span> <span class="directive">italic</span>{<span class="quoted">"gently"</span>} <span class="quoted">" rapping-rapping at my chamber door."</span>
-  }
-}</code></pre>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_workflow_automation"><span>Workflow Automation</span><a href="#_workflow_automation">#</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The following example demonstrates what a <strong>task file</strong> might look like.
-It represents various tasks that you could potentially run via the command line.</p>
-</div>
-<pre><code><span class="directive">build</span> {
-    <span class="directive">description</span> <span class="quoted">"Compile the source code"</span>
-    <span class="directive">command</span> <span class="quoted">"gcc -o program source.c"</span>
-}
-
-<span class="directive">clean</span> {
-    <span class="directive">description</span> <span class="quoted">"Clean the build directory"</span>
-    <span class="directive">command</span> <span class="quoted">"rm -rf build/"</span>
-}
-
-<span class="directive">test</span> {
-    <span class="directive">description</span> <span class="quoted">"Run unit tests"</span>
-    <span class="directive">command</span> <span class="quoted">"./tests/run.sh"</span>
-    <span class="directive">depends_on</span> { <span class="directive">build</span> }
 }</code></pre>
 </div>
 </div>
@@ -245,7 +193,7 @@ Here, the arguments for each subdirective of <code>sources</code> are interprete
 <h2 id="_ai_training"><span>AI Training</span><a href="#_ai_training">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Below is an example of what a Confetti configuration file might look like for an AI model, particularly a machine learning model such as a neural network:</p>
+<p>Here’s an example of what a Confetti configuration file might look like for an AI model, particularly a machine learning model such as a neural network:</p>
 </div>
 <pre><code><span class="directive">model</span> {
   <span class="directive">type</span> <span class="quoted">"neural_network"</span>
@@ -266,27 +214,81 @@ Here, the arguments for each subdirective of <code>sources</code> are interprete
 </div>
 </div>
 <div class="sect1">
+<h2 id="_workflow_automation"><span>Workflow Automation</span><a href="#_workflow_automation">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The following example demonstrates what a task file might look like.
+It represents various tasks that you could potentially run via the command line.</p>
+</div>
+<pre><code><span class="directive">build</span> {
+    <span class="directive">description</span> <span class="quoted">"Compile the source code"</span>
+    <span class="directive">command</span> <span class="quoted">"gcc -o program source.c"</span>
+}
+
+<span class="directive">clean</span> {
+    <span class="directive">description</span> <span class="quoted">"Clean the build directory"</span>
+    <span class="directive">command</span> <span class="quoted">"rm -rf build/"</span>
+}
+
+<span class="directive">test</span> {
+    <span class="directive">description</span> <span class="quoted">"Run unit tests"</span>
+    <span class="directive">command</span> <span class="quoted">"./tests/run.sh"</span>
+    <span class="directive">depends_on</span> { <span class="directive">build</span> }
+}</code></pre>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_document_markup"><span>Document Markup</span><a href="#_document_markup">#</a></h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The grammar is flexible enough to create a markup language!</p>
+</div>
+<pre><code><span class="directive">chapter</span> <span class="quoted">"The Raven"</span>
+<span class="directive">author</span> <span class="quoted">"Edgar Allan Poe"</span>
+<span class="directive">section</span> <span class="quoted">"First Act"</span> {
+  <span class="directive">paragraph</span> {
+    <span class="quoted">"Once upon a midnight dreary, while I pondered, weak and weary,"</span>
+    <span class="quoted">"Over many a quaint and "</span> <span class="directive">bold</span>{<span class="quoted">"curious"</span>} <span class="quoted">" volume of forgotten lore-"</span>
+  }
+  <span class="directive">paragraph</span> {
+    <span class="quoted">"While I nodded, nearly napping, suddenly there came a tapping,"</span>
+    <span class="quoted">"As of some one "</span> <span class="directive">italic</span>{<span class="quoted">"gently"</span>} <span class="quoted">" rapping-rapping at my chamber door."</span>
+  }
+}</code></pre>
+<div class="paragraph">
+<p>Here, an implementation would process <code>paragraph</code> directives by concatenating all subdirectives together.
+If it detects the last argument of a directive is <code>bold</code> or <code>italic</code>, it would understand that the subdirectives must be styled as <strong>bold</strong> or <em>italic</em>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_command_formats"><span>Command Formats</span><a href="#_command_formats">#</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The Confetti grammar is <em>almost</em> compatible with the <a href="https://en.wikipedia.org/wiki/Wavefront_.obj_file">Wavefront .OBJ</a> file format, which is a geometry definition file format popular in computer graphics.
-The <code>.OBJ</code> format is <em>line-based</em> and has directives or <em>commands</em>, much like Confetti.</p>
+<p>You can use Confetti to create a line-based command format where context is implied by the preceding directive.
+This enables configuration styles where grouping is inferred, not structural — similar to formats like .obj or ffmpeg filter graphs.</p>
 </div>
 <div class="paragraph">
-<p>The following example demonstrates how Confetti can be used to create pseudo-groups like the <code>.OBJ</code> format uses.
-Here <code>material</code>, <code>opacity</code>, <code>pass</code>, <code>diffuse</code>, and <code>blend-mode</code> are interpreted as <strong>commands</strong> by the user application.
-For example, the application would interpret the <code>material</code> command as the definition of a new material and all subsequent commands as belonging to it.</p>
+<p>Here’s what a media processing pipeline might look like:</p>
 </div>
+<pre><code><span class="directive">step</span> load-video
+    <span class="directive">input</span> path/to/video.mp4
+    <span class="directive">format</span> mp4
+
+<span class="directive">step</span> apply-filters
+    <span class="directive">filter</span> grayscale
+    <span class="directive">filter</span> stabilize
+    <span class="directive">crop</span> 1920x1080
+
+<span class="directive">step</span> export
+    <span class="directive">codec</span> h264
+    <span class="directive">bitrate</span> 4000k
+    <span class="directive">output</span> final.mp4</code></pre>
 <div class="paragraph">
-<p>Note that line indentation is provided for visual clarity and is insignificant to Confetti.</p>
+<p>Each <code>step</code> begins a new logical group.
+The directives that follow would be interpreted as part of that <code>step</code>, even without braces.
+Note that line indentation is provided for visual clarity and is insignificant to Confetti.</p>
 </div>
-<pre><code><span class="directive">material</span> water
-    <span class="directive">opacity</span> <span class="number">0.5</span>
-    <span class="directive">pass</span>
-        <span class="directive">diffuse</span> materials/liquids/water.png
-    <span class="directive">pass</span>
-        <span class="directive">diffuse</span> materials/liquids/water2.png
-        <span class="directive">blend-mode</span> additive</code></pre>
 </div>
 </div>
 <div class="sect1">
@@ -307,7 +309,7 @@ As you view these examples, keep in mind Confetti has no keywords or control flo
 <p>Confetti directives can be interpreted as shell-like commands.
 From simple commands:</p>
 </div>
-<pre><code>cat myfile.txt</code></pre>
+<pre><code><span class="directive">cat</span> myfile.txt</code></pre>
 <div class="paragraph">
 <p>to batching commands:</p>
 </div>
@@ -316,7 +318,8 @@ From simple commands:</p>
   ./database --api-key 123 --data-dir /var/lib/db/
 } &gt; output.txt</code></pre>
 <div class="paragraph">
-<p>Both examples are valid Confetti syntax.</p>
+<p>This example demonstrates how you can express interesting behaviors by combining neighboring directives.
+In this case, when a directive starts with <code>&gt;</code>, you’d associate it with the previous directive.</p>
 </div>
 </div>
 <div class="sect2">
@@ -359,26 +362,23 @@ Here, we’ll assume the calling convention is to push function arguments from l
 </div>
 <div class="sect2">
 <h3 id="_state_machine"><span>State Machine</span><a href="#_state_machine">#</a></h3>
-<pre><code><span class="directive">states</span> {
-    <span class="directive">greet_player</span> {
-        <span class="directive">look_at</span> $player
-        <span class="directive">wait</span> <span class="number">1s</span> <span class="comment"># Pause one second before walking towards the player.</span>
-        <span class="directive">walk_to</span> $player
-        <span class="directive">say</span> <span class="quoted">"Good evening traveler."</span>
+<div class="paragraph">
+<p>This example models a basic state machine for an NPC (non-player character) reacting to events in a video game.</p>
+</div>
+<pre><code><span class="directive">villager</span> {
+    <span class="directive">on</span> player-approach {
+        <span class="directive">goto</span> greet
     }
-
-    <span class="directive">last_words</span> {
-        <span class="directive">say</span> <span class="quoted">"Tis a cruel world!"</span>
+    <span class="directive">state</span> greet {
+        <span class="directive">walk-to</span> $player
+        <span class="directive">say</span> <span class="quoted">"Hello, traveler."</span>
+        <span class="directive">wait</span> <span class="number">1s</span>
+        <span class="directive">goto</span> idle
     }
-}
-
-<span class="directive">events</span> {
-    <span class="directive">player_spotted</span> {
-        <span class="directive">goto_state</span> greet_player
-    }
-
-    <span class="directive">died</span> {
-        <span class="directive">goto_state</span> last_words
+    <span class="directive">state</span> idle {
+        <span class="directive">wait</span> <span class="number">3s</span>
+        <span class="directive">hum</span> <span class="quoted">"🎵 doo-dee-doo 🎵"</span>
+        <span class="directive">repeat</span>
     }
 }</code></pre>
 </div>
@@ -410,8 +410,8 @@ That means you can use <code>//</code> for single-line comments and <code>/*</co
 <p>This extension lets you write parentheses enclosed “expressions” wherever an argument is allowed.</p>
 </div>
 <div class="paragraph">
-<p>In the following example, with this extension, the top-level directive would be interpreted as having two arguments <code>if</code> and <code>(x &gt; y)</code>.
-The latter is the <em>expression argument</em> and it is to be evaluated by the user application.</p>
+<p>With this extension, the first directive in the following example would be interpreted as having two arguments <code>if</code> and <code>x &gt; y</code>.
+The latter is the <em>expression argument</em>, and it is meant to be evaluated by the user’s application.</p>
 </div>
 <pre><code><span class="directive">if</span> (x &gt; y) {
     <span class="directive">print</span> <span class="quoted">"x is greater than y"</span>

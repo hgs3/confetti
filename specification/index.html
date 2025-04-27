@@ -109,7 +109,7 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This specification defines <strong>version 1.0-beta.3</strong> of Confetti.</p>
+<p>This specification defines <strong>version 1.0-beta.4</strong> of Confetti.</p>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -174,11 +174,11 @@ Incremental processing can be implemented by processing the arguments of a singl
 </div>
 <div class="paragraph">
 <p>Confetti source text can be modeled with two interfaces: one representing the configuration unit, and the other representing an individual directive.
-What follows is a pseudocode description of these interfaces intended to help implementation authors conceptualize how Confetti may be presented to end users.</p>
+What follows is a pseudocode description of these interfaces intended to help implementation authors conceptualize Confetti.</p>
 </div>
 <div class="paragraph">
 <p>These interfaces are <strong>illustrative only</strong>.
-Implementation authors are <strong>not</strong> required to adhere to them.</p>
+Implementation authors should translate Confetti source text into data structures best suited to their programming language or runtime environment.</p>
 </div>
 <div class="paragraph">
 <p>The first interface, the configuration unit, represents the Confetti source text as a whole.
