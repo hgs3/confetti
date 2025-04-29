@@ -4,7 +4,7 @@
     xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://confetti.hgs3.me/</loc>
-        <lastmod>2025-04-26</lastmod>
+        <lastmod>2025-04-29</lastmod>
     </url>
     <url>
         <loc>https://confetti.hgs3.me/learn/</loc>
@@ -20,38 +20,38 @@
     </url>
     <url>
         <loc>https://confetti.hgs3.me/manual/</loc>
-        <lastmod>2025-04-26</lastmod>
+        <lastmod>2025-04-27</lastmod>
     </url>
     <url>
         <loc>https://confetti.hgs3.me/manual/</loc>
-        <lastmod>2025-04-26</lastmod>
+        <lastmod>2025-04-27</lastmod>
     </url>
     <url>
         <loc>https://confetti.hgs3.me/manual/conf-walk</loc>
-        <lastmod>2025-04-23</lastmod>
+        <lastmod>2025-04-27</lastmod>
     </url>
     <url>
         <loc>https://confetti.hgs3.me/manual/conf-parse</loc>
-        <lastmod>2025-04-23</lastmod>
+        <lastmod>2025-04-27</lastmod>
     </url>
     <url>
         <loc>https://confetti.hgs3.me/manual/conf-get-root</loc>
-        <lastmod>2025-04-23</lastmod>
+        <lastmod>2025-04-27</lastmod>
     </url>
     <url>
         <loc>https://confetti.hgs3.me/manual/conf-get-directive</loc>
-        <lastmod>2025-04-23</lastmod>
+        <lastmod>2025-04-27</lastmod>
     </url>
     <url>
         <loc>https://confetti.hgs3.me/manual/conf-get-comment</loc>
-        <lastmod>2025-04-23</lastmod>
+        <lastmod>2025-04-27</lastmod>
     </url>
     <url>
         <loc>https://confetti.hgs3.me/manual/conf-get-argument</loc>
-        <lastmod>2025-04-23</lastmod>
+        <lastmod>2025-04-27</lastmod>
     </url>
     <url>
         <loc>https://confetti.hgs3.me/manual/conf-free</loc>
-        <lastmod>2025-04-23</lastmod>
+        <lastmod>2025-04-27</lastmod>
     </url>
 </urlset>
