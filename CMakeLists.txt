@@ -57,6 +57,6 @@ endif ()
 # Register the tests if building from repo checkout.
 # The release acrhive omits the unit test.
 if (CONFETTI_BUILD_TESTS)
-    enable_testing()
+    include(CTest)
     add_subdirectory(tests)
 endif()

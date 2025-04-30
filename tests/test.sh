@@ -27,7 +27,7 @@ if command -v gcc &> /dev/null; then
     CC=gcc cmake .. -B ${OUTDIR} -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_CODE_COVERAGE=ON -DCONFETTI_BUILD_EXAMPLES=OFF
     cmake --build ${OUTDIR}
     cmake --build ${OUTDIR}
-    ctest --test-dir ${OUTDIR} --parallel --output-on-failure
+    ctest --test-dir ${OUTDIR} --output-on-failure
     cmake --build ${OUTDIR} --target check-coverage
     cmake -E remove_directory ${OUTDIR}
 else
@@ -39,7 +39,7 @@ fi
 if command -v valgrind &> /dev/null; then
     cmake .. -B ${OUTDIR} -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_BUILD_EXAMPLES=OFF
     cmake --build ${OUTDIR}
-    ctest --test-dir ${OUTDIR} --parallel --output-on-failure
+    ctest --test-dir ${OUTDIR} --output-on-failure -T memcheck
     cmake -E remove_directory ${OUTDIR}
 else
     echo "Valgrind not found; skipping valgrind analysis."
@@ -50,19 +50,19 @@ if command -v clang &> /dev/null; then
     # Run the Undefined Behavior Sanitizer.
     CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_UNDEFINED_BEHAVIOR_SANITIZER=ON -DCONFETTI_BUILD_EXAMPLES=OFF
     cmake --build ${OUTDIR}
-    ctest --test-dir ${OUTDIR} --parallel --output-on-failure
+    ctest --test-dir ${OUTDIR} --output-on-failure
     cmake -E remove_directory ${OUTDIR}
 
     # Run the Address Sanitizer.
     CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_ADDRESS_SANITIZER=ON -DCONFETTI_BUILD_EXAMPLES=OFF
     cmake --build ${OUTDIR}
-    ctest --test-dir ${OUTDIR} --parallel --output-on-failure
+    ctest --test-dir ${OUTDIR} --output-on-failure
     cmake -E remove_directory ${OUTDIR}
 
     # Run the Memory Sanitizer.
     CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_MEMORY_SANITIZER=ON -DCONFETTI_BUILD_EXAMPLES=OFF
     cmake --build ${OUTDIR}
-    ctest --test-dir ${OUTDIR} --parallel --output-on-failure
+    ctest --test-dir ${OUTDIR} --output-on-failure
     cmake -E remove_directory ${OUTDIR}
 else
     echo "Re-run with CC=Clang for UBSAN, ASAN, MSAN testing."
@@ -71,5 +71,5 @@ fi
 # Perform a release build to ensure no bugs were hiding in debug mode.
 cmake .. -B ${OUTDIR} -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_BUILD_EXAMPLES=OFF
 cmake --build ${OUTDIR}
-ctest --test-dir ${OUTDIR} --parallel --output-on-failure
+ctest --test-dir ${OUTDIR} --output-on-failure
 cmake -E remove_directory ${OUTDIR}
