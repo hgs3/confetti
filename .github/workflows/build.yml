@@ -9,7 +9,10 @@ jobs:
       matrix:
         platform:
         - { CC: gcc,   NAME: 'GCC'   }
-        - { CC: clang, NAME: 'Clang' }
+        # The Clang build is currently disabled due to a bug with ASAN,
+        # see: https://github.com/google/sanitizers/issues/856. This
+        # bug does not happen locally, just on the GitHub runner.
+        #- { CC: clang, NAME: 'Clang' }
     env:
       AUDITION_USER: ${{ secrets.AuditionUser }}
       AUDITION_KEY: ${{ secrets.AuditionKey }}
@@ -20,7 +23,7 @@ jobs:
         submodules: true
     - name: Install Dependencies
       run: |
-        curl -L -o audition.deb https://github.com/railgunlabs/audition/releases/download/v1.0.3/libaudition_1.0.3-1_amd64.deb
+        curl -L -o audition.deb https://github.com/railgunlabs/audition/releases/download/v1.0.5/libaudition_1.0.5-1_amd64.deb
         sudo dpkg -i audition.deb
         sudo apt-get install -y ninja-build
         sudo apt-get install -y lcov
@@ -53,7 +56,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Install dependencies
       run: |
-        Invoke-WebRequest -OutFile audition.msi -Uri https://github.com/railgunlabs/audition/releases/download/v1.0.3/Audition-1.0.3-x64.msi
+        Invoke-WebRequest -OutFile audition.msi -Uri https://github.com/railgunlabs/audition/releases/download/v1.0.5/Audition-1.0.5-x64.msi
         msiexec /i audition.msi /quiet /norestart
         echo "PATH=$env:PATH;$env:LOCALAPPDATA\Programs\Audition" | Out-File -FilePath $env:GITHUB_ENV -Append
     - name: Build and Test in Debug
