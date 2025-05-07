@@ -43,9 +43,9 @@ Browse many [more examples here](https://confetti.hgs3.me/examples/).
 * Unicode® conformant
 * Localization friendly
 
-## Building
+## Installation
 
-Download the [latest release](https://github.com/hgs3/confetti/releases/) and build with
+Download the [latest release tarball](https://github.com/hgs3/confetti/releases/) and build with
 
 ```
 $ ./configure
@@ -61,7 +61,13 @@ $ cmake --build build --config Release
 $ cmake --install build --config Release
 ```
 
-Code examples can be found in the [examples](examples/) directory.
+Code examples are available in the [examples](examples/) directory.
+
+## Local Development
+
+Install **Python 3.12** or newer and the [Audition testing framework](https://railgunlabs.com/audition/).
+Clone the repository with Git and use CMake for local development and testing.
+Review [tests/README.md](tests/README.md) for more details.
 
 ## Documentation
 

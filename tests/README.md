@@ -13,4 +13,5 @@ The canonical C implementation of Confetti is tested in the following ways:
 * Extensive use of assert() and run-time checks
 
 You can run the test suite by executing the `test.sh` shell script from this directory.
-Note that the test suite _does_ depend on [Audition](https://railgunlabs.com/audition/).
+This script is run by GitHub Actions and, to run all tests, requires [CMake](https://cmake.org/), the [Ninja](https://ninja-build.org/) build system, [Audition](https://railgunlabs.com/audition/), LCOV for Code Coverage, Valgrind, Clang, and GCC.
+You can preview how it is run and how the dependencies are installed, for Linux, by reviewing the [GitHub Actions workflow script](../.github/workflows/build.yml).

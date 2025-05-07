@@ -23,15 +23,14 @@ The contents of the `.pass` file are as follows:
 
 * Each argument of a directive is enclosed in angle brackets (< >).
 
-When you parse a valid Confetti file, your parser should output this format for direct comparison.
+When your tests parse a valid Confetti file, they can output this format for direct comparison.
 
 ## _Fail_ File Format
 
-The contents of the `.fail` file is a readable string describing why the Confetti input is invalid.
-When an error occurs, your parser should emit either the same message or a custom error message.
+The contents of the `.fail` file is a readable string describing _why_ the Confetti input is invalid.
 
 > [!CAUTION]
-> The error messages in the `.fail` file are used by the C implementation of Confetti and **may** change between releases.
+> The error message in the `.fail` file originates from the C implementation of Confetti and **may** change between releases. Keep this in mind **if** your implementation copies and compares against them.
 
 ## Example
 
