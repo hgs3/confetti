@@ -12,11 +12,11 @@
 // under identical terms. Please see LICENSE for details.
 
 = Confetti Specification
-Version 1.0-beta.4
+Version 1.0-rc.1
 :doctype: book
 :toc:
 
-This specification defines **version 1.0-beta.4** of Confetti.
+This specification defines **version 1.0-rc.1** of Confetti.
 
 NOTE: Confetti is stable.
 If you discover bugs in this specification, then please report them to the https://github.com/hgs3/confetti/issues[project's issue tracker].
