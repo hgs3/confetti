@@ -57,7 +57,8 @@ endif ()
 add_test(confetti tests_confetti)
 
 # Fuzz test the example exectuable programs.
-if (CONFETTI_BUILD_EXAMPLES)
+# These tests require a Unix shell.
+if (CONFETTI_BUILD_EXAMPLES AND UNIX)
     file(GLOB CONF_FILES "${CMAKE_CURRENT_SOURCE_DIR}/corpus/*.conf")
     foreach(FILE IN LISTS CONF_FILES)
         get_filename_component(FILE_BASENAME "${FILE}" NAME)
