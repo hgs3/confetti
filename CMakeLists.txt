@@ -22,6 +22,18 @@ write_basic_package_version_file(${CMAKE_BINARY_DIR}/ConfettiConfigVersion.cmake
 # Generate configuration for CMake's find package tools.
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/ConfettiConfig.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/ConfettiConfig.cmake" @ONLY)
 
+# Configure runtime analysis tools.
+if (CONFETTI_UNDEFINED_BEHAVIOR_SANITIZER)
+    add_compile_options(-g -fsanitize=undefined)
+    add_link_options(-fsanitize=undefined)
+elseif (CONFETTI_ADDRESS_SANITIZER)
+    add_compile_options(-g -fsanitize=address)
+    add_link_options(-fsanitize=address)
+elseif (CONFETTI_MEMORY_SANITIZER)
+    add_compile_options(-O0 -g -fsanitize=memory -fsanitize-memory-track-origins)
+    add_link_options(-fsanitize=memory -fsanitize-memory-track-origins)
+endif ()
+
 # Register the library.
 add_library(confetti STATIC confetti.c confetti_unidata.c confetti.h)
 set_target_properties(confetti PROPERTIES PUBLIC_HEADER confetti.h)

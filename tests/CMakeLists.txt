@@ -2,16 +2,7 @@ find_package(Audition REQUIRED)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/..) # For finding confetti.h
 
-if (CONFETTI_UNDEFINED_BEHAVIOR_SANITIZER)
-    target_compile_options(confetti PRIVATE -g -fsanitize=undefined)
-    add_link_options(-fsanitize=undefined)
-elseif (CONFETTI_ADDRESS_SANITIZER)
-    target_compile_options(confetti PRIVATE -g -fsanitize=address)
-    add_link_options(-fsanitize=address)
-elseif (CONFETTI_MEMORY_SANITIZER)
-    target_compile_options(confetti PRIVATE -O0 -g -fsanitize=memory -fsanitize-memory-track-origins)
-    add_link_options(-fsanitize=memory -fsanitize-memory-track-origins)
-elseif (CONFETTI_CODE_COVERAGE)
+if (CONFETTI_CODE_COVERAGE)
     if (NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
         message(FATAL_ERROR "Code coverage generation requires GCC.")
     endif ()
@@ -65,7 +56,17 @@ endif ()
 
 add_test(confetti tests_confetti)
 
-# Check if Clang is available as well as its fuzzer.
+# Fuzz test the example exectuable programs.
+if (CONFETTI_BUILD_EXAMPLES)
+    file(GLOB CONF_FILES "${CMAKE_CURRENT_SOURCE_DIR}/corpus/*.conf")
+    foreach(FILE IN LISTS CONF_FILES)
+        get_filename_component(FILE_BASENAME "${FILE}" NAME)
+        add_test(NAME ExampleParse_${FILE_BASENAME} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/check_example.sh $<TARGET_FILE:parse> ${FILE})
+        add_test(NAME ExampleWalk_${FILE_BASENAME} COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/check_example.sh $<TARGET_FILE:walk> ${FILE})
+    endforeach()
+endif ()
+
+# Check if the Clang fuzzer is available for fuzz testing the Confetti parser.
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
     include(CheckCSourceCompiles)
     set(CMAKE_REQUIRED_FLAGS -fsanitize=address,fuzzer)

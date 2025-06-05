@@ -69,6 +69,16 @@ char *readstdin(void)
         dynbuf_length += buffer_length;
     }
 
+    if (dynbuf == NULL)
+    {
+        dynbuf = malloc(sizeof(char));
+        if (dynbuf == NULL)
+        {
+            perror("malloc() failed");
+            exit(1);
+        }
+    }
+
     dynbuf[dynbuf_length] = '\0';
     return dynbuf;
 }

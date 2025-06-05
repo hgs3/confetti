@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
     if (error.code != CONF_NO_ERROR)
     {
         printf("error: %s\n", error.description);
+        free(input);
         return 1;
     }
 

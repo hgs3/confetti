@@ -84,6 +84,7 @@ int main(int argc, char *argv[])
     if (unit == NULL)
     {
         printf("error: %s\n", err.description);
+        free(input);
         return 1;
     }
 

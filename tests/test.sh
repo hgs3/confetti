@@ -37,7 +37,7 @@ fi
 # Perform a standard build with Valgrind analysis.
 # Valgrind generates the most detailed output when run against a debug build.
 if command -v valgrind &> /dev/null; then
-    cmake .. -B ${OUTDIR} -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_BUILD_EXAMPLES=OFF
+    cmake .. -B ${OUTDIR} -G "Ninja" -DCMAKE_BUILD_TYPE=Debug -DCONFETTI_BUILD_TESTS=ON
     cmake --build ${OUTDIR}
     ctest --test-dir ${OUTDIR} --output-on-failure -T memcheck
     cmake -E remove_directory ${OUTDIR}
@@ -48,19 +48,19 @@ fi
 # Clang sanitizers can only be run with Clang (duh).
 if command -v clang &> /dev/null; then
     # Run the Undefined Behavior Sanitizer.
-    CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_UNDEFINED_BEHAVIOR_SANITIZER=ON -DCONFETTI_BUILD_EXAMPLES=OFF
+    CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_UNDEFINED_BEHAVIOR_SANITIZER=ON
     cmake --build ${OUTDIR}
     ctest --test-dir ${OUTDIR} --output-on-failure
     cmake -E remove_directory ${OUTDIR}
 
     # Run the Address Sanitizer.
-    CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_ADDRESS_SANITIZER=ON -DCONFETTI_BUILD_EXAMPLES=OFF
+    CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_ADDRESS_SANITIZER=ON
     cmake --build ${OUTDIR}
     ctest --test-dir ${OUTDIR} --output-on-failure
     cmake -E remove_directory ${OUTDIR}
 
     # Run the Memory Sanitizer.
-    CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_MEMORY_SANITIZER=ON -DCONFETTI_BUILD_EXAMPLES=OFF
+    CC=clang cmake .. -B ${OUTDIR} -G "Ninja" -DCONFETTI_BUILD_TESTS=ON -DCONFETTI_MEMORY_SANITIZER=ON
     cmake --build ${OUTDIR}
     ctest --test-dir ${OUTDIR} --output-on-failure
     cmake -E remove_directory ${OUTDIR}
