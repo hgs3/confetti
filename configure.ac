@@ -1,6 +1,6 @@
 # Specify the project and version + the minimum automake version required.
 AC_PREREQ(2.66)
-AC_INIT([confetti], [1.0.0-rc.1])
+AC_INIT([confetti], [1.0.0-rc.2])
 
 # Sanity check to verify this is indeed the source directory.
 AC_CONFIG_SRCDIR([confetti_unidata.c])
