@@ -70,8 +70,10 @@ confetti.pc
 UnicodeData.txt
 PropList.txt
 
-# Generate files
+# Generated files
 confetti_unidata.c
+fuzz-state
+analyze
 
 # Static analysis
 cppcheck-*

@@ -51,18 +51,28 @@ char *readstdin(void)
         }
 
         const size_t buffer_length = (size_t)bytes_read;
-        if ((dynbuf_length + buffer_length) >= dynbuf_capacity)
+        const size_t new_capacity = dynbuf_length + buffer_length;
+
+        // Limit the input to 10 megabytes to avoid integer overflow elsewhere in the implementation.
+        // It's unlikely any hand-written configuration file would ever approach this size.
+        if (new_capacity >= 1024 * 1024 * 10)
         {
-            size_t newcap = dynbuf_length + buffer_length;
-            char *newbuf = realloc(dynbuf, newcap + 1); // +1 for the null byte
-            if (newbuf == NULL)
+            fprintf(stderr, "error: input too large\n");
+            free(dynbuf);
+            exit(1);
+        }
+
+        if (new_capacity >= dynbuf_capacity)
+        {
+            char *tmpbuf = realloc(dynbuf, new_capacity + 1); // +1 for the null byte
+            if (tmpbuf == NULL)
             {
                 perror("realloc() failed");
                 free(dynbuf);
                 exit(1);
             }
-            dynbuf = newbuf;
-            dynbuf_capacity = newcap;
+            dynbuf = tmpbuf;
+            dynbuf_capacity = new_capacity;
         }
 
         memcpy(&dynbuf[dynbuf_length], buffer, buffer_length);
