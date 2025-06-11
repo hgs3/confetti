@@ -72,8 +72,6 @@ PropList.txt
 
 # Generated files
 confetti_unidata.c
-fuzz-state
-analyze
 
 # Static analysis
 cppcheck-*
