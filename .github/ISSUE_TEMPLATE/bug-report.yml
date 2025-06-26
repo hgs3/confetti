@@ -8,7 +8,7 @@ body:
 
       If you're reporting a bug in the C implementation, then please include a minimal, but complete example that reproduces the issue.
 
-      Confetti is a passion project. If you need extensive support, then please reach out through my software company: https://railgunlabs.com/services/.
+      Confetti is a passion project and issues are triaged based on my personal availability. If you need immediate or ongoing support, then please purchase a support contract through my software company: https://railgunlabs.com/services/.
 
 - type: textarea
   id: suggestion
