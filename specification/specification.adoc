@@ -1,6 +1,6 @@
 // Confetti Specification
-// Copyright (c) 2025 Henry G. Stratmann III
-// Copyright (c) 2025 Confetti Contributors
+// Copyright (c) 2025-2026 Henry G. Stratmann III
+// Copyright (c) 2025-2026 Confetti Contributors
 
 // The Confetti Specification is published under the CC BY-SA 4.0 or
 // the Creative Commons Attribution-ShareAlike 4.0 International.

@@ -1,6 +1,6 @@
 ﻿/*
  * Confetti: a configuration language and parser library
- * Copyright (c) 2025 Confetti Contributors
+ * Copyright (c) 2025-2026 Confetti Contributors
  *
  * This file is part of Confetti, distributed under the MIT License
  * For full terms see the included LICENSE file.
