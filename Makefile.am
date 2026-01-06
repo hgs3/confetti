@@ -20,3 +20,6 @@ walk_SOURCES = examples/walk.c examples/_readstdin.c
 walk_CFLAGS = -I$(top_srcdir)
 walk_LDADD = libconfetti.la
 walk_DEPENDENCIES = libconfetti.la
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = confetti.pc
