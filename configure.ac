@@ -11,6 +11,7 @@ AM_INIT_AUTOMAKE([foreign])
 
 # Checks for programs.
 AC_PROG_CC
+AM_PROG_AR
 AC_PROG_CPP
 AC_PROG_INSTALL
 LT_INIT([win32-dll])
