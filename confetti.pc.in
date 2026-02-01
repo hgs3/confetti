@@ -3,7 +3,7 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: confetti
+Name: Confetti
 Description: Configuration file format.
 Version: @VERSION@
 URL: https://github.com/hgs3/confetti
