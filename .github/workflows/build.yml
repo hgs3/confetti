@@ -49,8 +49,8 @@ jobs:
     name: "Windows - Visual Studio"
     runs-on: windows-latest
     env:
-      AUDITION_USER: ${{ secrets.AUDITION_USER }}
-      AUDITION_KEY: ${{ secrets.AUDITION_KEY }}
+      AUDITION_USER: ${{ secrets.AuditionUser }}
+      AUDITION_KEY: ${{ secrets.AuditionKey }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
