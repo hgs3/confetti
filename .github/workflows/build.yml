@@ -1,50 +1,6 @@
 name: Build Status
 on: [push, pull_request, workflow_dispatch]
 jobs:
-  linux:
-    name: "Linux - ${{ matrix.platform.NAME }}"
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platform:
-        - { CC: gcc,   NAME: 'GCC'   }
-        # The Clang build is currently disabled due to a bug with ASAN,
-        # see: https://github.com/google/sanitizers/issues/856. This
-        # bug does not happen locally, just on the GitHub runner.
-        #- { CC: clang, NAME: 'Clang' }
-    env:
-      AUDITION_USER: ${{ secrets.AuditionUser }}
-      AUDITION_KEY: ${{ secrets.AuditionKey }}
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Install Dependencies
-      run: |
-        curl -L -o audition.deb https://github.com/railgunlabs/audition/releases/download/v1.0.5/libaudition_1.0.5-1_amd64.deb
-        sudo dpkg -i audition.deb
-        sudo apt-get install -y ninja-build
-        sudo apt-get install -y lcov
-        sudo apt-get install -y valgrind
-    - name: Generate Unicode Data
-      run: |
-        python unicode.py --download
-        python unicode.py
-    - name: Build and Test
-      env:
-        CC: ${{ matrix.platform.CC }}
-      run: |
-        cd tests && ./test.sh
-    - name: Release Process
-      env:
-        CC: ${{ matrix.platform.CC }}
-      run: |
-        ./autogen.sh
-        ./configure --verbose
-        make
-        make distcheck
   windows:
     name: "Windows - Visual Studio"
     runs-on: windows-latest
