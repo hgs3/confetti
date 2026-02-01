@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /*
  * Confetti: a configuration language and parser library
  * Copyright (c) 2025-2026 Confetti Contributors
