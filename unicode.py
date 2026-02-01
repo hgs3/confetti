@@ -18,7 +18,7 @@ import os
 import sys
 import csv
 import argparse
-from urllib.request import urlretrieve
+from urllib.request import Request, urlopen
 
 # Flag(s) assigned to the relevent Unicode character.
 IS_FORBIDDEN = 0x1
@@ -206,7 +206,15 @@ def download_unicode_database() -> None:
         if not download_file.endswith(".txt"):
             download_file += ".txt"
         print("downloading", url)
-        urlretrieve(url, download_file)
+        req = Request(
+            url,
+            headers={
+                "User-Agent": "Mozilla/5.0",
+                "Accept": "text/plain,*/*",
+            }
+        )
+        with urlopen(req) as response, open(download_file, "wb") as out:
+            out.write(response.read())
 
 if __name__ == "__main__":
     class Args(argparse.Namespace):
